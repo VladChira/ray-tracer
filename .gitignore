@@ -1,0 +1,38 @@
+# Ignore build directory
+build/
+
+# Ignore CMake build files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+Makefile
+CTestTestfile.cmake
+
+# Ignore generated executables and libraries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignore object files and static libraries
+*.o
+*.a
+
+# Ignore IDE specific files
+.vscode/
+.idea/
+*.sln
+*.vcxproj
+*.xcodeproj
+*.cbp
+*.workspace
+*.suo
+*.user
+*.user.*
+*.cproject
+*.project
+*.settings/
+*.swp
+*.png
+*~
