@@ -34,5 +34,4 @@ CTestTestfile.cmake
 *.project
 *.settings/
 *.swp
-*.png
 *~
