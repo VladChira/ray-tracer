@@ -216,30 +216,6 @@ Point2 Sampler::sample_unit_square() {
     return samples[index];
 }
 
-/*
-
-// the first revised version in Listing in Listing 5.8
-
-Point2D
-Sampler::sample_unit_square() {
-    if (count % num_samples == 0)                                   // start of a new pixel
-        jump = (rand_int() % num_sets) * num_samples;               // random index jump initialised to zero in constructor
-
-    return samples[jump + count++ % num_samples];
-}
-
-*/
-
-
-
-// the original version in Listing 5.7
-
-// Point2 Sampler::sample_unit_square() {
-//     return samples[count++ % (num_samples * num_sets)];
-// }
-
-
-
 Point2 Sampler::sample_unit_disk() {
     if (count % num_samples == 0) {  // start of a new pixel
         jump = (random_uint() % num_sets) * num_samples;

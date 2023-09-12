@@ -34,8 +34,9 @@ include_directories(
     ./src/core
     ./src/core/objects
     ./src/core/samplers
-    ./src/core/tracers
     ./src/core/cameras
+    ./src/core/materials
+    ./src/core/BRDFs
     ./src/math
     ./src/wrappers
     ./src/gui

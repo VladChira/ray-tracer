@@ -69,17 +69,8 @@ namespace raytracer
 
         uint8_t *to_bytes()
         {
-            uint8_t *image_bytes = (uint8_t *)calloc(this->width * this->height * 3, sizeof(uint8_t));
-            int length = 0;
-            for (int i = 0; i < this->height; i++)
-                for (int j = 0; j < this->width; j++)
-                {
-                    raytracer::Color3 pixel_color = this->at(i, j);
-                    image_bytes[length++] = (uint8_t)pixel_color.x;
-                    image_bytes[length++] = (uint8_t)pixel_color.y;
-                    image_bytes[length++] = (uint8_t)pixel_color.z;
-                }
-            return image_bytes;
+            size_t l = 0;
+            return to_bytes(l);
         }
 
         void apply_gamma_correction(double gamma)

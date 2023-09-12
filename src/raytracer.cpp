@@ -11,16 +11,18 @@
 #include "renderview.h"
 #include "pure_random.h"
 #include "thinlens.h"
+#include "matte.h"
+#include "material.h"
 
-raytracer::Color3 ray_color(const raytracer::Ray &r, const raytracer::HittableList &world, raytracer::Sampler *sampler, int depth)
+raytracer::Color3 trace_ray(const raytracer::Ray &r, const raytracer::HittableList &world, raytracer::Sampler *sampler, int depth)
 {
     if (depth <= 0)
         return raytracer::Color3(0, 0, 0);
-    raytracer::hit_info rec;
+    raytracer::HitInfo rec;
     if (world.hit(r, 0.001, infinity, rec))
     {
         raytracer::Point3 target = rec.p + rec.normal + sampler->sample_sphere();
-        return 0.5 * ray_color(raytracer::Ray(rec.p, target - rec.p), world, sampler, depth - 1);
+        return 0.5 * trace_ray(raytracer::Ray(rec.p, target - rec.p), world, sampler, depth - 1);
     }
 
     raytracer::Vector3 unit_direction = raytracer::Normalize(r.direction);
@@ -32,19 +34,23 @@ void render()
 {
     // Image
     const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 850;
+    const int image_width = 1300;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
     const int samples_per_pixel = 10;
     const int max_depth = 20;
     raytracer::BufferedImage *image = new raytracer::BufferedImage(image_width, image_height);
 
     // World
+    auto material_ground = std::make_shared<raytracer::Matte>(1.0, raytracer::Color3(0.8, 0.8, 0.0));
+    auto material_center = std::make_shared<raytracer::Matte>(1.0, raytracer::Color3(0.7, 0.3, 0.3));
+    // auto material_left = make_shared<metal>(color(0.8, 0.8, 0.8));
+    // auto material_right = make_shared<metal>(color(0.8, 0.6, 0.2));
+
     raytracer::HittableList world;
-    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(0.0, -100.5, -1.0), 100.0));
-    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(0.0, 0.0, -1.0), 0.5));
-    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(-1.0, 0.0, -1.0), 0.5));
-    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(-1.0, 0.0, -1.0), -0.45));
-    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(1.0, 0.0, -1.0), 0.5));
+    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(0.0, -100.5, -1.0), 100.0, material_ground));
+    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(0.0, 0.0, -1.0), 0.5, material_center));
+    // world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, material_left));
+    // world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
 
     // Camera
     raytracer::Pinhole *camera = new raytracer::Pinhole(raytracer::Vector3(0, 0, 0), raytracer::Vector3(0, 0, -1));
@@ -58,7 +64,7 @@ void render()
     timer.start();
 
     int x = 0, y = 0;
-    for (int j = image_height - 1; j >=0; --j)
+    for (int j = image_height - 1; j >= 0; --j)
     {
         y = 0;
         for (int i = 0; i < image_width; ++i)
@@ -70,7 +76,7 @@ void render()
                 auto u = i - 0.5 * image_width + p.x;
                 auto v = j - 0.5 * image_height + p.y;
                 raytracer::Ray r = camera->get_ray(raytracer::Point2(u, v));
-                pixel_color += ray_color(r, world, sampler, max_depth);
+                pixel_color += trace_ray(r, world, sampler, max_depth);
             }
             image->at(x, y) = pixel_color / samples_per_pixel * 255.0;
             y++;

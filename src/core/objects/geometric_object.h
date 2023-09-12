@@ -1,14 +1,17 @@
 #pragma once
 #include "maths.h"
 #include "ray.h"
+#include "material.h"
+#include <memory>
 
 namespace raytracer
 {
-    struct hit_info
+    struct HitInfo
     {
         raytracer::Point3 p;
         raytracer::Normal3 normal;
         double t;
+        std::shared_ptr<raytracer::Material> material;
 
         bool front_face;
 
@@ -22,6 +25,6 @@ namespace raytracer
     class GeometricObject
     {
     public:
-        virtual bool hit(const raytracer::Ray &r, double t_min, double t_max, hit_info &rec) const = 0;
+        virtual bool hit(const raytracer::Ray &r, double t_min, double t_max, HitInfo &rec) const = 0;
     };
 }

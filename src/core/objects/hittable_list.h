@@ -15,15 +15,15 @@ namespace raytracer
         void add(std::shared_ptr<raytracer::GeometricObject> object) { objects.push_back(object); }
 
         virtual bool hit(
-            const raytracer::Ray &r, double t_min, double t_max, raytracer::hit_info &rec) const override;
+            const raytracer::Ray &r, double t_min, double t_max, raytracer::HitInfo &rec) const override;
 
     public:
         std::vector<std::shared_ptr<raytracer::GeometricObject>> objects;
     };
 
-    bool HittableList::hit(const raytracer::Ray &r, double t_min, double t_max, raytracer::hit_info &rec) const
+    bool HittableList::hit(const raytracer::Ray &r, double t_min, double t_max, raytracer::HitInfo &rec) const
     {
-        raytracer::hit_info temp_rec;
+        raytracer::HitInfo temp_rec;
         bool hit_anything = false;
         auto closest_so_far = t_max;
 

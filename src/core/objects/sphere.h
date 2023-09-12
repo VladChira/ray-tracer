@@ -9,6 +9,7 @@ namespace raytracer
     public:
         raytracer::Point3 center;
         double radius;
+        std::shared_ptr<raytracer::Material> material;
 
         Sphere()
         {
@@ -16,13 +17,14 @@ namespace raytracer
             radius = 0;
         }
 
-        Sphere(const raytracer::Vector3 &c, double r)
+        Sphere(const raytracer::Vector3 &c, double r, std::shared_ptr<raytracer::Material> mat)
         {
             this->center = c;
             this->radius = r;
+            this->material = mat;
         }
 
-        bool hit(const raytracer::Ray &r, double t_min, double t_max, hit_info &rec) const
+        bool hit(const raytracer::Ray &r, double t_min, double t_max, HitInfo &rec) const
         {
             raytracer::Vector3 oc = r.origin - center;
             auto a = r.direction.LengthSquared();
@@ -45,6 +47,7 @@ namespace raytracer
             rec.t = root;
             rec.p = r.at(rec.t);
             rec.normal = (rec.p - center) / radius;
+            rec.material = this->material;
 
             raytracer::Normal3 outward_normal = (rec.p - center) / radius;
             rec.set_face_normal(r, outward_normal);

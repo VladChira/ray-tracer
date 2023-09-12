@@ -217,7 +217,7 @@ public:
         {
             if (ImGui::BeginMenuBar())
             {
-                ImGui::Text("Bad Ray Tracer");
+                ImGui::Text("Ray Tracer");
                 ImGui::EndMenuBar();
             }
         }
