@@ -22,6 +22,8 @@ namespace raytracer
 
         raytracer::Vector3 ray_direction(const raytracer::Point2 &pixel_point, const raytracer::Point2 &lens_point = raytracer::Point2(0, 0)) const;
 
+        raytracer::Ray get_ray(const raytracer::Point2 &pixel_point) const;
+
     private:
         float lens_radius;
         float f; // Focal plane distance

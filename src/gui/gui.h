@@ -199,7 +199,11 @@ public:
                 instance->init = false;
             }
             if (instance->display_render)
+            {
+                RenderView::GetInstance()->update_framebuffer();
                 ImGui::Image((void *)(intptr_t)instance->texture_id, ImVec2(instance->width, instance->height));
+            }
+
         }
         ImGui::End();
 

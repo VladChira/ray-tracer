@@ -2,7 +2,7 @@
 #include "material.h"
 #include "lambertian.h"
 #include "geometric_object.h"
-#include "multijittered.h"
+#include "pure_random.h"
 namespace raytracer
 {
     /**
@@ -19,7 +19,8 @@ namespace raytracer
     public:
         Matte()
         {
-            sampler = new MultiJittered(10);
+            sampler = new PureRandom(10);
+            sampler->map_samples_to_sphere();
         }
 
         ~Matte()
@@ -30,18 +31,35 @@ namespace raytracer
         Matte(LambertianBRDF l)
         {
             diffuse_brdf = l;
-            sampler = new MultiJittered(10);
+            sampler = new PureRandom(10);
+            sampler->map_samples_to_sphere();
         }
 
-        Matte(double reflectance_coeff, Color3 color)
+        Matte(double kd, Color3 cd)
         {
-            this->diffuse_brdf.set_kd(reflectance_coeff);
-            this->diffuse_brdf.set_cd(color);
+            this->diffuse_brdf.set_kd(kd);
+            this->diffuse_brdf.set_cd(cd);
+            sampler = new PureRandom(10);
+            sampler->map_samples_to_sphere();
         }
 
-        bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color3 &attenuation, raytracer::Ray &scattered)
+        virtual bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color3 &attenuation, raytracer::Ray &scattered) const override
         {
+            auto scatter_direction = rec.normal + sampler->sample_sphere();
+            if(NearZero(scatter_direction))
+            {
+                scatter_direction = rec.normal;
+            }
+            scattered = raytracer::Ray(rec.p, scatter_direction);
+            attenuation = this->diffuse_brdf.cd * this->diffuse_brdf.kd;
             return true;
+        }
+
+        void set_sampler(Sampler *s)
+        {
+            delete sampler;
+            this->sampler = sampler;
+            sampler->map_samples_to_sphere();
         }
     };
 }

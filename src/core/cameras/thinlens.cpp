@@ -64,3 +64,10 @@ Vector3 ThinLens::ray_direction(const Point2 &pixel_point, const Point2 &lens_po
 
     return dir;
 }
+
+Ray ThinLens::get_ray(const Point2& pixel_point) const {
+    Point2 dp = this->sampler_ptr->sample_unit_disk();
+    Point2 lp = dp * this->lens_radius;
+    Vector3 dir = ray_direction(pixel_point, lp);
+    return Ray(eye, dir);
+}

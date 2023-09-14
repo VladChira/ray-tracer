@@ -11,9 +11,7 @@ private:
     static std::mutex singleton_mutex;
 
 protected:
-    RenderView()
-    {
-    }
+    RenderView() {}
     ~RenderView() {}
 
 public:
@@ -38,6 +36,8 @@ public:
     {
         width = w;
         height = h;
+        pixel_data = (uint8_t *)calloc(width * height * 3, sizeof(uint8_t));
+        init = true;
     }
 
     void create_framebuffer()
@@ -59,6 +59,13 @@ public:
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    }
+
+    void update_framebuffer()
+    {
+        glBindTexture(GL_TEXTURE_2D, texture_id);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixel_data);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 };
 

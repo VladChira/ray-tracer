@@ -210,4 +210,19 @@ namespace raytracer
             *v2 = Vector3(0, v1.z, -v1.y) / std::sqrt(v1.y * v1.y + v1.z * v1.z);
         *v3 = Cross(v1, *v2);
     }
+
+    inline bool NearZero(const Vector3 &v)
+    {
+        // Return true if the vector is close to zero in all dimensions.
+        auto eps = 1e-8;
+        return (fabs(v.x) < eps) && (fabs(v.y) < eps) && (fabs(v.z) < eps);
+    }
+
+    /*
+        Returns the element-wise product of the two vectors
+    */
+    inline Vector3 Hadamard(const Vector3 &v1, const Vector3 &v2)
+    {
+        return Vector3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+    }
 }

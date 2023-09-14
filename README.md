@@ -1,6 +1,6 @@
 # Ray Tracer
 
-<p align="center"><img src="./images/demo.png" width="800"/></p>
+<p align="center"><img src="./images/demo.png" width="900"/></p>
 <p align="center">Sample Render</p>
 
 A very simple WIP hobby CPU ray tracer with minimal UI elements.   
@@ -8,7 +8,7 @@ A very simple WIP hobby CPU ray tracer with minimal UI elements.
 Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*, *PBRT* 
 
 ## Features (WIP)
-- Multiple tracers: Brute force Path Tracing, Whitted Ray Tracing
+- Multiple tracers: Ray Cast, Whitted Ray Tracing, Brute force Path Tracing
 - Material support: Matte, Phong, Emmisive, Specular
 
 ## External dependencies

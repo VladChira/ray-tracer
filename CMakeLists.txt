@@ -40,6 +40,7 @@ include_directories(
     ./src/math
     ./src/wrappers
     ./src/gui
+    ./src/core/tracers
     )
     
 
