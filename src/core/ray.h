@@ -12,9 +12,9 @@ namespace raytracer
 
         Ray()
         {
-             this->tMax = infinity;
-             this->origin = Vector3(0.0, 0.0, 0.0);
-             this->direction = Vector3(0.0, 0.0, 1.0);
+            this->tMax = infinity;
+            this->origin = Vector3(0.0, 0.0, 0.0);
+            this->direction = Vector3(0.0, 0.0, 1.0);
         }
 
         Ray(const Vector3 &o, const Vector3 &d)
@@ -30,4 +30,10 @@ namespace raytracer
             return origin + t * direction;
         }
     };
+
+    inline std::ostream &operator<<(std::ostream &os, const Ray &r)
+    {
+        os << r.origin << "    " << r.direction;
+        return os;
+    }
 }

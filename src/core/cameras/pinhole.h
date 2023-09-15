@@ -11,21 +11,20 @@ namespace raytracer
         Pinhole(raytracer::Point3 eye_p = raytracer::Point3(0, 0, 1), raytracer::Point3 lookat = raytracer::Point3(0, 0, -1));
 
         void set_view_distance(const double dist);
-        float get_distance_from_vp() const;
+        double get_view_distance() const;
 
-        void set_zoom(const double zoom);
-        float get_zoom() const;
+        void set_fov(const double fov_deg);
+        double get_fov() const;
+
+        double get_pixel_size() const;
 
         raytracer::Ray get_ray(const raytracer::Point2 &pixel_point) const;
 
-        void initialize(double aspect_ratio, double image_width);
+        void compute_pixel_size(double image_width, double image_height);
 
     protected:
-        double d;    // Distance from view-plane
-        double zoom; // Zoom factor
-
-    public:
-        double image_width, image_height;
-        Point3 center, pixel_delta_u, pixel_delta_v, pixel00_loc;
+        double d;          // Distance from view-plane
+        double fov;        // The field of view of the camera
+        double pixel_size; // The size of a single pixel
     };
 }

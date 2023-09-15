@@ -18,7 +18,7 @@ void Camera::compute_uvw()
     w = Normalize(eye - look_at);
     u = Normalize(Cross(up, w));
     v = Cross(w, u);
-    // std::cout<< u << "    " << v << "    " << w << "\n"; 
+    // std::cout << u << "     " << v << "    " << "    " << w << "\n";
 }
 
 void Camera::set_eye(const Point3 eye_p)
