@@ -1,9 +1,11 @@
 #pragma once
 #include <mutex>
-#include "console.h"
-#include "gui.h"
 #include <iostream>
 #include <string.h>
+#include "console.h"
+#include "gui.h"
+#include "buffered_image.h"
+
 class RenderView
 {
 private:
@@ -19,8 +21,7 @@ public:
     GLuint texture_id; // the texture id we'll need later to create a texture
                        // out of our framebuffer
 
-    int width, height;
-    uint8_t *pixel_data;
+    raytracer::BufferedImage *image;
 
     bool init = false;
     bool display_render = false;
@@ -34,10 +35,13 @@ public:
 
     void set_size(int w, int h)
     {
-        width = w;
-        height = h;
-        pixel_data = (uint8_t *)calloc(width * height * 3, sizeof(uint8_t));
+        image = new raytracer::BufferedImage(w, h);
         init = true;
+    }
+
+    void set_pixel_color(unsigned int x, unsigned int y, raytracer::Color3 color)
+    {
+        (*image).set(x, y, color);
     }
 
     void create_framebuffer()
@@ -48,7 +52,7 @@ public:
         glGenTextures(1, &texture_id);
         glBindTexture(GL_TEXTURE_2D, texture_id);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixel_data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->get_width(), image->get_height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image->bytes());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_id, 0);
@@ -64,7 +68,7 @@ public:
     void update_framebuffer()
     {
         glBindTexture(GL_TEXTURE_2D, texture_id);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixel_data);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image->get_width(), image->get_height(), GL_RGB, GL_UNSIGNED_BYTE, image->bytes());
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 };
@@ -84,6 +88,7 @@ RenderView *RenderView::GetInstance()
 
 void RenderView::DestroyInstance()
 {
+    delete render_view_instance->image;
     delete render_view_instance;
     render_view_instance = NULL;
 }

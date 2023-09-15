@@ -7,32 +7,29 @@ namespace raytracer
     class BufferedImage
     {
     private:
-        std::vector<std::vector<raytracer::Vector3>> image_data;
+        uint8_t *image_data = NULL;
         unsigned int width;
         unsigned int height;
 
     public:
-        BufferedImage(int width = 0, int height = 0)
-            : width(width), height(height)
+        BufferedImage(unsigned int w, unsigned int h)
         {
-            image_data.resize(height, std::vector<raytracer::Vector3>(width));
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
-                    image_data[i][j] = raytracer::Vector3(0, 0, 0);
+            this->width = w;
+            this->height = h;
+            image_data = new uint8_t[w * h * 3]();
         }
 
-        BufferedImage(unsigned char *bytes, unsigned int width, unsigned int height)
+        ~BufferedImage()
+        {
+            delete[] image_data;
+        }
+
+        BufferedImage(u_int8_t *bytes, unsigned int width, unsigned int height)
         {
             this->width = width;
             this->height = height;
-            int k = 0;
-            image_data.resize(height, std::vector<raytracer::Vector3>(width));
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
-                {
-                    image_data[i][j] = raytracer::Vector3(bytes[k], bytes[k + 1], bytes[k + 2]);
-                    k += 3;
-                }
+            delete[] image_data;
+            image_data = bytes;
         }
 
         unsigned int get_width() const
@@ -45,32 +42,38 @@ namespace raytracer
             return height;
         }
 
-        raytracer::Color3 &at(int x, int y)
+        raytracer::Color3 get(unsigned int x, unsigned int y)
         {
-            assert(x >= 0 && x <= this->height && y >= 0 && y <= this->width);
-            return image_data[x][y];
+            assert(x >= 0 && x < this->height && y >= 0 && y < this->width);
+
+            size_t position = (x * width + y) * 3;
+            raytracer::Color3 color;
+            color.x = image_data[position];
+            color.y = image_data[position + 1];
+            color.z = image_data[position + 2];
+            return color;
+        }
+
+        void set(unsigned int x, unsigned int y, raytracer::Color3 color)
+        {
+            assert(x >= 0 && x < this->height && y >= 0 && y < this->width);
+
+            size_t position = (x * width + y) * 3;
+            image_data[position] = (uint8_t)color.x;
+            image_data[position + 1] = (uint8_t)color.y;
+            image_data[position + 2] = (uint8_t)color.z;
         }
 
         /* Returns the byte array [0, 255] of the 8-bit image */
-        uint8_t *to_bytes(size_t &length)
+        uint8_t *bytes(size_t &length)
         {
-            uint8_t *image_bytes = (uint8_t *)calloc(this->width * this->height * 3, sizeof(uint8_t));
-            length = 0;
-            for (int i = 0; i < this->height; i++)
-                for (int j = 0; j < this->width; j++)
-                {
-                    raytracer::Color3 pixel_color = this->at(i, j);
-                    image_bytes[length++] = (uint8_t)pixel_color.x;
-                    image_bytes[length++] = (uint8_t)pixel_color.y;
-                    image_bytes[length++] = (uint8_t)pixel_color.z;
-                }
-            return image_bytes;
+            length = 3 * this->width * this->height;
+            return this->image_data;
         }
 
-        uint8_t *to_bytes()
+        uint8_t *bytes()
         {
-            size_t l = 0;
-            return to_bytes(l);
+            return this->image_data;
         }
 
         void apply_gamma_correction(double gamma)
@@ -78,10 +81,11 @@ namespace raytracer
             for (int i = 0; i < this->height; i++)
                 for (int j = 0; j < this->width; j++)
                 {
-                    raytracer::Color3 &pixel_color = this->at(i, j);
+                    raytracer::Color3 pixel_color = this->get(i, j);
                     pixel_color.x = clip(pow(pixel_color.x / 255, 1 / gamma) * 255, 0.0, 255.0);
                     pixel_color.y = clip(pow(pixel_color.y / 255, 1 / gamma) * 255, 0.0, 255.0);
                     pixel_color.z = clip(pow(pixel_color.z / 255, 1 / gamma) * 255, 0.0, 255.0);
+                    this->set(i, j, pixel_color);
                 }
         }
     };
@@ -93,7 +97,7 @@ void save_to_ppm(raytracer::BufferedImage img, FILE *file)
     for (int i = 0; i < img.get_height(); i++)
         for (int j = 0; j < img.get_width(); j++)
         {
-            raytracer::Vector3 pixel_color = img.at(i, j);
+            raytracer::Color3 pixel_color = img.get(i, j);
             fprintf(file, "%hhu %hhu %hhu\n", (uint8_t)pixel_color.x, (uint8_t)pixel_color.y, (uint8_t)pixel_color.z);
         }
     Console::GetInstance()->appendLine("PPM image exported succesfully");
@@ -115,7 +119,7 @@ raytracer::BufferedImage uv_test_image(int size)
             uint8_t ig = static_cast<uint8_t>(256.0 * g);
             uint8_t ib = static_cast<uint8_t>(256.0 * b);
 
-            image.at(i, j) = raytracer::Vector3(ir, ig, ib);
+            image.set(i, j, raytracer::Color3(ir, ig, ib));
         }
     }
     return image;
@@ -177,7 +181,7 @@ int save_image_png(raytracer::BufferedImage &image, FILE *output_file)
     uint32_t height = image.get_height();
 
     size_t length = 0;
-    uint8_t *image_data = image.to_bytes(length);
+    uint8_t *image_data = image.bytes(length);
     int result = save_bytes_to_png(image_data, length, width, height, output_file);
 
     if (result != 0)

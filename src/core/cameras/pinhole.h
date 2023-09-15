@@ -18,8 +18,14 @@ namespace raytracer
 
         raytracer::Ray get_ray(const raytracer::Point2 &pixel_point) const;
 
+        void initialize(double aspect_ratio, double image_width);
+
     protected:
         double d;    // Distance from view-plane
         double zoom; // Zoom factor
+
+    public:
+        double image_width, image_height;
+        Point3 center, pixel_delta_u, pixel_delta_v, pixel00_loc;
     };
 }
