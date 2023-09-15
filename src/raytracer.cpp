@@ -19,29 +19,27 @@ void render()
 {
     // Image
     const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 1000;
+    const int image_width = 1300;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 20;
-    const int max_depth = 10;
+    const int samples_per_pixel = 100;
+    const int max_depth = 30;
 
     // World
-    std::shared_ptr<raytracer::Material> material_ground = std::make_shared<raytracer::Matte>(1.0, raytracer::Color3(0.8, 0.8, 0.0));
-    std::shared_ptr<raytracer::Material> material1 = std::make_shared<raytracer::Matte>(1.0, raytracer::Color3(0.7, 0.3, 0.3));
-    std::shared_ptr<raytracer::Material> material2 = std::make_shared<raytracer::Matte>(1.0, raytracer::Color3(0.098, 0.3529, 0.69));
-
     raytracer::HittableList world;
-    
-    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(0.0, -190.5, -1.0), 190.0, material_ground));
-    // world.add(std::make_shared<raytracer::Plane>(raytracer::Point3(0.0, -0.4, 0), raytracer::Normal3(0.0, 1.0, 0.0), material_ground));
-    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(-1.0, 0.0, -1.8), 0.5, material1));
-    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(1.5, 0.0, -0.4), 0.5, material2));
+
+    auto material_ground = std::make_shared<raytracer::Reflective>(0.8, raytracer::Color3(201.0 / 255, 52.0 / 255, 32 / 255), 0.05);
+    auto material_center = std::make_shared<raytracer::Matte>(0.8, raytracer::Color3(0.7, 0.3, 0.3));
+    auto material_left   = std::make_shared<raytracer::Reflective>(0.8, raytracer::Color3(0.8, 0.8, 0.8), 0);
+    auto material_right  = std::make_shared<raytracer::Reflective>(0.8, raytracer::Color3(0.8, 0.6, 0.2), 0);
+
+    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3( 0.0, -100.5, -1.0), 100.0, material_ground));
+    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3( 0.0,    0.0, -1.0),   0.5, material_center));
+    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(-1.0,    0.0, -1.0),   0.5, material_left));
+    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3( 1.0,    0.0, -1.0),   0.5, material_right));
 
     // Camera
-    auto *camera = new raytracer::Pinhole(raytracer::Vector3(0, 0.8, -7), raytracer::Vector3(0, 0, 0));
-    // camera->set_view_distance(1);
+    auto *camera = new raytracer::Pinhole(raytracer::Vector3(0, 0.8, -5), raytracer::Vector3(0, 0, 0));
     camera->set_fov(30);
-    // camera->set_focal_dist(2000);
-    // camera->set_lens_radius(5);
     camera->compute_pixel_size(image_width, image_height);
     camera->compute_uvw();
 
@@ -73,8 +71,6 @@ void render()
                 auto v = pixel_size * (i - 0.5 * image_height + p.y);
                 raytracer::Ray r = camera->get_ray(raytracer::Point2(u, v));
 
-                // std::cout << pixel_size << "    u: " << u << " v: " << v << "   ray:  " << r << "\n";
-
                 pixel_color += tracer->trace_ray(r, world, max_depth);
             }
             pixel_color = pixel_color / samples_per_pixel * 255;
@@ -84,6 +80,8 @@ void render()
     timer.stop();
     std::cout << "Elapsed time: " << timer.elapsed_time_seconds() << " seconds \n";
     Console::GetInstance()->appendLine("")->appendLine("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
+
+    RenderView::GetInstance()->image->apply_gamma_correction(2);
 
     // FILE *output_file = fopen("../output.png", "wb");
     // save_image_png(*(RenderView::GetInstance()->image), output_file);

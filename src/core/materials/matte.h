@@ -31,19 +31,26 @@ namespace raytracer
         Matte(LambertianBRDF l)
         {
             diffuse_brdf = l;
-            sampler = new PureRandom(10);
-            sampler->map_samples_to_sphere();
+            if (sampler == NULL)
+            {
+                sampler = new PureRandom(10);
+                sampler->map_samples_to_sphere();
+            }
         }
 
         Matte(double kd, Color3 cd)
         {
             this->diffuse_brdf.set_kd(kd);
             this->diffuse_brdf.set_cd(cd);
-            sampler = new PureRandom(10);
-            sampler->map_samples_to_sphere();
+            if (sampler == NULL)
+            {
+                sampler = new PureRandom(10);
+                sampler->map_samples_to_sphere();
+            }
+
         }
 
-        virtual bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color3 &attenuation, raytracer::Ray &scattered) const override
+        bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color3 &attenuation, raytracer::Ray &scattered) const override
         {
             auto scatter_direction = rec.normal + sampler->sample_sphere();
             if(NearZero(scatter_direction))
@@ -61,5 +68,11 @@ namespace raytracer
             this->sampler = sampler;
             sampler->map_samples_to_sphere();
         }
+
+        // Color3 shade(const raytracer::Ray &r_in, const HitInfo &rec)
+        // {
+            
+        // }
+        
     };
 }

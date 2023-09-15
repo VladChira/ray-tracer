@@ -1,28 +1,23 @@
-#pragma once
 #include "BRDF.h"
-#include "maths.h"
+
 namespace raytracer
 {
-    /**
-     * The simplest BRDF is the Lambertian BRDF. It represents perfect diffuse reflection.
-     * Light is scattered equally in all directions (see 13.8 in RTFGO).
-     */
-    class LambertianBRDF : public BRDF
+    class PerfectSpecular : public BRDF
     {
     public:
-        double kd;
-        Color3 cd;
+        double kr;
+        Color3 cr;
 
     public:
-        LambertianBRDF()
+        PerfectSpecular()
         {
-            kd = 1;
-            cd = Color3(0,0,0);
+            kr = 1;
+            cr = Color3(0, 0, 0);
         }
 
         Color3 f(const HitInfo &hi, const Vector3 &wi, const Vector3 &wo) const override
         {
-            return cd * kd * inv_pi;
+            return Color3(0, 0, 0);
         }
 
         Color3 sample_f(const HitInfo &hi, Vector3 &wi, const Vector3 &wo) const override
@@ -37,18 +32,17 @@ namespace raytracer
 
         Color3 rho(const HitInfo &hi, const Vector3 &wo) const override
         {
-            return cd * kd;
+            return Color3(0, 0, 0);
         }
 
-        void set_kd(double _kd)
+        void set_kr(double _kr)
         {
-            kd = _kd;
+            kr = _kr;
         }
 
-        void set_cd(Color3 c)
+        void set_cr(Color3 c)
         {
-            cd = c;
+            cr = c;
         }
     };
 }
-
