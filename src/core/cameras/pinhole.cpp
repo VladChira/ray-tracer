@@ -34,7 +34,7 @@ double Pinhole::get_pixel_size() const
 
 raytracer::Ray Pinhole::get_ray(const Point2 &pixel_point) const
 {
-    Vector3 dir = Normalize(pixel_point.x * u + pixel_point.y * v - d*w);
+    Vector3 dir = Normalize(pixel_point.x * u + pixel_point.y * v - w);
     return raytracer::Ray(eye, dir);
 }
 

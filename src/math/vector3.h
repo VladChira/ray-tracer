@@ -141,6 +141,14 @@ namespace raytracer
         return v * s;
     }
 
+    /*
+        Returns the element-wise product
+    */
+    inline Vector3 operator*(const Vector3 &v1, const Vector3 &v2)
+    {
+        return Vector3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+    }
+
     inline Vector3 Abs(const Vector3 &v)
     {
         return Vector3(std::abs(v.x), std::abs(v.y), std::abs(v.z));
@@ -218,16 +226,16 @@ namespace raytracer
         return (fabs(v.x) < eps) && (fabs(v.y) < eps) && (fabs(v.z) < eps);
     }
 
-    /*
-        Returns the element-wise product of the two vectors
-    */
-    inline Vector3 Hadamard(const Vector3 &v1, const Vector3 &v2)
-    {
-        return Vector3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
-    }
-
     inline Vector3 Reflect(const Vector3 &v, const Normal3 &n)
     {
         return v - 2 * Dot(v, n) * n;
+    }
+
+    inline Vector3 Refract(const Vector3 &uv, const Vector3 &n, double etai_over_etat)
+    {
+        double cos_theta = fmin(Dot(-uv, n), 1.0);
+        Vector3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
+        Vector3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.LengthSquared())) * n;
+        return r_out_perp + r_out_parallel;
     }
 }

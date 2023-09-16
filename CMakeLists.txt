@@ -41,6 +41,7 @@ include_directories(
     ./src/wrappers
     ./src/gui
     ./src/core/tracers
+    ./src/core/lights
     )
     
 

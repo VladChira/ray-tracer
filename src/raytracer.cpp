@@ -27,12 +27,14 @@ void render()
     // World
     raytracer::HittableList world;
 
-    auto material_ground = std::make_shared<raytracer::Reflective>(0.8, raytracer::Color3(201.0 / 255, 52.0 / 255, 32 / 255), 0.05);
+    auto material_ground = std::make_shared<raytracer::Matte>(0.8, raytracer::Color3(0.8, 0.8, 0.0));
     auto material_center = std::make_shared<raytracer::Matte>(0.8, raytracer::Color3(0.7, 0.3, 0.3));
-    auto material_left   = std::make_shared<raytracer::Reflective>(0.8, raytracer::Color3(0.8, 0.8, 0.8), 0);
+    // auto material_left   = std::make_shared<raytracer::Reflective>(0.8, raytracer::Color3(0.8, 0.8, 0.8), 0.3);
+    auto material_left   = std::make_shared<raytracer::Transparent>(1.5);
     auto material_right  = std::make_shared<raytracer::Reflective>(0.8, raytracer::Color3(0.8, 0.6, 0.2), 0);
 
-    world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3( 0.0, -100.5, -1.0), 100.0, material_ground));
+    // world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3( 0.0, -100.5, -1.0), 100, material_ground));
+    world.add(std::make_shared<raytracer::Plane>(raytracer::Point3(0.0, -0.5, 0.0), raytracer::Normal3(0, 1.0, 0), material_ground));
     world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3( 0.0,    0.0, -1.0),   0.5, material_center));
     world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3(-1.0,    0.0, -1.0),   0.5, material_left));
     world.add(std::make_shared<raytracer::Sphere>(raytracer::Point3( 1.0,    0.0, -1.0),   0.5, material_right));
@@ -81,7 +83,7 @@ void render()
     std::cout << "Elapsed time: " << timer.elapsed_time_seconds() << " seconds \n";
     Console::GetInstance()->appendLine("")->appendLine("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
 
-    RenderView::GetInstance()->image->apply_gamma_correction(2);
+    RenderView::GetInstance()->image->apply_gamma_correction(1.8);
 
     // FILE *output_file = fopen("../output.png", "wb");
     // save_image_png(*(RenderView::GetInstance()->image), output_file);

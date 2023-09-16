@@ -47,13 +47,15 @@ namespace raytracer
                 sampler = new PureRandom(10);
                 sampler->map_samples_to_sphere();
             }
-
         }
 
+        /*
+         *  Calculate a new ray that is randomly scattered from the hit point
+         */
         bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color3 &attenuation, raytracer::Ray &scattered) const override
         {
             auto scatter_direction = rec.normal + sampler->sample_sphere();
-            if(NearZero(scatter_direction))
+            if (NearZero(scatter_direction))
             {
                 scatter_direction = rec.normal;
             }
@@ -71,8 +73,7 @@ namespace raytracer
 
         // Color3 shade(const raytracer::Ray &r_in, const HitInfo &rec)
         // {
-            
+
         // }
-        
     };
 }
