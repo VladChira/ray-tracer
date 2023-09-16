@@ -54,7 +54,7 @@ inline int random_uint()
 }
 
 inline double random_double(double min, double max) {
-    return min + (max-min)*random_double(0.0, 1.0);
+    return min + (max-min)*random_double();
 }
 
 inline double random_uint(int min, int max) {

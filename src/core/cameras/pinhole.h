@@ -8,10 +8,7 @@ namespace raytracer
     class Pinhole : public Camera
     {
     public:
-        Pinhole(raytracer::Point3 eye_p = raytracer::Point3(0, 0, 1), raytracer::Point3 lookat = raytracer::Point3(0, 0, -1));
-
-        void set_view_distance(const double dist);
-        double get_view_distance() const;
+        Pinhole(raytracer::Point3 eye_p, raytracer::Point3 lookat);
 
         void set_fov(const double fov_deg);
         double get_fov() const;

@@ -5,6 +5,7 @@ Color3 PathTracer::trace_ray(const raytracer::Ray &r, const raytracer::HittableL
 {
     if (depth <= 0)
         return raytracer::Color3(0, 0, 0);
+
     HitInfo rec;
     if (world.hit(r, 0.001, infinity, rec))
     {
