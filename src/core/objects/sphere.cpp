@@ -41,6 +41,5 @@ bool Sphere::hit(const raytracer::Ray &r, double t_min, double t_max, HitInfo &r
 
     raytracer::Normal3 outward_normal = (rec.p - center) / radius;
     rec.set_face_normal(r, outward_normal);
-    //printf("%f\n", root);
     return true;
 }

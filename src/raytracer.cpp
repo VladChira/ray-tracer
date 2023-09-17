@@ -8,7 +8,7 @@
 #include "ray.h"
 #include "console.h"
 #include "renderview.h"
-#include "pure_random.h"
+#include "multijittered.h"
 #include "thinlens.h"
 #include "materials.h"
 #include "objects.h"
@@ -19,7 +19,7 @@
 const auto aspect_ratio = 16.0 / 9.0;
 const int image_width = 1000;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 100;
+const int samples_per_pixel = 50;
 const int max_depth = 20;
 
 // World
@@ -116,7 +116,7 @@ void setup()
     camera->compute_uvw();
 
     // Anti Aliasing Sampler
-    sampler = new raytracer::PureRandom(10);
+    sampler = new raytracer::MultiJittered(10);
     sampler->map_samples_to_sphere();
 
     // Tracer

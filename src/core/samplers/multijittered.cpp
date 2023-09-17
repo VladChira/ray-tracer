@@ -1,5 +1,16 @@
-#include "multijittered.h"
+//  Copyright (C) Kevin Suffern 2000-2007.
+//  This C++ code is for non-commercial purposes only.
+//  This C++ code is licensed under the GNU General Public License Version 2.
+//  See the file COPYING.txt for the full license.
 
+//  Copyright notice for changes since the originally published version:
+//  Copyright (C) Eduárd Mándy 2019-2021
+//  Though this C++ code was change in a large measure it still has the original copyright notice.
+//  This C++ code is for non-commercial purposes only.
+//  This C++ code is licensed under the GNU General Public License Version 2.
+//  See the file COPYING.txt for the full license.
+
+#include "multijittered.h"
 using namespace raytracer;
 
 MultiJittered::MultiJittered(const int num_samples) : Sampler(num_samples) { generate_samples(); }
@@ -8,10 +19,16 @@ MultiJittered::MultiJittered(const int num_samples, const int m) : Sampler(num_s
 
 MultiJittered* MultiJittered::clone() const { return new MultiJittered(*this); }
 
-void MultiJittered::generate_samples() {
+// This is based on code in Chui et al. (1994), cited in the references
+// The overloaded functions rand_int and rand_float (called from rand_int), which take arguments,
+// are defined in Maths.h
+// They should be defined here, as this is the only place they are usedm but I couldn't get them to compile
 
-    int n = (int)sqrt((double)num_samples);
-    double subcell_width = 1.0f / ((double)num_samples);
+void MultiJittered::generate_samples() {
+    // num_samples needs to be a perfect square
+
+    int n = (int)sqrt((float)num_samples);
+    double subcell_width = 1.0f / ((float)num_samples);
 
     // fill the samples array with dummy points to allow us to use the [ ] notation when we set the
     // initial patterns
@@ -31,14 +48,13 @@ void MultiJittered::generate_samples() {
             }
         }
     }
-
     // shuffle x coordinates
-
+    
     for (int p = 0; p < num_sets; p++) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 int k = random_uint(j, n - 1);
-                double t = samples[i * n + j + p * num_samples].x;
+                float t = samples[i * n + j + p * num_samples].x;
                 samples[i * n + j + p * num_samples].x = samples[i * n + k + p * num_samples].x;
                 samples[i * n + k + p * num_samples].x = t;
             }
@@ -51,7 +67,7 @@ void MultiJittered::generate_samples() {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 int k = random_uint(j, n - 1);
-                double t = samples[j * n + i + p * num_samples].y;
+                float t = samples[j * n + i + p * num_samples].y;
                 samples[j * n + i + p * num_samples].y = samples[k * n + i + p * num_samples].y;
                 samples[k * n + i + p * num_samples].y = t;
             }

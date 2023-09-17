@@ -1,10 +1,10 @@
 #include "thinlens.h"
 #include "pinhole.h"
-#include "pure_random.h"
+#include "multijittered.h"
 using namespace raytracer;
 
 ThinLens::ThinLens(Point3 eye_p, Point3 lookat) : raytracer::Pinhole(eye_p, lookat),
-                                                  sampler_ptr(new raytracer::PureRandom(4))
+                                                  sampler_ptr(new raytracer::MultiJittered(4))
 {
     sampler_ptr->map_samples_to_unit_disk();
 }

@@ -2,7 +2,7 @@
 #include "material.h"
 #include "perfect_specular.h"
 #include "geometric_object.h"
-#include "pure_random.h"
+#include "multijittered.h"
 
 namespace raytracer
 {
@@ -15,7 +15,7 @@ namespace raytracer
 
         Reflective()
         {
-            sampler = new PureRandom(10);
+            sampler = new MultiJittered(10);
             sampler->map_samples_to_sphere();
         }
 
@@ -29,7 +29,7 @@ namespace raytracer
             p_spec_brdf = p_spec;
             if (sampler == NULL)
             {
-                sampler = new PureRandom(10);
+                sampler = new MultiJittered(10);
                 sampler->map_samples_to_sphere();
             }
         }
@@ -41,7 +41,7 @@ namespace raytracer
             this->fuzz = fuzz;
             if (sampler == NULL)
             {
-                sampler = new PureRandom(10);
+                sampler = new MultiJittered(10);
                 sampler->map_samples_to_sphere();
             }
         }
