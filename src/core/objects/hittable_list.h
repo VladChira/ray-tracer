@@ -15,9 +15,15 @@ namespace raytracer
         void add(std::shared_ptr<raytracer::GeometricObject> object);
 
         virtual bool hit(
-            const raytracer::Ray &r, double t_min, double t_max, HitInfo &rec) const override;
+            const raytracer::Ray &r, Interval t_range, HitInfo &rec) const override;
+
+        AABB bounding_box() const
+        {
+            return aabb;
+        }
 
     public:
         std::vector<std::shared_ptr<raytracer::GeometricObject>> objects;
+        AABB aabb;
     };
 }

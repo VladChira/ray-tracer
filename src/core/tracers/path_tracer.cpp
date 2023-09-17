@@ -7,11 +7,11 @@ Color3 PathTracer::trace_ray(const raytracer::Ray &r, const raytracer::HittableL
         return raytracer::Color3(0, 0, 0);
 
     HitInfo rec;
-    if (world.hit(r, 0.001, infinity, rec))
+    if (world.hit(r, Interval(0.001, infinity), rec))
     {
         raytracer::Ray scattered;
         raytracer::Color3 attenuation;
-        if (rec.material != NULL && rec.material->scatter(r, rec, attenuation, scattered))
+        if (rec.material != nullptr && rec.material->scatter(r, rec, attenuation, scattered))
         {
             return attenuation * trace_ray(scattered, world, depth - 1);
         }

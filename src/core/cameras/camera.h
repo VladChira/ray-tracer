@@ -1,6 +1,6 @@
 #pragma once
 #include "maths.h"
-
+#include "ray.h"
 namespace raytracer
 {
     class Camera
@@ -31,5 +31,9 @@ namespace raytracer
 
         void set_exposure_time(const double exposure_t);
         double get_exposure_time() const;
+
+        virtual Ray get_ray(const Point2 &pixel_point) const = 0;
+
+        virtual double get_pixel_size() const = 0;
     };
 }

@@ -9,15 +9,16 @@ namespace raytracer
     {
     public:
         Pinhole(raytracer::Point3 eye_p, raytracer::Point3 lookat);
-
+        
+        void compute_pixel_size(double image_width, double image_height);
         void set_fov(const double fov_deg);
         double get_fov() const;
 
-        double get_pixel_size() const;
+        double get_pixel_size() const override;
 
-        raytracer::Ray get_ray(const raytracer::Point2 &pixel_point) const;
+        raytracer::Ray get_ray(const raytracer::Point2 &pixel_point) const override;
 
-        void compute_pixel_size(double image_width, double image_height);
+
 
     protected:
         double d;          // Distance from view-plane

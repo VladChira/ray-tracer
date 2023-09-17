@@ -22,9 +22,10 @@ Plane::Plane(raytracer::Point3 point, raytracer::Normal3 n, std::shared_ptr<rayt
     this->material = mat;
 }
 
-bool Plane::hit(const raytracer::Ray &r, double t_min, double t_max, HitInfo &rec) const
+bool Plane::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
 {
     double t = Dot(a - r.origin, this->n) / Dot(r.direction, this->n);
+    if (t < t_range.min || t > t_range.max) return false;
     if (t > 0.0001) {
         rec.t = t;
         rec.p = r.origin + r.direction * t;

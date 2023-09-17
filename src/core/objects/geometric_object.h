@@ -1,15 +1,19 @@
 #pragma once
+#include <memory>
 #include "maths.h"
 #include "ray.h"
 #include "material.h"
-#include <memory>
+#include "aabb.h"
 
 namespace raytracer
 {
     class GeometricObject
     {
     public:
-        virtual bool hit(const raytracer::Ray &r, double t_min, double t_max, HitInfo &rec) const = 0;
+        virtual bool hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const = 0;
+        virtual AABB bounding_box() const = 0;
+
+        std::shared_ptr<raytracer::Material> material;
     };
 }
 

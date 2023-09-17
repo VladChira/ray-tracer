@@ -2,6 +2,7 @@
 #include "material.h"
 #include "lambertian.h"
 #include "geometric_object.h"
+#include "pure_random.h"
 #include "multijittered.h"
 namespace raytracer
 {
@@ -19,7 +20,7 @@ namespace raytracer
     public:
         Matte()
         {
-            sampler = new MultiJittered(10);
+            sampler = new MultiJittered(50);
             sampler->map_samples_to_sphere();
         }
 
@@ -33,7 +34,7 @@ namespace raytracer
             diffuse_brdf = l;
             if (sampler == NULL)
             {
-                sampler = new MultiJittered(10);
+                sampler = new MultiJittered(50);
                 sampler->map_samples_to_sphere();
             }
         }
@@ -44,7 +45,7 @@ namespace raytracer
             this->diffuse_brdf.set_cd(cd);
             if (sampler == NULL)
             {
-                sampler = new MultiJittered(10);
+                sampler = new MultiJittered(50);
                 sampler->map_samples_to_sphere();
             }
         }
