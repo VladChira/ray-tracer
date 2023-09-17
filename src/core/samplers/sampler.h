@@ -39,7 +39,7 @@ namespace raytracer
 
         void map_samples_to_unit_disk();
 
-        void map_samples_to_hemisphere(const float p);
+        void map_samples_to_hemisphere(const double p);
 
         void map_samples_to_sphere();
 

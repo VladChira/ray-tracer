@@ -20,7 +20,8 @@ namespace raytracer
 
         AABB bounding_box() const override
         {
-            return AABB();
+            return AABB(Interval(-0.001, 0.001), Interval(-0.001, 0.001), Interval(-0.001, 0.001));
+            // return AABB();
         }
     };
 }

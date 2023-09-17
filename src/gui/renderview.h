@@ -22,6 +22,7 @@ public:
                        // out of our framebuffer
 
     raytracer::BufferedImage *image;
+    unsigned int pixel_count = 0; // used to track progress
 
     bool init = false;
     bool display_render = false;
@@ -42,6 +43,12 @@ public:
     void set_pixel_color(unsigned int x, unsigned int y, raytracer::Color3 color)
     {
         (*image).set(x, y, color);
+        pixel_count++;
+    }
+
+    double get_progress()
+    {
+        return (pixel_count * 1.0) / (image->get_height() * image->get_width());
     }
 
     void create_framebuffer()

@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "material.h"
 #include "lambertian.h"
 #include "geometric_object.h"
@@ -15,18 +16,18 @@ namespace raytracer
     {
     public:
         LambertianBRDF diffuse_brdf;
-        Sampler *sampler;
+        std::shared_ptr<Sampler> sampler;
 
     public:
         Matte()
         {
-            sampler = new MultiJittered(50);
+            sampler = std::make_shared<PureRandom>(50);
             sampler->map_samples_to_sphere();
         }
 
         ~Matte()
         {
-            delete sampler;
+            
         }
 
         Matte(LambertianBRDF l)
@@ -34,7 +35,7 @@ namespace raytracer
             diffuse_brdf = l;
             if (sampler == NULL)
             {
-                sampler = new MultiJittered(50);
+                sampler = std::make_shared<PureRandom>(50);
                 sampler->map_samples_to_sphere();
             }
         }
@@ -45,7 +46,7 @@ namespace raytracer
             this->diffuse_brdf.set_cd(cd);
             if (sampler == NULL)
             {
-                sampler = new MultiJittered(50);
+                sampler = std::make_shared<MultiJittered>(50);
                 sampler->map_samples_to_sphere();
             }
         }
@@ -65,9 +66,8 @@ namespace raytracer
             return true;
         }
 
-        void set_sampler(Sampler *s)
+        void set_sampler(std::shared_ptr<Sampler> s)
         {
-            delete sampler;
             this->sampler = sampler;
             sampler->map_samples_to_sphere();
         }

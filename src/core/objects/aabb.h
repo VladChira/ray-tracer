@@ -27,6 +27,11 @@ namespace raytracer
             return Interval(min - padding, max + padding);
         }
         double min = 0, max = 0;
+
+        bool empty_interval() const
+        {
+            return (max-min) == 0;
+        }
     };
 
     class AABB
@@ -86,6 +91,11 @@ namespace raytracer
                     return false;
             }
             return true;
+        }
+
+        bool empty_bounding_box() const
+        {
+            return x.empty_interval() && y.empty_interval() && z.empty_interval();
         }
     };
 }

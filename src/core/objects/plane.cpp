@@ -6,6 +6,7 @@ Plane::Plane()
     this->a = Vector3(0, 0, 0);
     this->n = Normal3(0, 1, 0);
     this->material = NULL;
+    unbounded = true;
 }
 
 Plane::Plane(raytracer::Point3 point, raytracer::Normal3 n)
@@ -13,6 +14,7 @@ Plane::Plane(raytracer::Point3 point, raytracer::Normal3 n)
     this->a = point;
     this->n = Normalize(n);
     this->material = NULL;
+    unbounded = true;
 }
 
 Plane::Plane(raytracer::Point3 point, raytracer::Normal3 n, std::shared_ptr<raytracer::Material> mat)
@@ -20,6 +22,7 @@ Plane::Plane(raytracer::Point3 point, raytracer::Normal3 n, std::shared_ptr<rayt
     this->a = point;
     this->n = Normalize(n);
     this->material = mat;
+    unbounded = true;
 }
 
 bool Plane::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const

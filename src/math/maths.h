@@ -45,19 +45,11 @@ inline double random_double()
     return distribution(gen);
 }
 
-inline unsigned int random_uint()
-{
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<unsigned int> distribution(0, std::numeric_limits<unsigned int>::max());
-    return distribution(gen);
-}
-
 inline int random_int()
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<int> distribution(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+    static std::uniform_int_distribution<int> distribution(0, std::numeric_limits<int>::max());
     return distribution(gen);
 }
 
@@ -65,6 +57,6 @@ inline double random_double(double min, double max) {
     return min + (max-min)*random_double();
 }
 
-inline unsigned int random_uint(unsigned int min, unsigned int max) {
-    return min + (random_uint() % (max - min + 1));
+inline int random_int(int min, int max) {
+    return min + (random_int() % (max - min + 1));
 }

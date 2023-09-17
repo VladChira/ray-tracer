@@ -53,7 +53,7 @@ void MultiJittered::generate_samples() {
     for (int p = 0; p < num_sets; p++) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                int k = random_uint(j, n - 1);
+                int k = random_int(j, n - 1);
                 float t = samples[i * n + j + p * num_samples].x;
                 samples[i * n + j + p * num_samples].x = samples[i * n + k + p * num_samples].x;
                 samples[i * n + k + p * num_samples].x = t;
@@ -66,7 +66,7 @@ void MultiJittered::generate_samples() {
     for (int p = 0; p < num_sets; p++) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                int k = random_uint(j, n - 1);
+                int k = random_int(j, n - 1);
                 float t = samples[j * n + i + p * num_samples].y;
                 samples[j * n + i + p * num_samples].y = samples[k * n + i + p * num_samples].y;
                 samples[k * n + i + p * num_samples].y = t;

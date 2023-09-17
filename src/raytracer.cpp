@@ -22,8 +22,8 @@
 const auto aspect_ratio = 16.0 / 9.0;
 const int image_width = 1300;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 100;
-const int max_depth = 30;
+const int samples_per_pixel = 50;
+const int max_depth = 20;
 
 // World
 raytracer::World world;
@@ -156,7 +156,7 @@ void multi_threaded_render()
 
     timer.stop();
     std::cout << "Elapsed time: " << timer.elapsed_time_seconds() << " seconds \n";
-    Console::GetInstance()->appendLine("")->appendLine("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
+    Console::GetInstance()->appendLine("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
 
     FILE *output_file = fopen("../output.png", "wb");
     save_image_png(*(RenderView::GetInstance()->image), output_file);

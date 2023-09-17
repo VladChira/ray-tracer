@@ -195,13 +195,18 @@ public:
             auto instance = RenderView::GetInstance();
             if (instance->init)
             {
-                RenderView::GetInstance()->create_framebuffer();
+                instance->create_framebuffer();
                 instance->init = false;
             }
             if (instance->display_render)
             {
-                RenderView::GetInstance()->update_framebuffer();
+                instance->update_framebuffer();
                 ImGui::Image((void *)(intptr_t)instance->texture_id, ImVec2(instance->image->get_width(), instance->image->get_height()));
+
+                ImGui::Text("Render progress");
+                ImGui::ProgressBar(instance->get_progress(), ImVec2(-FLT_MIN,0.0f));
+                // ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+                
             }
 
         }

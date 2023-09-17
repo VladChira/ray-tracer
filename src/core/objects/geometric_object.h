@@ -14,6 +14,7 @@ namespace raytracer
         virtual AABB bounding_box() const = 0;
 
         std::shared_ptr<raytracer::Material> material;
+        bool unbounded = false;
     };
 }
 

@@ -13,7 +13,7 @@ namespace raytracer
         {
             auto objects = src_objects; // Create a modifiable array of the source scene objects
 
-            int axis = random_uint(0, 2);
+            int axis = random_int(0, 2);
             auto comparator = (axis == 0)   ? box_x_compare
                               : (axis == 1) ? box_y_compare
                                             : box_z_compare;
@@ -52,7 +52,7 @@ namespace raytracer
         bool hit(const Ray &r, Interval ray_t, HitInfo &rec) const override
         {
             if (!aabb.hit(r, ray_t))
-                return false;
+                    return false;
 
             bool hit_left = left->hit(r, ray_t, rec);
             bool hit_right = right->hit(r, Interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec);
