@@ -2,8 +2,10 @@
 #include <mutex>
 #include <iostream>
 #include <string.h>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h> // Will drag system OpenGL headers
+
 #include "console.h"
-#include "gui.h"
 #include "buffered_image.h"
 
 class RenderView
@@ -13,8 +15,8 @@ private:
     static std::mutex singleton_mutex;
 
 protected:
-    RenderView() {}
-    ~RenderView() {}
+    RenderView();
+    ~RenderView();
 
 public:
     GLuint FBO;        // frame buffer object
@@ -79,23 +81,3 @@ public:
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 };
-
-RenderView *RenderView::render_view_instance{nullptr};
-std::mutex RenderView::singleton_mutex;
-
-RenderView *RenderView::GetInstance()
-{
-    std::lock_guard<std::mutex> lock(singleton_mutex);
-    if (render_view_instance == nullptr)
-    {
-        render_view_instance = new RenderView();
-    }
-    return render_view_instance;
-}
-
-void RenderView::DestroyInstance()
-{
-    delete render_view_instance->image;
-    delete render_view_instance;
-    render_view_instance = NULL;
-}

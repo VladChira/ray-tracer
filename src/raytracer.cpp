@@ -1,5 +1,6 @@
 #include <iostream>
 #include <thread>
+#include <atomic>
 
 #include "gui.h"
 #include "clock_util.h"
@@ -36,6 +37,8 @@ raytracer::Tracer *tracer;
 
 unsigned int num_threads = 7;
 
+std::atomic<bool> exit_requested(false);
+
 void render_region(raytracer::Point2 top_left, unsigned int width, unsigned int height)
 {
     for (int i = top_left.y; i < top_left.y + height; ++i)
@@ -45,6 +48,9 @@ void render_region(raytracer::Point2 top_left, unsigned int width, unsigned int 
             raytracer::Color3 pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; s++)
             {
+                // Gracefully kill the threads
+                if (exit_requested.load(std::memory_order_relaxed))
+                    return;
                 raytracer::Point2 p = sampler->sample_unit_square();
                 double pixel_size = world.camera->get_pixel_size();
                 auto u = pixel_size * (j - 0.5 * image_width + p.x);
@@ -151,6 +157,9 @@ void multi_threaded_render()
         thread.join();
     }
 
+    if (exit_requested.load(std::memory_order_relaxed))
+        return;
+
     RenderView::GetInstance()->image->apply_gamma_correction(1.2);
 
     timer.stop();
@@ -158,7 +167,7 @@ void multi_threaded_render()
     Console::GetInstance()->appendLine("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
 
     FILE *output_file = fopen("../output.png", "wb");
-    save_image_png(*(RenderView::GetInstance()->image), output_file);
+    raytracer::BufferedImage::save_image_png(*(RenderView::GetInstance()->image), output_file);
     fclose(output_file);
 }
 

@@ -17,10 +17,8 @@ private:
     std::mutex text_mutex;
 
 protected:
-    Console()
-    {
-    }
-    ~Console() {}
+    Console();
+    ~Console();
 
 public:
     Console(Console &other) = delete;
@@ -32,37 +30,8 @@ public:
 
     
     // Append line to console
-    Console *appendLine(const std::string &line)
-    {
-        std::string final_line = ">  " + line;
-        std::lock_guard<std::mutex> lock(text_mutex); // Acquire lock
-        lines.push_back(final_line);                     // Append line to the array
-        return this;
-    }
+    Console *appendLine(const std::string &line);
 
     // Retrieve the console's contents
-    std::vector<std::string> getContents()
-    {
-        std::lock_guard<std::mutex> lock(text_mutex); // Acquire lock
-        return lines;                          // Return a copy of the array
-    }
+    std::vector<std::string> getContents();
 };
-
-Console *Console::console_instance{nullptr};
-std::mutex Console::singleton_mutex;
-
-Console *Console::GetInstance()
-{
-    std::lock_guard<std::mutex> lock(singleton_mutex);
-    if (console_instance == nullptr)
-    {
-        console_instance = new Console();
-    }
-    return console_instance;
-}
-
-void Console::DestroyInstance()
-{
-    delete console_instance;
-    console_instance = NULL;
-}
