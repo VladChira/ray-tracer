@@ -16,7 +16,7 @@ static bool LoadObj(std::string filename, tinyobj::attrib_t &attrib, std::vector
 {
        bool triangulate = true;
        // std::cout << "Loading " << filename << std::endl;
-       Console::GetInstance()->appendLine("Loading model " + filename);
+       Console::GetInstance()->addLogEntry("Loading model " + filename);
 
        HiResTimer t;
        t.start();
@@ -27,31 +27,33 @@ static bool LoadObj(std::string filename, tinyobj::attrib_t &attrib, std::vector
        bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str(),
                                    NULL, triangulate);
        t.stop();
-
-       // std::cout << "Model parsed in" << t.elapsed_time_milliseconds() << " ms\n";
-       Console::GetInstance()->appendLine("Model parsed in " + std::to_string(t.elapsed_time_milliseconds()) + " ms");
+       
 
        if (!warn.empty())
        {
               std::cout << "WARN: " << warn << std::endl;
+
        }
 
        if (!err.empty())
        {
-              std::cerr << "ERR: " << err << std::endl;
+              // std::cerr << "ERR: " << err << std::endl;
+              Console::GetInstance()->addErrorEntry("[error] " + err);
        }
 
        if (!ret)
        {
-              printf("Failed to load/parse .obj.\n");
+              // printf("Failed to load/parse .obj.\n");
+              Console::GetInstance()->addErrorEntry("[error] Failed to load/parse .obj");
               return false;
        }
+       Console::GetInstance()->addSuccesEntry("Model parsed in " + std::to_string(t.elapsed_time_milliseconds()) + " ms");
 
-       Console::GetInstance()->appendLine("Number of vertices  : " + std::to_string(attrib.vertices.size() / 3));
-       Console::GetInstance()->appendLine("Number of normals   : " + std::to_string(attrib.normals.size() / 3));
-       Console::GetInstance()->appendLine("Number of texcoords   : " + std::to_string(attrib.texcoords.size() / 2));
-       Console::GetInstance()->appendLine("Number of shapes   : " + std::to_string(shapes.size()));
-       Console::GetInstance()->appendLine("Number of materials   : " + std::to_string(materials.size()));
+       Console::GetInstance()->addLogEntry("Number of vertices  : " + std::to_string(attrib.vertices.size() / 3));
+       Console::GetInstance()->addLogEntry("Number of normals   : " + std::to_string(attrib.normals.size() / 3));
+       Console::GetInstance()->addLogEntry("Number of texcoords   : " + std::to_string(attrib.texcoords.size() / 2));
+       Console::GetInstance()->addLogEntry("Number of shapes   : " + std::to_string(shapes.size()));
+       Console::GetInstance()->addLogEntry("Number of materials   : " + std::to_string(materials.size()));
        return true;
 }
 

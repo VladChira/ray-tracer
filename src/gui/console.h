@@ -2,10 +2,19 @@
 #include <mutex>
 #include <vector>
 
+enum ConsoleEntryType
+{
+    SuccesEntry,
+    LogEntry,
+    WarningEntry,
+    ErrorEntry
+};
 
-// TODO - Base abstract ConsoleEntry class with
-// LogEntry, WarningEntry, ErrorEntry extending from it
-// with colors
+struct ConsoleLine
+{
+    std::string text;
+    ConsoleEntryType entry_type;
+};
 
 class Console
 {
@@ -13,8 +22,11 @@ private:
     static Console *console_instance;
     static std::mutex singleton_mutex;
 
-    std::vector<std::string> lines;
+    std::vector<ConsoleLine> lines;
     std::mutex text_mutex;
+
+    // Append line to console
+    Console *appendLine(const std::string &line, ConsoleEntryType type);
 
 protected:
     Console();
@@ -28,10 +40,12 @@ public:
 
     static void DestroyInstance();
 
-    
-    // Append line to console
-    Console *appendLine(const std::string &line);
+    Console *addSuccesEntry(const std::string &text);
+    Console *addLogEntry(const std::string &text);
+    Console *addWarningEntry(const std::string &text);
+    Console *addErrorEntry(const std::string &text);
+    Console *addEmptyLine();
 
     // Retrieve the console's contents
-    std::vector<std::string> getContents();
+    std::vector<ConsoleLine> getContents();
 };

@@ -99,7 +99,7 @@ namespace raytracer
                     raytracer::Color3 pixel_color = img.get(i, j);
                     fprintf(file, "%hhu %hhu %hhu\n", (uint8_t)pixel_color.x, (uint8_t)pixel_color.y, (uint8_t)pixel_color.z);
                 }
-            Console::GetInstance()->appendLine("PPM image exported succesfully");
+            Console::GetInstance()->addSuccesEntry("PPM image exported succesfully");
         }
 
         raytracer::BufferedImage uv_test_image(int size)
@@ -145,7 +145,7 @@ namespace raytracer
             ret = spng_encode_image(ctx, image, length, fmt, SPNG_ENCODE_FINALIZE);
             if (ret)
             {
-                Console::GetInstance()->appendLine("Image encoding failed.");
+                Console::GetInstance()->addErrorEntry("Image encoding failed.");
                 printf("spng_encode_image() error: %s\n", spng_strerror(ret));
                 spng_ctx_free(ctx);
                 return ret;
@@ -158,7 +158,7 @@ namespace raytracer
             png_buf = spng_get_png_buffer(ctx, &png_size, &ret);
             if (png_buf == NULL)
             {
-                Console::GetInstance()->appendLine("Image encoding failed.");
+                Console::GetInstance()->addErrorEntry("Image encoding failed.");
                 printf("spng_get_png_buffer() error: %s\n", spng_strerror(ret));
             }
             else
@@ -185,7 +185,7 @@ namespace raytracer
 
             if (result != 0)
             {
-                Console::GetInstance()->appendLine("Image encoding failed.");
+                Console::GetInstance()->addErrorEntry("Image encoding failed.");
                 printf("Encoding failed with error code: %d\n", result);
                 return result;
             }

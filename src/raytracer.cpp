@@ -24,10 +24,10 @@ using namespace raytracer;
 
 // Image
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 600;
+const int image_width = 1920;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 20;
-const int max_depth = 20;
+const int samples_per_pixel = 100;
+const int max_depth = 30;
 
 // World
 World world;
@@ -73,15 +73,14 @@ void setup3()
     auto mat25 = std::make_shared<Matte>(0.8, Color3::grey);
     world.add_object(std::make_shared<Triangle>(Point3(55, -27, -100), Point3(5, 73, -130), Point3(-55, -55, 0), mat25));
 
-    // TestLoadObj("../models/bunny/bunny.obj");
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
-    LoadObj("../models/bunny/bunny.obj", attrib, shapes, materials);
+    LoadObj("../models/bunny/bunny2.obj", attrib, shapes, materials);
 
-        // Camera
-        std::shared_ptr<Pinhole>
-            camera = std::make_shared<Pinhole>(Vector3(0, 0, 400), Vector3(5, 0, 0));
+    // Camera
+    std::shared_ptr<Pinhole>
+        camera = std::make_shared<Pinhole>(Vector3(0, 0, 400), Vector3(5, 0, 0));
     camera->set_fov(20);
     camera->compute_pixel_size(image_width, image_height);
     camera->compute_uvw();
@@ -200,6 +199,12 @@ void setup2()
 
 void setup()
 {
+
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    LoadObj("../models/bunny/bunny2.obj", attrib, shapes, materials);
+
     auto material_ground = std::make_shared<Matte>(0.8, Color3(0.5, 0.5, 0.5));
     world.add_object(std::make_shared<Sphere>(Vector3(0.0, -1900.0, 0.0), -1900.0, material_ground));
 
@@ -275,7 +280,7 @@ void multi_threaded_render()
     timer.start();
 
     // Build a particular scene here
-    setup3();
+    setup2();
 
     std::vector<std::thread> threads;
     unsigned int region_width = image_width / num_threads;
@@ -297,16 +302,16 @@ void multi_threaded_render()
     RenderView::GetInstance()->image->apply_gamma_correction(1.2);
 
     timer.stop();
-    Console::GetInstance()->appendLine("")->appendLine("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
+    Console::GetInstance()->addEmptyLine()->addSuccesEntry("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
 
-    // FILE *output_file = fopen("../output.png", "wb");
-    // BufferedImage::save_image_png(*(RenderView::GetInstance()->image), output_file);
-    // fclose(output_file);
+    FILE *output_file = fopen("../output.png", "wb");
+    BufferedImage::save_image_png(*(RenderView::GetInstance()->image), output_file);
+    fclose(output_file);
 }
 
 int main()
 {
-    Console::GetInstance()->appendLine("A WIP ray tracer with minimal UI elements")->appendLine("Version 0.1.1-alpha")->appendLine("--- Made by Vlad Chira ---")->appendLine("");
+    Console::GetInstance()->addLogEntry("A WIP ray tracer with minimal UI elements")->addLogEntry("Version 0.1.1-alpha")->addLogEntry("--- Made by Vlad Chira ---")->addEmptyLine();
 
     GUI gui;
     gui.init();

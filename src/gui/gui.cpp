@@ -55,11 +55,23 @@ void ConsoleLogWindow()
         // Wrap items.
         ImGui::PushTextWrapPos();
 
-        std::vector<std::string> console_entries = Console::GetInstance()->getContents();
+        std::vector<ConsoleLine> console_entries = Console::GetInstance()->getContents();
 
         for (int i = 0; i < console_entries.size(); i++)
         {
-            ImGui::TextUnformatted(console_entries[i].c_str());
+            ConsoleLine line = console_entries[i];
+            ImVec4 color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+            if (line.entry_type == SuccesEntry)
+                color = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+            if (line.entry_type == LogEntry)
+                color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+            if (line.entry_type == WarningEntry)
+                color = ImVec4(1.0f, 0.75f, 0.0f, 1.0f);
+            if (line.entry_type == ErrorEntry)
+                color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+            ImGui::PushStyleColor(ImGuiCol_Text, color); 
+            ImGui::TextUnformatted(line.text.c_str());  
+            ImGui::PopStyleColor();
         }
 
         // Auto-scroll logs.
@@ -200,7 +212,7 @@ void GUI::update()
     double window_height = ImGui::GetIO().DisplaySize.y;
     ImGui::SetNextWindowPos(ImVec2(1, 20));
     ImGui::SetNextWindowSize(ImVec2(1.77 * 0.75 * window_height, 0.75 * window_height));
-    if (ImGui::Begin("Render", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBringToFrontOnFocus))
+    if (ImGui::Begin("Viewport", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBringToFrontOnFocus))
     {
         auto instance = RenderView::GetInstance();
         if (instance->init)
