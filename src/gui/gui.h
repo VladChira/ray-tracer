@@ -200,12 +200,11 @@ public:
             }
             if (instance->display_render)
             {
-                instance->update_framebuffer();
-                ImGui::Image((void *)(intptr_t)instance->texture_id, ImVec2(instance->image->get_width(), instance->image->get_height()));
-
                 ImGui::Text("Render progress");
                 ImGui::ProgressBar(instance->get_progress(), ImVec2(-FLT_MIN,0.0f));
-                // ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+                
+                instance->update_framebuffer();
+                ImGui::Image((void *)(intptr_t)instance->texture_id, ImVec2(instance->image->get_width(), instance->image->get_height()));
                 
             }
 

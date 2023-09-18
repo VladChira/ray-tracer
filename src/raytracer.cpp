@@ -62,7 +62,6 @@ void render_region(raytracer::Point2 top_left, unsigned int width, unsigned int 
 void setup()
 {
     auto material_ground = std::make_shared<raytracer::Matte>(0.8, raytracer::Color3(0.5, 0.5, 0.5));
-    // world.add_object(std::make_shared<raytracer::Plane>(raytracer::Point3(0.0, 0.0, 0.0), raytracer::Normal3(0, 1.0, 0), material_ground));
     world.add_object(std::make_shared<raytracer::Sphere>(raytracer::Vector3(0.0, -1900.0, 0.0), -1900.0, material_ground));
 
     for (int a = -11; a < 11; a++)
