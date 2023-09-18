@@ -220,7 +220,7 @@ void GUI::update()
     ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(1, window_height - 0.22 * window_height));
-    ImGui::SetNextWindowSize(ImVec2(1.77 * 0.75 * window_height, 0.15 * window_height));
+    ImGui::SetNextWindowSize(ImVec2(1.77 * 0.75 * window_height, 0.2 * window_height));
     if (ImGui::Begin("Console", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBringToFrontOnFocus))
     {
         ConsoleLogWindow();

@@ -18,15 +18,16 @@
 #include "world.h"
 #include "hittable_list.h"
 #include "bvh.h"
+#include "obj_loader.h"
 
 using namespace raytracer;
 
 // Image
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 1400;
+const int image_width = 600;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 100;
-const int max_depth = 30;
+const int samples_per_pixel = 20;
+const int max_depth = 20;
 
 // World
 World world;
@@ -65,6 +66,40 @@ void render_region(Point2 top_left, unsigned int width, unsigned int height)
             RenderView::GetInstance()->set_pixel_color(image_height - i - 1, j, pixel_color);
         }
     }
+}
+
+void setup3()
+{
+    auto mat25 = std::make_shared<Matte>(0.8, Color3::grey);
+    world.add_object(std::make_shared<Triangle>(Point3(55, -27, -100), Point3(5, 73, -130), Point3(-55, -55, 0), mat25));
+
+    // TestLoadObj("../models/bunny/bunny.obj");
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    LoadObj("../models/bunny/bunny.obj", attrib, shapes, materials);
+
+        // Camera
+        std::shared_ptr<Pinhole>
+            camera = std::make_shared<Pinhole>(Vector3(0, 0, 400), Vector3(5, 0, 0));
+    camera->set_fov(20);
+    camera->compute_pixel_size(image_width, image_height);
+    camera->compute_uvw();
+    world.set_camera(camera);
+
+    // Construct the BVH
+    world.objects = HittableList(std::make_shared<BVH_Node>(world.objects));
+
+    // Anti Aliasing Sampler
+    sampler = new MultiJittered(100);
+    sampler->map_samples_to_sphere();
+
+    // Tracer
+    tracer = new PathTracer();
+
+    // Start viewport preview
+    RenderView::GetInstance()->set_size(image_width, image_height);
+    RenderView::GetInstance()->display_render = true;
 }
 
 void setup2()
@@ -118,10 +153,10 @@ void setup2()
     world.add_object(std::make_shared<Sphere>(Point3(-55, -52, -100), 10, mat16));
 
     auto mat17 = std::make_shared<Matte>(0.8, Color3::brown);
-    world.add_object(std::make_shared<Sphere>( Point3(5, -52, -100), 15, mat17));
+    world.add_object(std::make_shared<Sphere>(Point3(5, -52, -100), 15, mat17));
 
     auto mat18 = std::make_shared<Matte>(0.8, Color3::purple);
-    world.add_object(std::make_shared<Sphere>( Point3(-20, -57, -120), 15, mat18));
+    world.add_object(std::make_shared<Sphere>(Point3(-20, -57, -120), 15, mat18));
 
     auto mat19 = std::make_shared<Matte>(0.8, Color3::green);
     world.add_object(std::make_shared<Sphere>(Point3(55, -27, -100), 17, mat19));
@@ -236,10 +271,11 @@ void setup()
 
 void multi_threaded_render()
 {
-    setup2();
-
     HiResTimer timer;
     timer.start();
+
+    // Build a particular scene here
+    setup3();
 
     std::vector<std::thread> threads;
     unsigned int region_width = image_width / num_threads;
@@ -261,17 +297,16 @@ void multi_threaded_render()
     RenderView::GetInstance()->image->apply_gamma_correction(1.2);
 
     timer.stop();
-    std::cout << "Elapsed time: " << timer.elapsed_time_seconds() << " seconds \n";
-    Console::GetInstance()->appendLine("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
+    Console::GetInstance()->appendLine("")->appendLine("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
 
-    FILE *output_file = fopen("../output.png", "wb");
-    BufferedImage::save_image_png(*(RenderView::GetInstance()->image), output_file);
-    fclose(output_file);
+    // FILE *output_file = fopen("../output.png", "wb");
+    // BufferedImage::save_image_png(*(RenderView::GetInstance()->image), output_file);
+    // fclose(output_file);
 }
 
 int main()
 {
-    Console::GetInstance()->appendLine("A WIP ray tracer with minimal UI elements")->appendLine("Version 0.1.0-alpha")->appendLine("--- Made by Vlad Chira ---")->appendLine("");
+    Console::GetInstance()->appendLine("A WIP ray tracer with minimal UI elements")->appendLine("Version 0.1.1-alpha")->appendLine("--- Made by Vlad Chira ---")->appendLine("");
 
     GUI gui;
     gui.init();

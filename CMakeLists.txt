@@ -1,4 +1,4 @@
-set(CMAKE_BUILD_TYPE Relase)
+set(CMAKE_BUILD_TYPE Release)
 
 cmake_minimum_required(VERSION 3.12)
 project(raytracer)
@@ -27,14 +27,18 @@ file(GLOB_RECURSE EXT_FILES
         ./external/imgui/backends/*.h
         ./external/spng/*.h
         ./external/spng/*.c
+        ./external/tinyobjloader/*.h
     )
 
 include_directories(
     ./external/imgui
     ./external/imgui/backends
     ./external/spng
+    ./external/tinyobjloader
     ./src/core
     ./src/core/objects
+    ./src/core/objects/primitives
+    ./src/core/objects/meshes
     ./src/core/samplers
     ./src/core/cameras
     ./src/core/materials
