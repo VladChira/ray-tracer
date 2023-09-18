@@ -124,6 +124,12 @@ namespace raytracer
         Vector3 operator-() const { return Vector3(-x, -y, -z); }
         double LengthSquared() const { return x * x + y * y + z * z; }
         double Length() const { return std::sqrt(LengthSquared()); }
+
+        using Point3 = Vector3;
+        using Color3 = Vector3;
+        using Normal3 = Vector3;
+        static const Color3 red, green, dark_green,  blue, white, black, yellow, cyan, 
+        brown, grey, purple, orange;
     };
 
     using Point3 = Vector3;
@@ -238,4 +244,5 @@ namespace raytracer
         Vector3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.LengthSquared())) * n;
         return r_out_perp + r_out_parallel;
     }
+
 }
