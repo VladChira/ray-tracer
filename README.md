@@ -11,18 +11,21 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 - Multiple tracers: Path Tracing, Whitted Ray Tracing
 - Materials: Matte, Phong, Reflective, Transparent
 - Lights: Coming Soon
+- 3D meshes in .obj format
 - BVH Optimization
 - Multithreaded rendering
 - GUI
 
 ## External dependencies
-- Dear ImGui + OpenGL 3 backend - for immediate mode GUI elements
-- spng + miniz - for PNG encoding and decoding
+- [Dear ImGui](https://github.com/ocornut/imgui) + OpenGL 3 backend - for immediate mode GUI elements
+- [spng](https://github.com/randy408/libspng/) + [miniz](https://github.com/richgel999/miniz) - for PNG encoding and decoding
+- [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader) for 3D meshes 
 
 ## Notes
 *TODO*
 ## Roadmap
-- 3D Meshes
+- ~~3D Meshes~~
+- Affine transformations
 - Lights
 - Normal ray tracing
 - Blinn-Phong shading
