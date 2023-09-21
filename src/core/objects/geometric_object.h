@@ -4,7 +4,7 @@
 #include "ray.h"
 #include "material.h"
 #include "aabb.h"
-
+#include "light.h"
 namespace raytracer
 {
     class GeometricObject
@@ -24,6 +24,7 @@ public:
     raytracer::Normal3 normal;
     double t;
     std::shared_ptr<raytracer::Material> material;
+    std::vector<std::shared_ptr<raytracer::Light>> lights;
 
     bool front_face;
 

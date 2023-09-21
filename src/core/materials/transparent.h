@@ -28,8 +28,13 @@ namespace raytracer
             else
                 direction = Refract(unit_direction, rec.normal, refraction_ratio);
 
-            scattered = Ray(rec.p, direction);
+            scattered = Ray(rec.p + 0.00001 * direction, direction);
             return true;
+        }
+
+        Color3 shade(const raytracer::Ray &r_in, const HitInfo &rec) const
+        {
+            return Color3(0, 0, 0);
         }
 
     private:

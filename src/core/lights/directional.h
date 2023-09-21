@@ -17,5 +17,6 @@ namespace raytracer
         Color3 L(const Ray &r_in, const HitInfo &rec) const override;
         double G(const Ray &r_in, const HitInfo &rec) const override;
         double pdf(const Ray &r_in, const HitInfo &rec) const override;
+        bool in_shadow(const Ray &r, const HitInfo &rec) const override;
     };
 }

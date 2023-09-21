@@ -12,4 +12,4 @@ const Color3 Color3::cyan = Color3(0.0, 1.0, 1.0);
 const Color3 Color3::brown = Color3(0.58, 0.29, 0);
 const Color3 Color3::grey = Color3(0.5, 0.5, 0.5);
 const Color3 Color3::purple = Color3(0.5, 0, 0.5);
-const Color3 Color3::orange = Color3(1, 0.64, 0.0);
+const Color3 Color3::orange = Color3(1, 0.36, 0.01);

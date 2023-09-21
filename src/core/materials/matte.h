@@ -50,13 +50,10 @@ namespace raytracer
             }
         }
 
-        inline Vector3 random_on_hemisphere(const Vector3 &normal) const
+        void set_sampler(std::shared_ptr<Sampler> s)
         {
-            auto on_unit_sphere = sampler->sample_sphere();
-            if (Dot(on_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
-                return on_unit_sphere;
-            else
-                return -on_unit_sphere;
+            this->sampler = sampler;
+            sampler->map_samples_to_sphere();
         }
 
         /*
@@ -64,26 +61,37 @@ namespace raytracer
          */
         bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color3 &attenuation, raytracer::Ray &scattered) const override
         {
-            // auto scatter_direction = rec.normal + sampler->sample_sphere();
-            auto scatter_direction = random_on_hemisphere(rec.normal);
+            auto scatter_direction = rec.normal + sampler->sample_sphere();
             if (NearZero(scatter_direction))
             {
                 scatter_direction = rec.normal;
             }
-            scattered = raytracer::Ray(rec.p, scatter_direction);
+            scattered = raytracer::Ray(rec.p + 0.00001 * scatter_direction, scatter_direction);
             attenuation = this->diffuse_brdf.cd * this->diffuse_brdf.kd;
             return true;
         }
 
-        void set_sampler(std::shared_ptr<Sampler> s)
+        Color3 shade(const raytracer::Ray &r_in, const HitInfo &rec) const
         {
-            this->sampler = sampler;
-            sampler->map_samples_to_sphere();
+            auto wo = -r_in.direction;
+            Color3 accColor(0, 0, 0);
+            for (int i = 0; i < rec.lights.size(); i++)
+            {
+                auto wi = rec.lights[i]->get_direction(r_in, rec);
+                double ndotwi = Dot(wi, rec.normal);
+                if (ndotwi > 0.0)
+                {
+                    bool in_shadow = false;
+                    Ray shadow_ray = Ray(rec.p, wi);
+                    in_shadow = rec.lights[i]->in_shadow(shadow_ray, rec);
+                    if (!in_shadow)
+                    {
+                        Color3 f1 = diffuse_brdf.f(rec, wo, wi) * rec.lights[i]->L(r_in, rec);
+                        accColor += (f1 * ndotwi);
+                    }
+                }
+            }
+            return accColor;
         }
-
-        // Color3 shade(const raytracer::Ray &r_in, const HitInfo &rec)
-        // {
-
-        // }
     };
 }

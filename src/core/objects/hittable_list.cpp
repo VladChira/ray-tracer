@@ -27,6 +27,7 @@ bool HittableList::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) 
     double t_min = t_range.min;
     double t_max = t_range.max;
     HitInfo temp_rec;
+    temp_rec.lights = rec.lights;
     bool hit_anything = false;
     auto closest_so_far = t_max;
 
@@ -39,6 +40,5 @@ bool HittableList::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) 
             rec = temp_rec;
         }
     }
-
     return hit_anything;
 }

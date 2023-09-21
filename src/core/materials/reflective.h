@@ -49,9 +49,15 @@ namespace raytracer
         bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color3 &attenuation, raytracer::Ray &scattered) const override
         {
             Vector3 reflected = Reflect(Normalize(r_in.direction), rec.normal);
-            scattered = Ray(rec.p, reflected + fuzz * sampler->sample_sphere());
+            Vector3 dir = reflected + fuzz * sampler->sample_sphere();
+            scattered = Ray(rec.p + 0.00001 * dir, dir);
             attenuation = this->p_spec_brdf.cr * this->p_spec_brdf.kr;
             return (Dot(scattered.direction, rec.normal) > 0);
+        }
+
+        Color3 shade(const raytracer::Ray &r_in, const HitInfo &rec) const
+        {
+            return Color3(0, 0, 0);
         }
     };
 }

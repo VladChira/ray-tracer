@@ -28,3 +28,8 @@ double Directional::pdf(const Ray &r_in, const HitInfo &rec) const
 {
     return 1.0;
 }
+
+bool Directional::in_shadow(const Ray &r, const HitInfo &rec) const
+{
+    return false;
+}

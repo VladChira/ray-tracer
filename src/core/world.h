@@ -25,6 +25,11 @@ namespace raytracer
             add_material(object->material);
         }
 
+        void add_light(std::shared_ptr<Light> light)
+        {
+            lights.push_back(light);
+        }
+
         void add_material(std::shared_ptr<Material> mat)
         {
             // Check if the material already exists in the list
