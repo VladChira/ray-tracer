@@ -6,32 +6,29 @@
 
 #include "gui.h"
 #include "clock_util.h"
-#include "buffered_image.h"
 #include "maths.h"
-#include "ray.h"
 #include "console.h"
 #include "renderview.h"
 #include "multijittered.h"
-#include "thinlens.h"
 #include "materials.h"
 #include "objects.h"
+#include "pinhole.h"
 #include "path_tracer.h"
-#include "ray_caster.h"
 #include "world.h"
 #include "hittable_list.h"
 #include "bvh.h"
 #include "obj_loader.h"
-#include "mesh.h"
 #include "mesh_triangle.h"
+#include "smooth_triangle.h"
 
 using namespace raytracer;
 
 // Image
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 1300;
+const int image_width = 1920;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 50;
-const int max_depth = 20;
+const int samples_per_pixel = 100;
+const int max_depth = 30;
 
 // World
 World world;
@@ -74,29 +71,23 @@ void render_region(Point2 top_left, unsigned int width, unsigned int height)
 
 void setup3()
 {
-    auto mat25 = std::make_shared<Matte>(0.8, Color3::grey);
-    // world.add_object(std::make_shared<Triangle>(Point3(55, -27, -100), Point3(5, 73, -130), Point3(-55, -55, 0), mat25));
+    auto mat25 = std::make_shared<Matte>(0.8, Color3::white);
 
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    LoadObj("../models/bunny/bunny.obj", attrib, shapes, materials);
-
-    auto triangles = raytracer::create_triangle_mesh(attrib, shapes[0], mat25);
+    auto triangles = raytracer::tessellate_smooth_sphere(100, 50, mat25);
     for (int i = 0; i < triangles.size(); i++)
     {
         world.add_object(triangles[i]);
     }
 
     // Camera
-    std::shared_ptr<Pinhole>
-        camera = std::make_shared<Pinhole>(Vector3(0, 400, 300), Vector3(0, 5, 0));
+    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Vector3(0, 0, 6), Vector3(0, 0, 0));
     camera->set_fov(20);
     camera->compute_pixel_size(image_width, image_height);
     camera->compute_uvw();
     world.set_camera(camera);
 
     // Construct the BVH
+    Console::GetInstance()->addLogEntry("Constructing BVH...");
     world.objects = HittableList(std::make_shared<BVH_Node>(world.objects));
 
     // Anti Aliasing Sampler
@@ -276,6 +267,7 @@ void setup()
     camera->compute_uvw();
     world.set_camera(camera);
 
+    Console::GetInstance()->addLogEntry("Constructing BVH...");
     world.objects = HittableList(std::make_shared<BVH_Node>(world.objects));
 
     // Anti Aliasing Sampler
@@ -323,9 +315,9 @@ void multi_threaded_render()
     timer.stop();
     Console::GetInstance()->addEmptyLine()->addSuccesEntry("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
 
-    // FILE *output_file = fopen("../output.png", "wb");
-    // BufferedImage::save_image_png(*(RenderView::GetInstance()->image), output_file);
-    // fclose(output_file);
+    FILE *output_file = fopen("../output.png", "wb");
+    BufferedImage::save_image_png(*(RenderView::GetInstance()->image), output_file);
+    fclose(output_file);
 }
 
 int main()

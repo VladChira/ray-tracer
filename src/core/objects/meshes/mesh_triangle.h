@@ -12,6 +12,12 @@ namespace raytracer
         a pointer to the first vertex in the mesh's array of vertices.
         The second and third vertices can be accessed based on the first.
     */
+    enum ShadingType
+    {
+        FLAT,
+        SMOOTH
+    };
+
     class MeshTriangle : public GeometricObject
     {
     public:
@@ -30,7 +36,6 @@ namespace raytracer
     public:
         std::shared_ptr<Mesh> mesh;
         const int *v;
-        Normal3 normal; // TODO, remove this, the normals should be stored by the mesh
     };
 
     std::vector<std::shared_ptr<MeshTriangle>> create_triangle_mesh(const tinyobj::attrib_t &attrib, const tinyobj::shape_t &shape, std::shared_ptr<Material> mat);

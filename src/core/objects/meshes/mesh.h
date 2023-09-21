@@ -13,6 +13,8 @@ namespace raytracer
         std::unique_ptr<Point3[]> vertices;
         std::unique_ptr<Normal3[]> normals;
 
+        // std::vector<std::vector<int> > vertex_faces;  // a list of all the triangles that share a particular vertex
+
         Mesh();
     };
 }

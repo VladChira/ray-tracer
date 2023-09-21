@@ -8,11 +8,10 @@ MeshTriangle::MeshTriangle(const std::shared_ptr<Mesh> &mesh, int triangle_numbe
     v = &mesh->vertex_idx[3 * triangle_number];
     this->material = mat;
 
-    // Compute the Normal
+    // Compute the Normal - TODO this is not efficient
     Point3 v0 = mesh->vertices[v[0]];
     Point3 v1 = mesh->vertices[v[1]];
     Point3 v2 = mesh->vertices[v[2]];
-    normal = -Normalize(Cross(v1 - v0, v2 - v0));
 }
 
 bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec) const
@@ -53,6 +52,7 @@ bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec
 
     double e3 = a * p - b * r + d * s;
     double t = e3 * inv_denom;
+    
 
     if (t < std::numeric_limits<double>::epsilon())
     {
@@ -60,7 +60,9 @@ bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec
     }
 
     rec.t = t;
-    rec.normal = -normal;
+    Normal3 normal = Normalize(Cross(v1 - v0, v2 - v0)); // TODO smooth shading
+    
+    rec.normal = normal;
     rec.p = ray.origin + t * ray.direction;
 
     rec.material = this->material;
@@ -88,9 +90,11 @@ std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const
 
     mesh->nr_vertices = attrib.vertices.size() / 3;
     int nr_faces = shape.mesh.num_face_vertices.size();
+    mesh->nr_triangles = nr_faces;
 
     mesh->vertices = std::make_unique<Point3[]>(mesh->nr_vertices);
-
+    mesh->normals = std::make_unique<Normal3[]>(mesh->nr_vertices);
+    
     mesh->vertex_idx.reserve(nr_faces * 3);
     size_t index_offset = 0;
     for (int f = 0; f < nr_faces; f++)
@@ -108,13 +112,36 @@ std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const
             double vy = attrib.vertices[3 * vertex_index + 1];
             double vz = attrib.vertices[3 * vertex_index + 2];
             mesh->vertices[vertex_index] = (10 * Point3(vx, vy, vz)) + Point3(7, -0.5, 2);
+            // mesh->vertices[vertex_index] = Point3(vx, vy, vz);
         }
         index_offset += fv;
     }
 
     for (size_t i = 0; i < nr_faces; i++)
     {
-        triangles.push_back(std::make_shared<MeshTriangle>(mesh, i, mat));
+        MeshTriangle triangle(mesh, i, mat);
+        triangles.push_back(std::make_shared<MeshTriangle>(triangle));
     }
+
+    // Compute the normals at each vertex
+    // for (int v = 0; v < mesh->nr_vertices; v++)
+    // {
+    //     Normal3 weighted_normal(0, 0, 0);
+    //     // For each triangle, does it have v as a vertex?
+    //     for (int t = 0; t < triangles.size(); t++)
+    //     {
+    //         MeshTriangle triangle = *(triangles[t]);
+    //         Point3 v0 = triangle.mesh->vertices[triangle.v[0]];
+    //         Point3 v1 = triangle.mesh->vertices[triangle.v[1]];
+    //         Point3 v2 = triangle.mesh->vertices[triangle.v[2]];
+    //         Normal3 normal = Normalize(Cross(v1 - v0, v2 - v0));
+    //         // std::cout << normal << "\n";
+    //         if (triangle.v[0] == v || triangle.v[1] == v || triangle.v[2] == v)
+    //             weighted_normal += normal;
+    //     }
+    //     mesh->normals[v] = Normalize(weighted_normal);
+    //     // std::cout << "Vertex "<< v+1 << ": " << Normalize(weighted_normal) << "\n";
+    // }
+
     return triangles;
 }

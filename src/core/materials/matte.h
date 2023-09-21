@@ -27,7 +27,6 @@ namespace raytracer
 
         ~Matte()
         {
-            
         }
 
         Matte(LambertianBRDF l)
@@ -51,12 +50,22 @@ namespace raytracer
             }
         }
 
+        inline Vector3 random_on_hemisphere(const Vector3 &normal) const
+        {
+            auto on_unit_sphere = sampler->sample_sphere();
+            if (Dot(on_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+                return on_unit_sphere;
+            else
+                return -on_unit_sphere;
+        }
+
         /*
          *  Calculate a new ray that is randomly scattered from the hit point
          */
         bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color3 &attenuation, raytracer::Ray &scattered) const override
         {
-            auto scatter_direction = rec.normal + sampler->sample_sphere();
+            // auto scatter_direction = rec.normal + sampler->sample_sphere();
+            auto scatter_direction = random_on_hemisphere(rec.normal);
             if (NearZero(scatter_direction))
             {
                 scatter_direction = rec.normal;

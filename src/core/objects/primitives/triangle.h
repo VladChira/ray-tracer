@@ -1,3 +1,4 @@
+#pragma once
 #include "geometric_object.h"
 
 namespace raytracer
@@ -16,4 +17,6 @@ namespace raytracer
 
         AABB bounding_box() const override;
     };
+
+    std::vector<std::shared_ptr<Triangle>> tessellate_flat_sphere(const int horizontal_steps, const int vertical_steps, std::shared_ptr<Material> mat);
 }
