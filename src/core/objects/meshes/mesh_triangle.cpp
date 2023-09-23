@@ -7,11 +7,6 @@ MeshTriangle::MeshTriangle(const std::shared_ptr<Mesh> &mesh, int triangle_numbe
     this->mesh = mesh;
     v = &mesh->vertex_idx[3 * triangle_number];
     this->material = mat;
-
-    // Compute the Normal - TODO this is not efficient
-    Point3 v0 = mesh->vertices[v[0]];
-    Point3 v1 = mesh->vertices[v[1]];
-    Point3 v2 = mesh->vertices[v[2]];
 }
 
 bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec) const
@@ -128,26 +123,31 @@ std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const
         triangles.push_back(std::make_shared<MeshTriangle>(triangle));
     }
 
-    // Compute the normals at each vertex
-    mesh->has_normals = true;
-    mesh->normals = std::make_unique<Normal3[]>(mesh->nr_vertices);
-    for (int v = 0; v < mesh->nr_vertices; v++)
+    // Compute the normals at each vertex, but don't bother if using flat shading
+    if (shading_type == SMOOTH)
     {
-        Normal3 weighted_normal(0, 0, 0);
-        // For each triangle, does it have v as a vertex?
-        for (int t = 0; t < triangles.size(); t++)
+        // TODO, precompute vertexes shared among triangles to make this run in O(nr_vertices)
+        mesh->has_normals = true;
+        mesh->normals = std::make_unique<Normal3[]>(mesh->nr_vertices);
+        for (int v = 0; v < mesh->nr_vertices; v++)
         {
-            MeshTriangle triangle = *(triangles[t]);
-            Point3 v0 = triangle.mesh->vertices[triangle.v[0]];
-            Point3 v1 = triangle.mesh->vertices[triangle.v[1]];
-            Point3 v2 = triangle.mesh->vertices[triangle.v[2]];
-            Normal3 normal = Normalize(Cross(v1 - v0, v2 - v0));
-            // std::cout << normal << "\n";
-            if (triangle.v[0] == v || triangle.v[1] == v || triangle.v[2] == v)
-                weighted_normal += normal;
+            Normal3 weighted_normal(0, 0, 0);
+            // For each triangle, does it have v as a vertex?
+            for (int t = 0; t < triangles.size(); t++)
+            {
+                MeshTriangle triangle = *(triangles[t]);
+                Point3 v0 = triangle.mesh->vertices[triangle.v[0]];
+                Point3 v1 = triangle.mesh->vertices[triangle.v[1]];
+                Point3 v2 = triangle.mesh->vertices[triangle.v[2]];
+                Normal3 normal = Normalize(Cross(v1 - v0, v2 - v0));
+                // std::cout << normal << "\n";
+                if (triangle.v[0] == v || triangle.v[1] == v || triangle.v[2] == v)
+                    weighted_normal += normal;
+            }
+            mesh->normals[v] = Normalize(weighted_normal);
         }
-        mesh->normals[v] = Normalize(weighted_normal);
     }
+
     return triangles;
 }
 

@@ -1,13 +1,15 @@
 #pragma once
 #include <memory>
 #include <algorithm>
-#include "hittable_list.h"
+#include "geometric_object.h"
+#include "world.h"
+
 namespace raytracer
 {
     class BVH_Node : public GeometricObject
     {
     public:
-        BVH_Node(const HittableList &list) : BVH_Node(list.objects, 0, list.objects.size()) {}
+        BVH_Node(const std::vector<std::shared_ptr<GeometricObject>> &objects) : BVH_Node(objects, 0, objects.size()) {}
 
         BVH_Node(const std::vector<std::shared_ptr<GeometricObject>> &src_objects, size_t start, size_t end)
         {

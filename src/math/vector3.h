@@ -128,8 +128,8 @@ namespace raytracer
         using Point3 = Vector3;
         using Color3 = Vector3;
         using Normal3 = Vector3;
-        static const Color3 red, green, dark_green,  blue, white, black, yellow, cyan, 
-        brown, grey, purple, orange;
+        static const Color3 red, green, dark_green, blue, white, black, yellow, cyan,
+            brown, grey, purple, orange;
     };
 
     using Point3 = Vector3;
@@ -243,6 +243,14 @@ namespace raytracer
         Vector3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
         Vector3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.LengthSquared())) * n;
         return r_out_perp + r_out_parallel;
+    }
+
+    inline Vector3 Clamp(Vector3 v, double minVal, double maxVal)
+    {
+        v.x = std::min(std::max(v.x, minVal), maxVal);
+        v.y = std::min(std::max(v.y, minVal), maxVal);
+        v.z = std::min(std::max(v.z, minVal), maxVal);
+        return v;
     }
 
 }

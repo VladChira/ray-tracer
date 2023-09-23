@@ -1,7 +1,8 @@
 #pragma once
 #include "maths.h"
 #include "ray.h"
-class HitInfo;
+#include "world.h"
+
 namespace raytracer
 {
     class Light

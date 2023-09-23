@@ -3,51 +3,37 @@
 #include <vector>
 #include <algorithm>
 
-#include "hittable_list.h"
-#include "material.h"
-#include "light.h"
-#include "camera.h"
+#include "maths.h"
+#include "aabb.h"
+#include "geometric_object.h"
+#include "hit_info.h"
 
 namespace raytracer
 {
+    class Material;
+    class Light;
+    class Camera;
+
     class World
     {
     public:
-        HittableList objects;
-        std::vector<std::shared_ptr<raytracer::Material>> materials;
-        std::vector<std::shared_ptr<raytracer::Light>> lights;
-        std::shared_ptr<raytracer::Camera> camera;
+        std::vector<std::shared_ptr<GeometricObject>> objects;
+        std::vector<std::shared_ptr<Material>> materials;
+        std::vector<std::shared_ptr<Light>> lights;
+        std::shared_ptr<Camera> camera;
         Color3 background_color;
+        AABB aabb; // the AABB of the entire scene
 
-        void add_object(std::shared_ptr<GeometricObject> object)
-        {
-            objects.add(object);
-            add_material(object->material);
-        }
+        void add_object(std::shared_ptr<GeometricObject> object);
 
-        void add_light(std::shared_ptr<Light> light)
-        {
-            lights.push_back(light);
-        }
+        void add_light(std::shared_ptr<Light> light);
 
-        void add_material(std::shared_ptr<Material> mat)
-        {
-            // Check if the material already exists in the list
-            if (std::find(materials.begin(), materials.end(), mat) == materials.end())
-            {
-                // Material doesn't exist, add it to the list
-                materials.push_back(mat);
-            }
-        }
+        void add_material(std::shared_ptr<Material> mat);
 
-        void set_camera(std::shared_ptr<Camera> cam)
-        {
-            camera = cam;
-        }
+        void set_camera(std::shared_ptr<Camera> cam);
 
-        void set_bg_color(Color3 c)
-        {
-            background_color = c;
-        }
+        void set_bg_color(Color3 c);
+
+        bool hit_objects(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const;
     };
 }

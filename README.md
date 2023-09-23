@@ -3,7 +3,7 @@
 <p align="center"><img src="./images/demo.png" width="900"/></p>
 <p align="center">Sample Render</p>
 
-A very simple WIP hobby CPU ray tracer with minimal UI elements.   
+A very simple WIP hobby CPU ray tracer with minimal GUI elements.   
   
 Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*, *PBRT* 
 
@@ -29,7 +29,8 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 - Lights
 - Normal ray tracing
 - Blinn-Phong shading
-- Highly efficient bucket rendering
+- Optimize BVH with Surface Area Heuristic
+- Efficient bucket rendering
 
 ## Gallery
 <p align="center"><img src="./images/spheres&bunny.png" width="700"/></p>

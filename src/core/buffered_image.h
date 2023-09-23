@@ -164,7 +164,13 @@ namespace raytracer
             else
             {
                 /* Write the PNG data to the output file */
-                fwrite(png_buf, 1, png_size, output_file);
+                if (output_file != NULL)
+                    fwrite(png_buf, 1, png_size, output_file);
+                else
+                {
+                    free(png_buf);
+                    ret = -1;
+                }
 
                 /* User owns the buffer after a successful call */
                 free(png_buf);

@@ -1,8 +1,8 @@
 # Ignore build directory
-build/
+build/*
 
 # Ignore the model directory for small repo size
-models/
+models/*
 
 # Ignore CMake build files
 CMakeFiles/

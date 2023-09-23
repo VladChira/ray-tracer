@@ -1,7 +1,7 @@
 #pragma once
-#include "geometric_object.h"
 #include "maths.h"
 #include "aabb.h"
+#include "geometric_object.h"
 namespace raytracer
 {
     class Sphere : public GeometricObject

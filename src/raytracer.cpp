@@ -11,16 +11,16 @@
 #include "renderview.h"
 #include "multijittered.h"
 #include "materials.h"
-#include "objects.h"
 #include "pinhole.h"
 #include "path_tracer.h"
 #include "ray_caster.h"
 #include "world.h"
-#include "hittable_list.h"
 #include "bvh.h"
+#include "sphere.h"
 #include "obj_loader.h"
 #include "mesh_triangle.h"
 #include "directional.h"
+#include "point_light.h"
 
 using namespace raytracer;
 
@@ -90,7 +90,6 @@ void setup4()
 
     world.add_object(std::make_shared<Sphere>(Vector3(-3.0, 0.0, 0.0), 1.0, mat));
 
-
     // Lights
     auto light1 = std::make_shared<Directional>(3.0, Color3::white, Vector3(0, 1, 0));
     world.add_light(light1);
@@ -110,7 +109,9 @@ void setup4()
     sampler->map_samples_to_sphere();
 
     Console::GetInstance()->addLogEntry("Constructing BVH...");
-    world.objects = HittableList(std::make_shared<BVH_Node>(world.objects));
+    auto bvh = std::make_shared<BVH_Node>(world.objects);
+    world.objects.clear();
+    world.objects.push_back(bvh);
 
     // Tracer
     tracer = new PathTracer();
@@ -127,9 +128,9 @@ void setup3()
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
-    LoadObj("../models/smooth_sphere.obj", attrib, shapes, materials);
+    LoadObj("../models/bunny/bunny.obj", attrib, shapes, materials);
 
-    auto triangles = create_triangle_mesh(attrib, shapes[0], ShadingType::SMOOTH, mat);
+    auto triangles = create_triangle_mesh(attrib, shapes[0], ShadingType::FLAT, mat);
     for (int i = 0; i < triangles.size(); i++)
     {
         world.add_object(triangles[i]);
@@ -144,7 +145,9 @@ void setup3()
 
     // Construct the BVH
     Console::GetInstance()->addLogEntry("Constructing BVH...");
-    world.objects = HittableList(std::make_shared<BVH_Node>(world.objects));
+    auto bvh = std::make_shared<BVH_Node>(world.objects);
+    world.objects.clear();
+    world.objects.push_back(bvh);
 
     // Anti Aliasing Sampler
     sampler = new MultiJittered(100);
@@ -240,7 +243,9 @@ void setup2()
     world.set_camera(camera);
 
     // Construct the BVH
-    world.objects = HittableList(std::make_shared<BVH_Node>(world.objects));
+    auto bvh = std::make_shared<BVH_Node>(world.objects);
+    world.objects.clear();
+    world.objects.push_back(bvh);
 
     // Anti Aliasing Sampler
     sampler = new MultiJittered(100);
@@ -256,6 +261,13 @@ void setup2()
 
 void setup()
 {
+    // Tracer
+    tracer = new RayCaster();
+
+    // Lights
+    auto light1 = std::make_shared<PointLight>(3.0, Color3::white, Vector3(5, 10, 0));
+    world.add_light(light1);
+
     auto mat = std::make_shared<Matte>(0.8, Color3::orange);
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -324,14 +336,13 @@ void setup()
     world.set_camera(camera);
 
     Console::GetInstance()->addLogEntry("Constructing BVH...");
-    world.objects = HittableList(std::make_shared<BVH_Node>(world.objects));
+    auto bvh = std::make_shared<BVH_Node>(world.objects);
+    world.objects.clear();
+    world.objects.push_back(bvh);
 
     // Anti Aliasing Sampler
     sampler = new MultiJittered(100);
     sampler->map_samples_to_sphere();
-
-    // Tracer
-    tracer = new PathTracer();
 
     // Start viewport preview
     RenderView::GetInstance()->set_size(image_width, image_height);
@@ -376,6 +387,8 @@ void multi_threaded_render()
     fclose(output_file);
     if (result == 0)
         Console::GetInstance()->addSuccesEntry("Image saved to disk.");
+    else
+        Console::GetInstance()->addErrorEntry("Failed to save image to disk");
 }
 
 int main()

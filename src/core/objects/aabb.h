@@ -1,39 +1,8 @@
 #pragma once
-
+#include "interval.h"
+#include "ray.h"
 namespace raytracer
 {
-    class Interval
-    {
-
-    public:
-        Interval() {}
-
-        Interval(const Interval &a, const Interval &b)
-            : min(fmin(a.min, b.min)), max(fmax(a.max, b.max)) {}
-
-        Interval(double min, double max)
-        {
-            this->min = min;
-            this->max = max;
-        }
-        double size() const
-        {
-            return max - min;
-        }
-
-        Interval expand(double delta) const
-        {
-            auto padding = delta / 2;
-            return Interval(min - padding, max + padding);
-        }
-        double min = 0, max = 0;
-
-        bool empty_interval() const
-        {
-            return (max-min) == 0;
-        }
-    };
-
     class AABB
     {
     public:
@@ -91,11 +60,6 @@ namespace raytracer
                     return false;
             }
             return true;
-        }
-
-        bool empty_bounding_box() const
-        {
-            return x.empty_interval() && y.empty_interval() && z.empty_interval();
         }
     };
 }

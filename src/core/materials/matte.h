@@ -3,7 +3,6 @@
 #include "material.h"
 #include "lambertian.h"
 #include "geometric_object.h"
-#include "pure_random.h"
 #include "multijittered.h"
 namespace raytracer
 {
@@ -21,7 +20,7 @@ namespace raytracer
     public:
         Matte()
         {
-            sampler = std::make_shared<PureRandom>(50);
+            sampler = std::make_shared<MultiJittered>(50);
             sampler->map_samples_to_sphere();
         }
 
@@ -34,7 +33,7 @@ namespace raytracer
             diffuse_brdf = l;
             if (sampler == NULL)
             {
-                sampler = std::make_shared<PureRandom>(50);
+                sampler = std::make_shared<MultiJittered>(50);
                 sampler->map_samples_to_sphere();
             }
         }
@@ -75,23 +74,24 @@ namespace raytracer
         {
             auto wo = -r_in.direction;
             Color3 accColor(0, 0, 0);
-            for (int i = 0; i < rec.lights.size(); i++)
+            for (int i = 0; i < rec.world.lights.size(); i++)
             {
-                auto wi = rec.lights[i]->get_direction(r_in, rec);
+                auto wi = rec.world.lights[i]->get_direction(r_in, rec);
                 double ndotwi = Dot(wi, rec.normal);
                 if (ndotwi > 0.0)
                 {
                     bool in_shadow = false;
                     Ray shadow_ray = Ray(rec.p, wi);
-                    in_shadow = rec.lights[i]->in_shadow(shadow_ray, rec);
+                    in_shadow = rec.world.lights[i]->in_shadow(shadow_ray, rec);
                     if (!in_shadow)
                     {
-                        Color3 f1 = diffuse_brdf.f(rec, wo, wi) * rec.lights[i]->L(r_in, rec);
-                        accColor += (f1 * ndotwi);
+                        Color3 f1 = diffuse_brdf.f(rec, wo, wi) * rec.world.lights[i]->L(r_in, rec) * rec.world.lights[i]->G(r_in, rec);
+                        accColor += (f1 * ndotwi / rec.world.lights[i]->pdf(r_in, rec));
                     }
                 }
             }
-            return accColor;
+            // Clamp the color to 1.0 for now. Perhaps HDR in the future?
+            return Clamp(accColor, 0.0, 1.0);
         }
     };
 }
