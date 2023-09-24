@@ -8,9 +8,9 @@ A very simple WIP hobby CPU ray tracer with minimal GUI elements.
 Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*, *PBRT* 
 
 ## Features (WIP)
-- Multiple tracers: Path Tracing, Whitted Ray Tracing
-- Materials: Matte, Phong, Reflective, Transparent
-- Lights: Directional, Point
+- Multiple tracers: Path Tracing, Ray Tracing
+- Materials: Matte, Phong, Reflective, Transparent, Emissive
+- Lights: Directional, Point, Area
 - 3D meshes in .obj format
 - BVH Optimization
 - Multithreaded rendering
@@ -27,7 +27,6 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 - ~~3D Meshes~~
 - Affine transformations
 - Lights
-- Normal ray tracing
 - Blinn-Phong shading
 - Optimize BVH with Surface Area Heuristic
 - Efficient bucket rendering

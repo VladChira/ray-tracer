@@ -21,14 +21,15 @@
 #include "mesh_triangle.h"
 #include "directional.h"
 #include "point_light.h"
+#include "emissive.h"
 
 using namespace raytracer;
 
 // Image
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 700;
+const int image_width = 1920;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 40;
+const int samples_per_pixel = 150;
 const int max_depth = 30;
 
 // World
@@ -163,6 +164,13 @@ void setup3()
 
 void setup2()
 {
+    //Lights
+    auto light1 = std::make_shared<Directional>(1.0, Color3::white, Vector3(1, 0, 0));
+    world.add_light(light1);
+
+    // Tracer
+    tracer = new PathTracer();
+
     auto mat1 = std::make_shared<Matte>(1, Color3::orange);
     world.add_object(std::make_shared<Sphere>(Vector3(5, 3, 0), 30, mat1));
 
@@ -251,9 +259,6 @@ void setup2()
     sampler = new MultiJittered(100);
     sampler->map_samples_to_sphere();
 
-    // Tracer
-    tracer = new PathTracer();
-
     // Start viewport preview
     RenderView::GetInstance()->set_size(image_width, image_height);
     RenderView::GetInstance()->display_render = true;
@@ -262,11 +267,11 @@ void setup2()
 void setup()
 {
     // Tracer
-    tracer = new RayCaster();
+    tracer = new PathTracer();
 
     // Lights
-    auto light1 = std::make_shared<PointLight>(3.0, Color3::white, Vector3(5, 10, 0));
-    world.add_light(light1);
+    // auto light1 = std::make_shared<PointLight>(1.0, Color3::white, Vector3(5, 10, 0));
+    // world.add_light(light1);
 
     auto mat = std::make_shared<Matte>(0.8, Color3::orange);
     tinyobj::attrib_t attrib;
@@ -305,14 +310,14 @@ void setup()
                 {
                     // metal
                     auto cr = Color3(random_double(0.5, 1), random_double(0.5, 1), random_double(0.5, 1));
-                    auto fuzz = random_double(0, 0.5);
-                    sphere_material = std::make_shared<Reflective>(1, cr, 0.0);
+                    auto fuzz = random_double(0, 0.2);
+                    sphere_material = std::make_shared<Reflective>(1, cr, fuzz);
                     world.add_object(std::make_shared<Sphere>(center, 0.2, sphere_material));
                 }
                 else
                 {
-                    // glass
-                    sphere_material = std::make_shared<Transparent>(1.5);
+                    // lights
+                    sphere_material = std::make_shared<Emissive>(1, Color3::white);
                     world.add_object(std::make_shared<Sphere>(center, 0.2, sphere_material));
                 }
             }
@@ -325,8 +330,8 @@ void setup()
     auto material2 = std::make_shared<Matte>(1.0, Color3(0.4, 0.2, 0.1));
     world.add_object(std::make_shared<Sphere>(Point3(-4, 1, 0), 1.0, material2));
 
-    auto material3 = std::make_shared<Reflective>(1, Color3(0.7, 0.6, 0.5), 0.0);
-    world.add_object(std::make_shared<Sphere>(Point3(4, 1, 0), 1.0, material3));
+    auto material3 = std::make_shared<Emissive>(1, Color3::white);
+    world.add_object(std::make_shared<Sphere>(Point3(4, 1, 0), 0.5, material3));
 
     // Camera
     std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Vector3(13, 2, 3), Vector3(0, 0, 0));
