@@ -3,7 +3,7 @@ using namespace raytracer;
 
 AreaLight::AreaLight() {}
 
-Color3 AreaLight::L(const Ray &r_in, const HitInfo &rec) const
+Color3 AreaLight::L(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const
 {
     double ndotd = Dot(-light_normal, wi);
 
@@ -15,7 +15,7 @@ Color3 AreaLight::L(const Ray &r_in, const HitInfo &rec) const
     }
 }
 
-bool AreaLight::in_shadow(const Ray &ray, const HitInfo &rec) const {
+bool AreaLight::in_shadow(const Ray &ray, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const {
     double t;
     int num_objects = rec.world.objects.size();
     double ts = Dot((sample_point - ray.origin), ray.direction);
@@ -28,7 +28,7 @@ bool AreaLight::in_shadow(const Ray &ray, const HitInfo &rec) const {
     return false;
 }
 
-double AreaLight::G(const Ray &ray, const HitInfo &rec) const {
+double AreaLight::G(const Ray &ray, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const {
     double ndotd = Dot(-light_normal, wi);
     double d2 = (sample_point - rec.p).LengthSquared();
 
@@ -41,7 +41,7 @@ double AreaLight::pdf(const Ray &ray, const HitInfo &rec) const
 }
 
 
-Vector3 AreaLight::get_direction(const Ray &r_in, const HitInfo &rec)
+Vector3 AreaLight::get_direction(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi)
 {
     sample_point = object->sample();  // used in the G function
     light_normal = object->get_normal(sample_point);

@@ -92,18 +92,21 @@ namespace raytracer
             Color3 accColor(0, 0, 0);
             for (int i = 0; i < rec.world.lights.size(); i++)
             {
-                auto wi = rec.world.lights[i]->get_direction(r_in, rec);
+                Point3 sample_point;
+                Normal3 light_normal;
+                Vector3 light_dir;
+                auto wi = rec.world.lights[i]->get_direction(r_in, rec, sample_point, light_normal, light_dir);
                 double ndotwi = Dot(wi, rec.normal);
                 if (ndotwi > 0.0)
                 {
                     bool in_shadow = false;
                     Ray shadow_ray = Ray(rec.p, wi);
-                    in_shadow = rec.world.lights[i]->in_shadow(shadow_ray, rec);
+                    in_shadow = rec.world.lights[i]->in_shadow(shadow_ray, rec, sample_point, light_normal, light_dir);
                     if (!in_shadow)
                     {
                         Color3 dif = diffuse_brdf.f(rec, wo, wi);
-                        Color3 L = rec.world.lights[i]->L(r_in, rec);
-                        double G = rec.world.lights[i]->G(r_in, rec);
+                        Color3 L = rec.world.lights[i]->L(r_in, rec, sample_point, light_normal, light_dir);
+                        double G = rec.world.lights[i]->G(r_in, rec, sample_point, light_normal, light_dir);
                         Color3 f1 = dif * L * G;
                         accColor += (f1 * ndotwi / rec.world.lights[i]->pdf(r_in, rec));
                     }

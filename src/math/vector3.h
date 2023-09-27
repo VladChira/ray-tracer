@@ -130,6 +130,17 @@ namespace raytracer
         using Normal3 = Vector3;
         static const Color3 red, green, dark_green, blue, white, black, yellow, cyan,
             brown, grey, purple, orange;
+
+
+        // http://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html
+        Color3 gamma_corrected()
+        {
+            Color3 c;
+            c.x = std::max(1.055 * pow(x, 0.416666667) - 0.055, 0.0);
+            c.y = std::max(1.055 * pow(y, 0.416666667) - 0.055, 0.0);
+            c.z = std::max(1.055 * pow(z, 0.416666667) - 0.055, 0.0);
+            return c;
+        }
     };
 
     using Point3 = Vector3;

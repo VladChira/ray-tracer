@@ -8,7 +8,7 @@ project(raytracer)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON) 
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(-g -D SPNG_USE_MINIZ)
@@ -31,7 +31,6 @@ file(GLOB_RECURSE EXT_FILES
         ./external/spng/*.h
         ./external/spng/*.c
         ./external/tinyobjloader/*.h
-        ./external/bvh/*.h
     )
 
 include_directories(
@@ -39,7 +38,6 @@ include_directories(
     ./external/imgui/backends
     ./external/spng
     ./external/tinyobjloader
-    ./external/bvh
     ./src/core
     ./src/core/objects
     ./src/core/objects/primitives
@@ -58,9 +56,6 @@ include_directories(
 
 # Add the source files
 set(SRCS ${SRC_FILES} ${EXT_FILES})
-
-include(${CMAKE_CURRENT_SOURCE_DIR}/external/bvh/src/bvh/v2/CMakeLists.txt)
-
 
 # Add the executable
 add_executable(raytracer ${SRCS})

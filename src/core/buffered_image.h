@@ -77,7 +77,6 @@ namespace raytracer
             return this->image_data;
         }
 
-        // http://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html
         void linear_to_srgb()
         {
             for (int i = 0; i < this->height; i++)

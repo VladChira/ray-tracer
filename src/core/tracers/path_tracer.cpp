@@ -25,12 +25,12 @@ Color3 PathTracer::trace_ray(const Ray &r, const World &world, int depth) const
 
         return total;
     }
-    // return Color3::black;
+    return Color3::black;
 
     // blue sky color
-    Vector3 unit_direction = Normalize(r.direction);
-    auto t = 0.5 * (unit_direction.y + 1.0);
-    return ((1.0 - t) * Color3::white + t * Color3(0.4, 0.6, 0.9));
+    // Vector3 unit_direction = Normalize(r.direction);
+    // auto t = 0.5 * (unit_direction.y + 1.0);
+    // return ((1.0 - t) * Color3::white + t * Color3(0.4, 0.6, 0.9));
 
     // Vector3 unit_direction = Normalize(r.direction);
     // auto t = 0.5 * (unit_direction.y + 1.0);

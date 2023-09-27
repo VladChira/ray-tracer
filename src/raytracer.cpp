@@ -3,7 +3,6 @@
 #include <atomic>
 
 #include "Tracy.hpp"
-#define TRACY_ENABLE
 
 #define TINYOBJLOADER_IMPLEMENTATION
 
@@ -71,7 +70,7 @@ void render_region(Point2 top_left, unsigned int width, unsigned int height)
 
                 pixel_color += tracer->trace_ray(r, world, max_depth);
             }
-            pixel_color = Clamp(pixel_color / samples_per_pixel, 0.0, 1.0) * 255.0;
+            pixel_color = Clamp((pixel_color / samples_per_pixel), 0.0, 1.0).gamma_corrected() * 255.0;
 
             RenderView::GetInstance()->set_pixel_color(image_height - i - 1, j, pixel_color);
         }
@@ -132,10 +131,10 @@ void cornell_box()
     area_light->set_object(light_rect);
     world.add_light(area_light);
 
-    // world.add_object(std::make_shared<Rectangle>(Point3(555, 0, 0), Vector3(0, 0, 555), Vector3(0, 555, 0), green));
-    // world.add_object(std::make_shared<Rectangle>(Point3(0, 0, 0), Vector3(0, 555, 0), Vector3(0, 0, 555), red));
+    world.add_object(std::make_shared<Rectangle>(Point3(555, 0, 0), Vector3(0, 0, 555), Vector3(0, 555, 0), green));
+    world.add_object(std::make_shared<Rectangle>(Point3(0, 0, 0), Vector3(0, 555, 0), Vector3(0, 0, 555), red));
 
-    // world.add_object(std::make_shared<Rectangle>(Point3(0, 0, 0), Vector3(0, 0, 555), Vector3(555, 0, 0), white));
+    world.add_object(std::make_shared<Rectangle>(Point3(0, 0, 0), Vector3(0, 0, 555), Vector3(555, 0, 0), white));
     world.add_object(std::make_shared<Rectangle>(Point3(555, 555, 555), Vector3(-555, 0, 0), Vector3(0, 0, -555), white));
     world.add_object(std::make_shared<Rectangle>(Point3(0, 0, 555), Vector3(0, 555, 0), Vector3(555, 0, 0), white));
 
@@ -152,8 +151,7 @@ void cornell_box()
     world.set_camera(camera);
 
     // Sampler
-    sampler = new PureRandom(samples_per_pixel);
-    sampler->map_samples_to_sphere();
+    sampler = new MultiJittered(100);
 
     Console::GetInstance()->addLogEntry("Constructing BVH...");
     auto bvh = std::make_shared<BVH_Node>(world.objects);
@@ -466,7 +464,7 @@ void multi_threaded_render()
     // Build a particular scene here
     Console::GetInstance()->addLogEntry("Building scene...");
 
-    setup3();
+    cornell_box();
 
     Console::GetInstance()->addLogEntry("Rendering...");
     std::vector<std::thread> threads;
@@ -485,8 +483,6 @@ void multi_threaded_render()
 
     if (exit_requested.load(std::memory_order_relaxed))
         return;
-
-    RenderView::GetInstance()->image->linear_to_srgb();
 
     timer.stop();
     Console::GetInstance()->addEmptyLine()->addSuccesEntry("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");

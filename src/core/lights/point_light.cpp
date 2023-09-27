@@ -9,17 +9,17 @@ PointLight::PointLight(double ls, Color3 c, Vector3 loc)
     this->location = loc;
 }
 
-Vector3 PointLight::get_direction(const Ray &r_in, const HitInfo &rec)
+Vector3 PointLight::get_direction(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi)
 {
     return Normalize(location - rec.p);
 }
 
-Color3 PointLight::L(const Ray &r_in, const HitInfo &rec) const
+Color3 PointLight::L(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const
 {
     return ls * color;
 }
 
-double PointLight::G(const Ray &r_in, const HitInfo &rec) const
+double PointLight::G(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const
 {
     return 1.0;
 }
@@ -29,7 +29,7 @@ double PointLight::pdf(const Ray &r_in, const HitInfo &rec) const
     return 1.0;
 }
 
-bool PointLight::in_shadow(const Ray &r, const HitInfo &rec) const
+bool PointLight::in_shadow(const Ray &r, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const
 {
     double d = (location - r.origin).Length();
     HitInfo rec2(rec.world);
