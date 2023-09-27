@@ -8,7 +8,7 @@ namespace raytracer
     class Light
     {
     public:
-        virtual Vector3 get_direction(const Ray &r_in, const HitInfo &rec) const = 0;
+        virtual Vector3 get_direction(const Ray &r_in, const HitInfo &rec) = 0;
         virtual Color3 L(const Ray &r_in, const HitInfo &rec) const = 0;
         virtual double G(const Ray &r_in, const HitInfo &rec) const = 0;
         virtual double pdf(const Ray &r_in, const HitInfo &rec) const = 0;

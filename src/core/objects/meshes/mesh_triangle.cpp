@@ -75,7 +75,7 @@ AABB MeshTriangle::bounding_box() const
     Point3 v0 = mesh->vertices[v[0]];
     Point3 v1 = mesh->vertices[v[1]];
     Point3 v2 = mesh->vertices[v[2]];
-    const double delta = std::numeric_limits<double>::epsilon();
+    const double delta = 0.00001;
     Interval ix = Interval(std::min(std::min(v0.x, v1.x), v2.x) - delta, std::max(std::max(v0.x, v1.x), v2.x) + delta);
     Interval iy = Interval(std::min(std::min(v0.y, v1.y), v2.y) - delta, std::max(std::max(v0.y, v1.y), v2.y) + delta);
     Interval iz = Interval(std::min(std::min(v0.z, v1.z), v2.z) - delta, std::max(std::max(v0.z, v1.z), v2.z) + delta);

@@ -9,7 +9,7 @@ Directional::Directional(double ls, Color3 c, Vector3 dir)
     this->direction = dir;
 }
 
-Vector3 Directional::get_direction(const Ray &r_in, const HitInfo &rec) const
+Vector3 Directional::get_direction(const Ray &r_in, const HitInfo &rec)
 {
     return direction;
 }

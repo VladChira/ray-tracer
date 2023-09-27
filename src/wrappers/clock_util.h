@@ -1,6 +1,7 @@
 
 #pragma once
 #include <chrono>
+#include <cmath>
 
 class HiResTimer
 {
@@ -25,7 +26,7 @@ public:
 
     double elapsed_time_milliseconds()
     {
-        return duration.count();
+        return std::round(duration.count() * 100) / 100;
     }
     double elapsed_time_seconds()
     {

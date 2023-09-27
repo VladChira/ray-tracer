@@ -16,6 +16,13 @@ Triangle::Triangle(const Point3 &a, const Point3 &b, const Point3 &c, std::share
     v2 = c;
     normal = Normalize(Cross(v1 - v0, v2 - v0));
     this->material = mat;
+
+    const double delta = 0.00001;
+    Interval ix = Interval(std::min(std::min(v0.x, v1.x), v2.x) - delta, std::max(std::max(v0.x, v1.x), v2.x) + delta);
+    Interval iy = Interval(std::min(std::min(v0.y, v1.y), v2.y) - delta, std::max(std::max(v0.y, v1.y), v2.y) + delta);
+    Interval iz = Interval(std::min(std::min(v0.z, v1.z), v2.z) - delta, std::max(std::max(v0.z, v1.z), v2.z) + delta);
+
+    aabb = AABB(ix, iy, iz);
 }
 
 bool Triangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec) const
@@ -69,10 +76,5 @@ bool Triangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec) co
 
 AABB Triangle::bounding_box() const
 {
-    const double delta = std::numeric_limits<double>::epsilon();
-    Interval ix = Interval(std::min(std::min(v0.x, v1.x), v2.x) - delta, std::max(std::max(v0.x, v1.x), v2.x) + delta);
-    Interval iy = Interval(std::min(std::min(v0.y, v1.y), v2.y) - delta, std::max(std::max(v0.y, v1.y), v2.y) + delta);
-    Interval iz = Interval(std::min(std::min(v0.z, v1.z), v2.z) - delta, std::max(std::max(v0.z, v1.z), v2.z) + delta);
-
-    return AABB(ix, iy, iz);
+    return aabb;
 }

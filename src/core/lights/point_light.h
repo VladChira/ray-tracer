@@ -13,7 +13,7 @@ namespace raytracer
     public:
         PointLight(double ls, Color3 c, Vector3 dir);
 
-        Vector3 get_direction(const Ray &r_in, const HitInfo &rec) const override;
+        Vector3 get_direction(const Ray &r_in, const HitInfo &rec) override;
         Color3 L(const Ray &r_in, const HitInfo &rec) const override;
         double G(const Ray &r_in, const HitInfo &rec) const override;
         double pdf(const Ray &r_in, const HitInfo &rec) const override;

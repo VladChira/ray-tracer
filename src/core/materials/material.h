@@ -17,5 +17,10 @@ namespace raytracer
         {
             return Color3(0, 0, 0);
         }
+
+        virtual Color3 get_Le(const raytracer::Ray &r_in, const HitInfo &rec) const
+        {
+            return Color3(0, 0, 0);
+        }
     };
 }

@@ -9,7 +9,7 @@ PointLight::PointLight(double ls, Color3 c, Vector3 loc)
     this->location = loc;
 }
 
-Vector3 PointLight::get_direction(const Ray &r_in, const HitInfo &rec) const
+Vector3 PointLight::get_direction(const Ray &r_in, const HitInfo &rec)
 {
     return Normalize(location - rec.p);
 }

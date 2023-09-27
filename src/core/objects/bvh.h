@@ -13,6 +13,7 @@ namespace raytracer
 
         BVH_Node(const std::vector<std::shared_ptr<GeometricObject>> &src_objects, size_t start, size_t end)
         {
+            ZoneScoped;
             auto objects = src_objects; // Create a modifiable array of the source scene objects
 
             int axis = random_int(0, 2);
@@ -41,9 +42,11 @@ namespace raytracer
             }
             else
             {
-                std::sort(objects.begin() + start, objects.begin() + end, comparator);
-
+                // std::sort(objects.begin() + start, objects.begin() + end, comparator);
                 auto mid = start + object_span / 2;
+                std::nth_element(objects.begin() + start, objects.begin() + object_span / 2, objects.begin() + end, comparator);
+
+                
                 left = std::make_shared<BVH_Node>(objects, start, mid);
                 right = std::make_shared<BVH_Node>(objects, mid, end);
             }

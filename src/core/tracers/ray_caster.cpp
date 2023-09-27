@@ -1,5 +1,6 @@
 #include "ray_caster.h"
 #include "material.h"
+
 using namespace raytracer;
 
 Color3 RayCaster::trace_ray(const raytracer::Ray &r, const World &world, int depth) const

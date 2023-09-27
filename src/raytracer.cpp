@@ -2,6 +2,9 @@
 #include <thread>
 #include <atomic>
 
+#include "Tracy.hpp"
+#define TRACY_ENABLE
+
 #define TINYOBJLOADER_IMPLEMENTATION
 
 #include "gui.h"
@@ -10,6 +13,7 @@
 #include "console.h"
 #include "renderview.h"
 #include "multijittered.h"
+#include "pure_random.h"
 #include "materials.h"
 #include "pinhole.h"
 #include "path_tracer.h"
@@ -17,20 +21,21 @@
 #include "world.h"
 #include "bvh.h"
 #include "sphere.h"
+#include "rectangle.h"
 #include "obj_loader.h"
 #include "mesh_triangle.h"
 #include "directional.h"
 #include "point_light.h"
 #include "emissive.h"
+#include "area_light.h"
 
 using namespace raytracer;
 
-// Image
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 1920;
+const int image_width = 1000;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 150;
-const int max_depth = 30;
+const int samples_per_pixel = 200;
+const int max_depth = 50;
 
 // World
 World world;
@@ -41,12 +46,13 @@ Sampler *sampler;
 // Tracer
 Tracer *tracer;
 
-unsigned int num_threads = 7;
+unsigned int num_threads = std::thread::hardware_concurrency() - 1;
 
 std::atomic<bool> exit_requested(false);
 
 void render_region(Point2 top_left, unsigned int width, unsigned int height)
 {
+    ZoneScoped;
     for (int i = top_left.y; i < top_left.y + height; ++i)
     {
         for (int j = top_left.x; j < top_left.x + width; ++j)
@@ -65,10 +71,98 @@ void render_region(Point2 top_left, unsigned int width, unsigned int height)
 
                 pixel_color += tracer->trace_ray(r, world, max_depth);
             }
-            pixel_color = pixel_color / samples_per_pixel * 255;
+            pixel_color = Clamp(pixel_color / samples_per_pixel, 0.0, 1.0) * 255.0;
+
             RenderView::GetInstance()->set_pixel_color(image_height - i - 1, j, pixel_color);
         }
     }
+}
+
+void test()
+{
+    world.add_object(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, std::make_shared<Matte>(0.7, Color3::orange)));
+    world.add_object(std::make_shared<Sphere>(Point3(0, 2, 0), 2, std::make_shared<Matte>(0.7, Color3::blue)));
+
+    auto difflight = std::make_shared<Emissive>(4.0, Color3::white);
+    auto light_rect = std::make_shared<Rectangle>(Point3(3, 1, -2), Vector3(2, 0, 0), Vector3(0, 2, 0), difflight);
+    // world.add_object(light_rect);
+
+    // auto area_light = std::make_shared<AreaLight>();
+    // area_light->set_object(light_rect);
+    // world.add_light(area_light);
+
+    auto light = std::make_shared<Directional>(4.0, Color3::white, Normalize(Vector3(0, 2, -1)));
+    world.add_light(light);
+
+    // Tracer
+    tracer = new RayCaster();
+
+    // Camera
+    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Vector3(26,3,6), Vector3(0,2,0));
+    camera->set_fov(20);
+    camera->compute_pixel_size(image_width, image_height);
+    camera->compute_uvw();
+    world.set_camera(camera);
+
+    // Sampler
+    sampler = new MultiJittered(100);
+
+    Console::GetInstance()->addLogEntry("Constructing BVH...");
+    auto bvh = std::make_shared<BVH_Node>(world.objects);
+    world.objects.clear();
+    world.objects.push_back(bvh);
+
+    // Start viewport preview
+    RenderView::GetInstance()->set_size(image_width, image_height);
+    RenderView::GetInstance()->display_render = true;
+}
+
+void cornell_box()
+{
+    auto red = std::make_shared<Matte>(1.0, Color3(.65, .05, .05));
+    auto white = std::make_shared<Matte>(1.0, Color3(.73, .73, .73));
+    auto green = std::make_shared<Matte>(1.0, Color3(.12, .45, .15));
+    auto glass = std::make_shared<Transparent>(1.5);
+
+    auto light_mat = std::make_shared<Emissive>(15.0, Color3::white);
+    auto light_rect = std::make_shared<Rectangle>(Point3(343, 554, 332), Vector3(-130, 0, 0), Vector3(0, 0, -105), light_mat);
+    world.add_object(light_rect);
+
+    auto area_light = std::make_shared<AreaLight>();
+    area_light->set_object(light_rect);
+    world.add_light(area_light);
+
+    // world.add_object(std::make_shared<Rectangle>(Point3(555, 0, 0), Vector3(0, 0, 555), Vector3(0, 555, 0), green));
+    // world.add_object(std::make_shared<Rectangle>(Point3(0, 0, 0), Vector3(0, 555, 0), Vector3(0, 0, 555), red));
+
+    // world.add_object(std::make_shared<Rectangle>(Point3(0, 0, 0), Vector3(0, 0, 555), Vector3(555, 0, 0), white));
+    world.add_object(std::make_shared<Rectangle>(Point3(555, 555, 555), Vector3(-555, 0, 0), Vector3(0, 0, -555), white));
+    world.add_object(std::make_shared<Rectangle>(Point3(0, 0, 555), Vector3(0, 555, 0), Vector3(555, 0, 0), white));
+
+    // world.add_object(std::make_shared<Sphere>(Point3(278, 250, 0), 50, glass));
+
+    // Tracer
+    tracer = new RayCaster();
+
+    // Camera
+    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Vector3(278, 278, -800), Vector3(278, 278, 0));
+    camera->set_fov(40);
+    camera->compute_pixel_size(image_width, image_height);
+    camera->compute_uvw();
+    world.set_camera(camera);
+
+    // Sampler
+    sampler = new PureRandom(samples_per_pixel);
+    sampler->map_samples_to_sphere();
+
+    Console::GetInstance()->addLogEntry("Constructing BVH...");
+    auto bvh = std::make_shared<BVH_Node>(world.objects);
+    world.objects.clear();
+    world.objects.push_back(bvh);
+
+    // Start viewport preview
+    RenderView::GetInstance()->set_size(image_width, image_height);
+    RenderView::GetInstance()->display_render = true;
 }
 
 void setup4()
@@ -124,12 +218,13 @@ void setup4()
 
 void setup3()
 {
-    auto mat = std::make_shared<Matte>(0.5, Color3::orange);
+    ZoneScoped;
+    auto mat = std::make_shared<Matte>(1, Color3::grey);
 
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
-    LoadObj("../models/bunny/bunny.obj", attrib, shapes, materials);
+    LoadObj("../models/bucatarie/buc.obj", attrib, shapes, materials);
 
     auto triangles = create_triangle_mesh(attrib, shapes[0], ShadingType::FLAT, mat);
     for (int i = 0; i < triangles.size(); i++)
@@ -138,21 +233,24 @@ void setup3()
     }
 
     // Camera
-    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Vector3(0, 0, 6), Vector3(0, 0, 0));
-    camera->set_fov(20);
+    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Vector3(25, 1000, -1000), Vector3(0, 200, -38));
+    camera->set_fov(90);
     camera->compute_pixel_size(image_width, image_height);
     camera->compute_uvw();
     world.set_camera(camera);
 
     // Construct the BVH
+    HiResTimer timer;
     Console::GetInstance()->addLogEntry("Constructing BVH...");
+    timer.start();
     auto bvh = std::make_shared<BVH_Node>(world.objects);
     world.objects.clear();
     world.objects.push_back(bvh);
+    timer.stop();
+    Console::GetInstance()->addSuccesEntry("BVH built in " + std::to_string(timer.elapsed_time_milliseconds()) + " ms.");
 
     // Anti Aliasing Sampler
     sampler = new MultiJittered(100);
-    sampler->map_samples_to_sphere();
 
     // Tracer
     tracer = new PathTracer();
@@ -164,7 +262,7 @@ void setup3()
 
 void setup2()
 {
-    //Lights
+    // Lights
     auto light1 = std::make_shared<Directional>(1.0, Color3::white, Vector3(1, 0, 0));
     world.add_light(light1);
 
@@ -266,6 +364,7 @@ void setup2()
 
 void setup()
 {
+    ZoneScoped;
     // Tracer
     tracer = new PathTracer();
 
@@ -340,10 +439,14 @@ void setup()
     camera->compute_uvw();
     world.set_camera(camera);
 
+    HiResTimer timer;
     Console::GetInstance()->addLogEntry("Constructing BVH...");
+    timer.start();
     auto bvh = std::make_shared<BVH_Node>(world.objects);
     world.objects.clear();
     world.objects.push_back(bvh);
+    timer.stop();
+    Console::GetInstance()->addSuccesEntry("BVH built in " + std::to_string(timer.elapsed_time_milliseconds()) + " ms.");
 
     // Anti Aliasing Sampler
     sampler = new MultiJittered(100);
@@ -356,13 +459,14 @@ void setup()
 
 void multi_threaded_render()
 {
+    ZoneScoped;
     HiResTimer timer;
     timer.start();
 
     // Build a particular scene here
     Console::GetInstance()->addLogEntry("Building scene...");
 
-    setup();
+    setup3();
 
     Console::GetInstance()->addLogEntry("Rendering...");
     std::vector<std::thread> threads;
@@ -382,7 +486,7 @@ void multi_threaded_render()
     if (exit_requested.load(std::memory_order_relaxed))
         return;
 
-    RenderView::GetInstance()->image->apply_gamma_correction(1.2);
+    RenderView::GetInstance()->image->linear_to_srgb();
 
     timer.stop();
     Console::GetInstance()->addEmptyLine()->addSuccesEntry("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");

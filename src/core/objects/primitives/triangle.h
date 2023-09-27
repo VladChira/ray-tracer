@@ -8,6 +8,7 @@ namespace raytracer
     public:
         Point3 v0, v1, v2;
         Normal3 normal;
+        AABB aabb;
 
         Triangle();
 

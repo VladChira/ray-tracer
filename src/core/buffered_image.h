@@ -77,16 +77,17 @@ namespace raytracer
             return this->image_data;
         }
 
-        void apply_gamma_correction(double gamma)
+        // http://chilliant.blogspot.com/2012/08/srgb-approximations-for-hlsl.html
+        void linear_to_srgb()
         {
             for (int i = 0; i < this->height; i++)
                 for (int j = 0; j < this->width; j++)
                 {
-                    raytracer::Color3 pixel_color = this->get(i, j);
-                    pixel_color.x = clip(pow(pixel_color.x / 255, 1 / gamma) * 255, 0.0, 255.0);
-                    pixel_color.y = clip(pow(pixel_color.y / 255, 1 / gamma) * 255, 0.0, 255.0);
-                    pixel_color.z = clip(pow(pixel_color.z / 255, 1 / gamma) * 255, 0.0, 255.0);
-                    this->set(i, j, pixel_color);
+                    raytracer::Color3 p = this->get(i, j) / 255;
+                    p.x = clip(std::max(1.055 * pow(p.x, 0.416666667) - 0.055, 0.0), 0.0, 1.0) * 255;
+                    p.y = clip(std::max(1.055 * pow(p.y, 0.416666667) - 0.055, 0.0), 0.0, 1.0) * 255;
+                    p.z = clip(std::max(1.055 * pow(p.z, 0.416666667) - 0.055, 0.0), 0.0, 1.0) * 255;
+                    this->set(i, j, p);
                 }
         }
 

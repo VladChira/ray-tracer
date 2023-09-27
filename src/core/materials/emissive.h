@@ -34,5 +34,10 @@ namespace raytracer
                 return ls * ce;
             return Color3::black;
         }
+
+        Color3 get_Le(const raytracer::Ray &r_in, const HitInfo &rec) const override
+        {
+            return ls * ce;
+        }
     };
 }
