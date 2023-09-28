@@ -13,6 +13,7 @@ namespace raytracer
     class Material;
     class Light;
     class Camera;
+    class Tracer;
 
     class World
     {
@@ -20,11 +21,16 @@ namespace raytracer
         std::vector<std::shared_ptr<GeometricObject>> objects;
         std::vector<std::shared_ptr<Material>> materials;
         std::vector<std::shared_ptr<Light>> lights;
+
         std::shared_ptr<Camera> camera;
         Color3 background_color;
         AABB aabb; // the AABB of the entire scene
 
+        std::shared_ptr<Tracer> tracer;
+
         void add_object(std::shared_ptr<GeometricObject> object);
+
+        void add_objects(std::vector<std::shared_ptr<GeometricObject>> objects);
 
         void add_light(std::shared_ptr<Light> light);
 
@@ -34,6 +40,6 @@ namespace raytracer
 
         void set_bg_color(Color3 c);
 
-        bool hit_objects(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const;
+        bool hit_objects(const raytracer::Ray &r, Interval t_range, HitInfo &rec);
     };
 }

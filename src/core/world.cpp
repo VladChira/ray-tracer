@@ -22,6 +22,12 @@ void raytracer::World::add_material(std::shared_ptr<Material> mat)
     }
 }
 
+void raytracer::World::add_objects(std::vector<std::shared_ptr<GeometricObject>> objects)
+{
+    for (int i = 0; i < objects.size(); i++)
+        add_object(objects[i]);
+}
+
 void raytracer::World::set_camera(std::shared_ptr<Camera> cam)
 {
     camera = cam;
@@ -32,11 +38,12 @@ void raytracer::World::set_bg_color(Color3 c)
     background_color = c;
 }
 
-bool raytracer::World::hit_objects(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
+bool raytracer::World::hit_objects(const raytracer::Ray &r, Interval t_range, HitInfo &rec)
 {
     double t_min = t_range.min;
     double t_max = t_range.max;
-    HitInfo temp_rec(rec.world);
+    HitInfo temp_rec(*this);
+    temp_rec.depth = rec.depth;
     bool hit_anything = false;
     auto closest_so_far = t_max;
 

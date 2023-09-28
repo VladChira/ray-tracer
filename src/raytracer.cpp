@@ -2,7 +2,7 @@
 #include <thread>
 #include <atomic>
 
-#include "Tracy.hpp"
+// #include "Tracy.hpp"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 
@@ -16,7 +16,8 @@
 #include "materials.h"
 #include "pinhole.h"
 #include "path_tracer.h"
-#include "ray_caster.h"
+#include "ray_tracer.h"
+#include "preview_tracer.h"
 #include "world.h"
 #include "bvh.h"
 #include "sphere.h"
@@ -31,19 +32,19 @@
 using namespace raytracer;
 
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 1000;
+const int image_width = 700;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 200;
-const int max_depth = 50;
+const int samples_per_pixel = 10;
+const int max_depth = 10;
 
 // World
 World world;
 
 // Sampler
-Sampler *sampler;
+std::shared_ptr<Sampler> sampler;
 
 // Tracer
-Tracer *tracer;
+std::shared_ptr<Tracer> tracer;
 
 unsigned int num_threads = std::thread::hardware_concurrency() - 1;
 
@@ -51,7 +52,7 @@ std::atomic<bool> exit_requested(false);
 
 void render_region(Point2 top_left, unsigned int width, unsigned int height)
 {
-    ZoneScoped;
+    // ZoneScoped;
     for (int i = top_left.y; i < top_left.y + height; ++i)
     {
         for (int j = top_left.x; j < top_left.x + width; ++j)
@@ -94,17 +95,17 @@ void test()
     world.add_light(light);
 
     // Tracer
-    tracer = new RayCaster();
+    tracer = std::make_shared<PathTracer>();
 
     // Camera
-    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Vector3(26,3,6), Vector3(0,2,0));
+    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Vector3(26, 3, 6), Vector3(0, 2, 0));
     camera->set_fov(20);
     camera->compute_pixel_size(image_width, image_height);
     camera->compute_uvw();
     world.set_camera(camera);
 
     // Sampler
-    sampler = new MultiJittered(100);
+    sampler = std::make_shared<MultiJittered>(100);
 
     Console::GetInstance()->addLogEntry("Constructing BVH...");
     auto bvh = std::make_shared<BVH_Node>(world.objects);
@@ -138,10 +139,12 @@ void cornell_box()
     world.add_object(std::make_shared<Rectangle>(Point3(555, 555, 555), Vector3(-555, 0, 0), Vector3(0, 0, -555), white));
     world.add_object(std::make_shared<Rectangle>(Point3(0, 0, 555), Vector3(0, 555, 0), Vector3(555, 0, 0), white));
 
-    // world.add_object(std::make_shared<Sphere>(Point3(278, 250, 0), 50, glass));
+    world.add_objects(create_box(Point3(130, 0, 65), Point3(295, 165, 230), white));
+    world.add_objects(create_box(Point3(265, 0, 295), Point3(430, 330, 460), white));
 
     // Tracer
-    tracer = new RayCaster();
+    tracer = std::make_shared<PathTracer>();
+    world.tracer = tracer;
 
     // Camera
     std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Vector3(278, 278, -800), Vector3(278, 278, 0));
@@ -151,7 +154,7 @@ void cornell_box()
     world.set_camera(camera);
 
     // Sampler
-    sampler = new MultiJittered(100);
+    sampler = std::make_shared<MultiJittered>(100);
 
     Console::GetInstance()->addLogEntry("Constructing BVH...");
     auto bvh = std::make_shared<BVH_Node>(world.objects);
@@ -198,8 +201,7 @@ void setup4()
     world.set_camera(camera);
 
     // Anti Aliasing Sampler
-    sampler = new MultiJittered(100);
-    sampler->map_samples_to_sphere();
+    sampler = std::make_shared<MultiJittered>(100);
 
     Console::GetInstance()->addLogEntry("Constructing BVH...");
     auto bvh = std::make_shared<BVH_Node>(world.objects);
@@ -207,7 +209,7 @@ void setup4()
     world.objects.push_back(bvh);
 
     // Tracer
-    tracer = new PathTracer();
+    tracer = std::make_shared<PathTracer>();
 
     // Start viewport preview
     RenderView::GetInstance()->set_size(image_width, image_height);
@@ -216,23 +218,34 @@ void setup4()
 
 void setup3()
 {
-    ZoneScoped;
+    // ZoneScoped;
     auto mat = std::make_shared<Matte>(1, Color3::grey);
 
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
-    LoadObj("../models/bucatarie/buc.obj", attrib, shapes, materials);
+    bool loaded = LoadObj("../models/bucatarie/buc2.obj", attrib, shapes, materials);
 
-    auto triangles = create_triangle_mesh(attrib, shapes[0], ShadingType::FLAT, mat);
-    for (int i = 0; i < triangles.size(); i++)
+    if (loaded)
     {
-        world.add_object(triangles[i]);
+        auto triangles = create_triangle_mesh(attrib, shapes[0], ShadingType::FLAT, mat);
+        for (int i = 0; i < triangles.size(); i++)
+        {
+            world.add_object(triangles[i]);
+        }
     }
 
+    // auto light_mat = std::make_shared<Emissive>(15.0, Color3::white);
+    // auto light_rect = std::make_shared<Rectangle>(Point3(-18, 250, -242), Vector3(-100, 0, 0), Vector3(0, 0, -100), light_mat);
+    // world.add_object(light_rect);
+
+    // auto area_light = std::make_shared<AreaLight>();
+    // area_light->set_object(light_rect);
+    // world.add_light(area_light);
+
     // Camera
-    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Vector3(25, 1000, -1000), Vector3(0, 200, -38));
-    camera->set_fov(90);
+    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Vector3(163, 187, -730), Vector3(-18, 104, -242));
+    camera->set_fov(20);
     camera->compute_pixel_size(image_width, image_height);
     camera->compute_uvw();
     world.set_camera(camera);
@@ -248,10 +261,11 @@ void setup3()
     Console::GetInstance()->addSuccesEntry("BVH built in " + std::to_string(timer.elapsed_time_milliseconds()) + " ms.");
 
     // Anti Aliasing Sampler
-    sampler = new MultiJittered(100);
+    sampler = std::make_shared<MultiJittered>(100);
 
     // Tracer
-    tracer = new PathTracer();
+    tracer = std::make_shared<PathTracer>();
+    world.tracer = tracer;
 
     // Start viewport preview
     RenderView::GetInstance()->set_size(image_width, image_height);
@@ -265,7 +279,7 @@ void setup2()
     world.add_light(light1);
 
     // Tracer
-    tracer = new PathTracer();
+    tracer = std::make_shared<PathTracer>();
 
     auto mat1 = std::make_shared<Matte>(1, Color3::orange);
     world.add_object(std::make_shared<Sphere>(Vector3(5, 3, 0), 30, mat1));
@@ -352,8 +366,7 @@ void setup2()
     world.objects.push_back(bvh);
 
     // Anti Aliasing Sampler
-    sampler = new MultiJittered(100);
-    sampler->map_samples_to_sphere();
+    sampler = std::make_shared<MultiJittered>(100);
 
     // Start viewport preview
     RenderView::GetInstance()->set_size(image_width, image_height);
@@ -362,9 +375,9 @@ void setup2()
 
 void setup()
 {
-    ZoneScoped;
+    // ZoneScoped;
     // Tracer
-    tracer = new PathTracer();
+    tracer = std::make_shared<PathTracer>();
 
     // Lights
     // auto light1 = std::make_shared<PointLight>(1.0, Color3::white, Vector3(5, 10, 0));
@@ -447,7 +460,7 @@ void setup()
     Console::GetInstance()->addSuccesEntry("BVH built in " + std::to_string(timer.elapsed_time_milliseconds()) + " ms.");
 
     // Anti Aliasing Sampler
-    sampler = new MultiJittered(100);
+    sampler = std::make_shared<MultiJittered>(100);
     sampler->map_samples_to_sphere();
 
     // Start viewport preview
@@ -457,14 +470,14 @@ void setup()
 
 void multi_threaded_render()
 {
-    ZoneScoped;
+    // ZoneScoped;
     HiResTimer timer;
     timer.start();
 
     // Build a particular scene here
     Console::GetInstance()->addLogEntry("Building scene...");
 
-    cornell_box();
+    setup3();
 
     Console::GetInstance()->addLogEntry("Rendering...");
     std::vector<std::thread> threads;

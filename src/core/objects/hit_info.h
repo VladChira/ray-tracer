@@ -15,13 +15,14 @@ namespace raytracer
         raytracer::Normal3 normal;
         double t;
         std::shared_ptr<Material> material;
-        const World &world;
+        World &world;
+        int depth = 0;
 
         HitInfo() = delete;
 
-        HitInfo(const World &w) : world(w) {}
+        HitInfo(World &w) : world(w) {}
 
-        void operator=(const HitInfo rec)
+        void operator=(HitInfo &rec)
         {
             p = rec.p;
             normal = rec.normal;

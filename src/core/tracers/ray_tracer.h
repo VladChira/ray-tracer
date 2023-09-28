@@ -2,10 +2,10 @@
 #include "tracer.h"
 namespace raytracer
 {
-    class PathTracer : public Tracer
+    class RayTracer : public Tracer
     {
     public:
-        PathTracer() {}
+        RayTracer() {}
         Color3 trace_ray(const raytracer::Ray &r, World &world, int depth) override;
     };
 }

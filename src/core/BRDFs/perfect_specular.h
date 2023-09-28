@@ -20,12 +20,7 @@ namespace raytracer
             return Color3(0, 0, 0);
         }
 
-        Color3 sample_f(const HitInfo &hi, Vector3 &wi, const Vector3 &wo) const override
-        {
-            return Color3(0, 0, 0);
-        }
-
-        Color3 sample_f(const HitInfo &hi, Vector3 &wi, const Vector3 &wo, double pdf) const override
+        Color3 sample_f(const HitInfo &hi, const Vector3 &wo, Vector3 &wi, double &pdf) const override
         {
             return Color3(0, 0, 0);
         }

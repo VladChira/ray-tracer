@@ -18,8 +18,6 @@ namespace raytracer
         std::shared_ptr<Sampler> sampler;
         AABB aabb;
 
-        Rectangle();
-
         Rectangle(const Point3 &p0, const Vector3 &a, const Vector3 &b, std::shared_ptr<raytracer::Material> mat);
         
         Rectangle(const Point3 &p0, const Vector3 &a, const Vector3 &b, const Normal3 normal, std::shared_ptr<raytracer::Material> mat);
@@ -34,5 +32,7 @@ namespace raytracer
 
         Point3 get_normal(const Point3 p) const override;
     };
+
+    std::vector<std::shared_ptr<GeometricObject>> create_box(const Point3& a, const Point3& b, std::shared_ptr<Material> mat);
 
 }

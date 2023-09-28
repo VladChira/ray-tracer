@@ -32,9 +32,14 @@ namespace raytracer
             return true;
         }
 
-        Color3 shade(const raytracer::Ray &r_in, const HitInfo &rec) const
+        Color3 shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
             return Color3(0, 0, 0);
+        }
+
+        Color3 preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
+        {
+            return Color3::black;
         }
 
     private:

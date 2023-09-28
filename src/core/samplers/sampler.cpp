@@ -183,7 +183,7 @@ void Sampler::map_samples_to_hemisphere(const double exp) {
         double pu = sin_theta * cos_phi;
         double pv = sin_theta * sin_phi;
         double pw = cos_theta;
-        hemisphere_samples.push_back(Point3((double)pu, (double)pv, (double)pw));
+        hemisphere_samples.push_back(Point3(pu, pv, pw));
     }
 }
 

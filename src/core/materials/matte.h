@@ -5,6 +5,10 @@
 #include "geometric_object.h"
 #include "multijittered.h"
 #include "pure_random.h"
+#include "tracer.h"
+
+#include "Tracy.hpp"
+
 namespace raytracer
 {
     /**
@@ -86,7 +90,7 @@ namespace raytracer
             return true;
         }
 
-        Color3 shade(const raytracer::Ray &r_in, const HitInfo &rec) const
+        Color3 shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
             auto wo = -r_in.direction;
             Color3 accColor(0, 0, 0);
@@ -114,6 +118,24 @@ namespace raytracer
             }
             // Clamp the color to 1.0 for now. Perhaps HDR in the future?
             return Clamp(accColor, 0.0, 1.0);
+        }
+
+        Color3 path_shade(const raytracer::Ray &r_in, HitInfo &rec) override
+        {
+            // ZoneScoped;
+            Vector3 wo = -r_in.direction;
+            Vector3 wi;
+            double pdf;
+            Color3 f = diffuse_brdf.sample_f(rec, wo, wi, pdf);
+            double ndotwi = Dot(rec.normal, wi);
+            Ray reflected_ray(rec.p, wi);
+            Color3 path_color = rec.world.tracer->trace_ray(reflected_ray, rec.world, rec.depth - 1);
+            return f * path_color * ndotwi / pdf;
+        }
+
+        Color3 preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
+        {
+            return diffuse_brdf.cd * diffuse_brdf.kd;
         }
     };
 }

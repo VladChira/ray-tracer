@@ -48,10 +48,8 @@ bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec
     double e3 = a * p - b * r + d * s;
     double t = e3 * inv_denom;
 
-    if (t < std::numeric_limits<double>::epsilon())
-    {
+    if (t < t_range.min || t > t_range.max)
         return false;
-    }
 
     rec.t = t;
     Normal3 normal;
@@ -111,8 +109,8 @@ std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const
             double vx = attrib.vertices[3 * vertex_index + 0];
             double vy = attrib.vertices[3 * vertex_index + 1];
             double vz = attrib.vertices[3 * vertex_index + 2];
-            mesh->vertices[vertex_index] = (10 * Point3(vx, vy, vz)) + Point3(7, -0.5, 2);
-            // mesh->vertices[vertex_index] = Point3(vx, vy, vz);
+            // mesh->vertices[vertex_index] = (10 * Point3(vx, vy, vz)) + Point3(7, -0.5, 2);
+            mesh->vertices[vertex_index] = Point3(vx, vy, vz);
         }
         index_offset += fv;
     }

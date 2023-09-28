@@ -28,16 +28,21 @@ namespace raytracer
             return Color3::black;
         }
 
-        Color3 shade(const raytracer::Ray &r_in, const HitInfo &rec) const override
+        Color3 shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
             if (Dot(-rec.normal, r_in.direction) > 0.0)
                 return ls * ce;
             return Color3::black;
         }
 
-        Color3 get_Le(const raytracer::Ray &r_in, const HitInfo &rec) const override
+        Color3 get_Le(const raytracer::Ray &r_in, const HitInfo &rec) override
         {
             return ls * ce;
+        }
+
+        Color3 preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
+        {
+            return Color3::white;
         }
     };
 }

@@ -41,7 +41,7 @@ bool Sphere::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
         if (root < t_min || t_max < root)
             return false;
     }
-
+    
     rec.t = root;
     rec.p = r.at(rec.t);
     rec.normal = (rec.p - center) / radius;
