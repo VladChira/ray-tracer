@@ -1,6 +1,6 @@
 #pragma once
 #include "BRDF.h"
-#include "maths.h"
+#include "utilities.h"
 #include "multijittered.h"
 #include "pure_random.h"
 #include "jittered.h"
@@ -13,51 +13,51 @@ namespace raytracer
     class LambertianBRDF : public BRDF
     {
     public:
-        double kd;
-        Color3 cd;
+        float kd;
+        Color cd;
 
     public:
         LambertianBRDF()
         {
             kd = 1;
-            cd = Color3(0, 0, 0);
+            cd = Color(0, 0, 0);
             sampler = std::make_shared<Jittered>(200);
             sampler->map_samples_to_hemisphere(1);
         }
 
-        Color3 f(const HitInfo &hi, const Vector3 &wi, const Vector3 &wo) const override
+        Color f(const HitInfo &hi, const Eigen::Vector3f &wi, const Eigen::Vector3f &wo) const override
         {
             return cd * kd * inv_pi;
         }
 
-        inline Point3 random_cosine_direction() const
+        inline Eigen::Vector3f random_cosine_direction() const
         {
             // Point2 s = sampler->sample_unit_square();
-            auto r1 = random_double();
-            auto r2 = random_double();
+            float r1 = random_float();
+            float r2 = random_float();
 
-            auto phi = 2 * pi * r1;
-            auto x = cos(phi) * sqrt(r2);
-            auto y = sin(phi) * sqrt(r2);
-            auto z = sqrt(1 - r2);
+            float phi = 2 * pi * r1;
+            float x = cos(phi) * sqrt(r2);
+            float y = sin(phi) * sqrt(r2);
+            float z = sqrt(1 - r2);
 
-            return Point3(x, y, z);
+            return Eigen::Vector3f(x, y, z);
         }
 
-        Color3 sample_f(const HitInfo &hi, const Vector3 &wo, Vector3 &wi, double &pdf) const override
+        Color sample_f(const HitInfo &hi, const Eigen::Vector3f &wo, Eigen::Vector3f &wi, float &pdf) const override
         {
-            Vector3 w(hi.normal);
-            Vector3 v = Normalize(Cross(Vector3(0.0034f, 1.0f, 0.0071f), w));
-            Vector3 u = Cross(v, w);
+            Eigen::Vector3f w(hi.normal);
+            Eigen::Vector3f v = (Eigen::Vector3f(0.0034f, 1.0f, 0.0071f).cross(w)).normalized();
+            Eigen::Vector3f u = v.cross(w);
 
-            Point3 sp = random_cosine_direction(); //sampler->sample_hemisphere();
-            wi = Normalize(sp.x * u + sp.y * v + sp.z * w);
+            Eigen::Vector3f sp = random_cosine_direction(); //sampler->sample_hemisphere();
+            wi = (sp.x() * u + sp.y() * v + sp.z() * w).normalized();
 
-            pdf = Dot(hi.normal, wi) * inv_pi;
-            return kd * cd * inv_pi;
+            pdf = hi.normal.dot(wi) * inv_pi;
+            return cd * kd * inv_pi;
         }
 
-        Color3 rho(const HitInfo &hi, const Vector3 &wo) const override
+        Color rho(const HitInfo &hi, const Eigen::Vector3f &wo) const override
         {
             return cd * kd;
         }
@@ -67,7 +67,7 @@ namespace raytracer
             kd = _kd;
         }
 
-        void set_cd(Color3 c)
+        void set_cd(Color c)
         {
             cd = c;
         }

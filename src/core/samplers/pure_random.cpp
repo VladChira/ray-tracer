@@ -12,7 +12,7 @@ void PureRandom::generate_samples()
     {
         for (int q = 0; q < num_samples; q++)
         {
-            samples.push_back(Point2(random_double(), random_double()));
+            samples.push_back(Eigen::Vector2f(random_float(), random_float()));
         }
     }
 }

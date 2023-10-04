@@ -6,17 +6,17 @@ namespace raytracer
     class Directional : public Light
     {
     private:
-        double ls;
-        Color3 color;
-        Vector3 direction;
+        float ls;
+        Color color;
+        Eigen::Vector3f direction;
 
     public:
-        Directional(double ls, Color3 c, Vector3 dir);
+        Directional(float ls, Color c, Eigen::Vector3f dir);
 
-        Vector3 get_direction(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) override;
-        Color3 L(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const override;
-        double G(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const override;
-        double pdf(const Ray &r_in, const HitInfo &rec) const override;
-        bool in_shadow(const Ray &r, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const override;
+        Eigen::Vector3f get_direction(const Ray &r_in, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) override;
+        Color L(const Ray &r_in, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) const override;
+        float G(const Ray &r_in, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) const override;
+        float pdf(const Ray &r_in, const HitInfo &rec) const override;
+        bool in_shadow(const Ray &r, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) const override;
     };
 }

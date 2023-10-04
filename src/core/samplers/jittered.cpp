@@ -26,7 +26,7 @@ void Jittered::generate_samples() {
     for (int p = 0; p < num_sets; p++) {
         for (int j = 0; j < n; j++) {
             for (int k = 0; k < n; k++) {
-                Point2 sp((k + random_double()) / n, (j + random_double()) / n);
+                Eigen::Vector2f sp((k + random_float()) / n, (j + random_float()) / n);
                 samples.push_back(sp);
             }
         }

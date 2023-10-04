@@ -12,18 +12,18 @@ namespace raytracer
             this->ir = ir;
         }
 
-        bool scatter(const Ray &r_in, const HitInfo &rec, Color3 &attenuation, Ray &scattered) const override
+        bool scatter(const Ray &r_in, const HitInfo &rec, Color &attenuation, Ray &scattered) const override
         {
-            attenuation = Color3(1.0, 1.0, 1.0);
-            double refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
+            attenuation = Color(1.0, 1.0, 1.0);
+            float refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
 
-            Vector3 unit_direction = Normalize(r_in.direction);
-            double cos_theta = fmin(Dot(-unit_direction, rec.normal), 1.0);
-            double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+            Eigen::Vector3f unit_direction = (r_in.direction).normalized();
+            float cos_theta = fmin((-unit_direction).dot(rec.normal), 1.0);
+            float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
 
             bool cannot_refract = refraction_ratio * sin_theta > 1.0;
-            Vector3 direction;
-            if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double())
+            Eigen::Vector3f direction;
+            if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_float())
                 direction = Reflect(unit_direction, rec.normal);
             else
                 direction = Refract(unit_direction, rec.normal, refraction_ratio);
@@ -32,20 +32,20 @@ namespace raytracer
             return true;
         }
 
-        Color3 shade(const raytracer::Ray &r_in, HitInfo &rec) override
+        Color shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
-            return Color3(0, 0, 0);
+            return Color(0, 0, 0);
         }
 
-        Color3 preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
+        Color preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
-            return Color3::black;
+            return Color::black;
         }
 
     private:
-        double ir; // index of refraction
+        float ir; // index of refraction
 
-        static double reflectance(double cosine, double ref_idx)
+        static float reflectance(float cosine, float ref_idx)
         {
             // Use Schlick's approximation for reflectance.
             auto r0 = (1 - ref_idx) / (1 + ref_idx);

@@ -1,30 +1,30 @@
 #pragma once
-#include "maths.h"
+#include "utilities.h"
 
 namespace raytracer
 {
     class Ray
     {
     public:
-        Vector3 origin;
-        Vector3 direction;
-        double tMax;
+        Eigen::Vector3f origin;
+        Eigen::Vector3f direction;
+        float tMax;
 
         Ray()
         {
             this->tMax = infinity;
-            this->origin = Vector3(0.0, 0.0, 0.0);
-            this->direction = Vector3(0.0, 0.0, 1.0);
+            this->origin = Eigen::Vector3f(0.0, 0.0, 0.0);
+            this->direction = Eigen::Vector3f(0.0, 0.0, 1.0);
         }
 
-        Ray(const Vector3 &o, const Vector3 &d)
+        Ray(const Eigen::Vector3f &o, const Eigen::Vector3f &d)
         {
-            this->tMax = INFINITY;
+            this->tMax = infinity;
             this->origin = o;
             this->direction = d;
         }
 
-        Vector3 at(const double t) const
+        Eigen::Vector3f at(const float t) const
         {
             assert(t <= tMax);
             return origin + t * direction;

@@ -1,6 +1,6 @@
 #pragma once
 #include "spng.h"
-#include "maths.h"
+#include "utilities.h"
 #include "console.h"
 
 namespace raytracer
@@ -43,26 +43,26 @@ namespace raytracer
             return height;
         }
 
-        raytracer::Color3 get(unsigned int x, unsigned int y)
+        raytracer::Color get(unsigned int x, unsigned int y)
         {
             assert(x >= 0 && x < this->height && y >= 0 && y < this->width);
 
             size_t position = (x * width + y) * 3;
-            raytracer::Color3 color;
-            color.x = image_data[position];
-            color.y = image_data[position + 1];
-            color.z = image_data[position + 2];
+            raytracer::Color color;
+            color.r = image_data[position];
+            color.g = image_data[position + 1];
+            color.b = image_data[position + 2];
             return color;
         }
 
-        void set(unsigned int x, unsigned int y, raytracer::Color3 color)
+        void set(unsigned int x, unsigned int y, raytracer::Color color)
         {
             assert(x >= 0 && x < this->height && y >= 0 && y < this->width);
 
             size_t position = (x * width + y) * 3;
-            image_data[position] = (uint8_t)color.x;
-            image_data[position + 1] = (uint8_t)color.y;
-            image_data[position + 2] = (uint8_t)color.z;
+            image_data[position] = (uint8_t)color.r;
+            image_data[position + 1] = (uint8_t)color.g;
+            image_data[position + 2] = (uint8_t)color.b;
         }
 
         /* Returns the byte array [0, 255] of the 8-bit image */
@@ -82,10 +82,10 @@ namespace raytracer
             for (int i = 0; i < this->height; i++)
                 for (int j = 0; j < this->width; j++)
                 {
-                    raytracer::Color3 p = this->get(i, j) / 255;
-                    p.x = clip(std::max(1.055 * pow(p.x, 0.416666667) - 0.055, 0.0), 0.0, 1.0) * 255;
-                    p.y = clip(std::max(1.055 * pow(p.y, 0.416666667) - 0.055, 0.0), 0.0, 1.0) * 255;
-                    p.z = clip(std::max(1.055 * pow(p.z, 0.416666667) - 0.055, 0.0), 0.0, 1.0) * 255;
+                    raytracer::Color p = this->get(i, j) / 255;
+                    p.r = clip((float)std::max(1.055 * pow(p.r, 0.416666667) - 0.055, 0.0), 0.0, 1.0) * 255;
+                    p.g = clip((float)std::max(1.055 * pow(p.g, 0.416666667) - 0.055, 0.0), 0.0, 1.0) * 255;
+                    p.b = clip((float)std::max(1.055 * pow(p.b, 0.416666667) - 0.055, 0.0), 0.0, 1.0) * 255;
                     this->set(i, j, p);
                 }
         }
@@ -96,8 +96,8 @@ namespace raytracer
             for (int i = 0; i < img.get_height(); i++)
                 for (int j = 0; j < img.get_width(); j++)
                 {
-                    raytracer::Color3 pixel_color = img.get(i, j);
-                    fprintf(file, "%hhu %hhu %hhu\n", (uint8_t)pixel_color.x, (uint8_t)pixel_color.y, (uint8_t)pixel_color.z);
+                    raytracer::Color pixel_color = img.get(i, j);
+                    fprintf(file, "%hhu %hhu %hhu\n", (uint8_t)pixel_color.r, (uint8_t)pixel_color.g, (uint8_t)pixel_color.b);
                 }
             Console::GetInstance()->addSuccesEntry("PPM image exported succesfully");
         }
@@ -110,15 +110,15 @@ namespace raytracer
             {
                 for (int i = 0; i < size; ++i)
                 {
-                    double r = double(i) / (size - 1);
-                    double g = double(j) / (size - 1);
-                    double b = 0.25;
+                    float r = float(i) / (size - 1);
+                    float g = float(j) / (size - 1);
+                    float b = 0.25;
 
                     uint8_t ir = static_cast<uint8_t>(256.0 * r);
                     uint8_t ig = static_cast<uint8_t>(256.0 * g);
                     uint8_t ib = static_cast<uint8_t>(256.0 * b);
 
-                    image.set(i, j, raytracer::Color3(ir, ig, ib));
+                    image.set(i, j, raytracer::Color(ir, ig, ib));
                 }
             }
             return image;

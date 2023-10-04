@@ -6,6 +6,6 @@ namespace raytracer
     {
     public:
         PathTracer() {}
-        Color3 trace_ray(const raytracer::Ray &r, World &world, int depth) override;
+        Color trace_ray(const raytracer::Ray &r, World &world, int depth) override;
     };
 }

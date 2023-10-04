@@ -7,18 +7,18 @@ Interval::Interval(const Interval &a, const Interval &b)
     this->max = fmax(a.max, b.max);
 }
 
-Interval::Interval(double min, double max)
+Interval::Interval(float min, float max)
 {
     this->min = min;
     this->max = max;
 }
 
-double Interval::size() const
+float Interval::size() const
 {
     return max - min;
 }
 
-Interval Interval::expand(double delta) const
+Interval Interval::expand(float delta) const
 {
     auto padding = delta / 2;
     return Interval(min - padding, max + padding);

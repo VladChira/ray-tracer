@@ -3,7 +3,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "maths.h"
+#include "utilities.h"
 #include "aabb.h"
 #include "geometric_object.h"
 #include "hit_info.h"
@@ -23,7 +23,7 @@ namespace raytracer
         std::vector<std::shared_ptr<Light>> lights;
 
         std::shared_ptr<Camera> camera;
-        Color3 background_color;
+        Color background_color;
         AABB aabb; // the AABB of the entire scene
 
         std::shared_ptr<Tracer> tracer;
@@ -38,7 +38,7 @@ namespace raytracer
 
         void set_camera(std::shared_ptr<Camera> cam);
 
-        void set_bg_color(Color3 c);
+        void set_bg_color(Color c);
 
         bool hit_objects(const raytracer::Ray &r, Interval t_range, HitInfo &rec);
     };

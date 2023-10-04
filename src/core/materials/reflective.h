@@ -11,7 +11,7 @@ namespace raytracer
     public:
         PerfectSpecular p_spec_brdf;
         Sampler *sampler = NULL;
-        double fuzz;
+        float fuzz;
 
         Reflective()
         {
@@ -34,7 +34,7 @@ namespace raytracer
             }
         }
 
-        Reflective(double kr, Color3 cr, double fuzz)
+        Reflective(float kr, Color cr, float fuzz)
         {
             this->p_spec_brdf.set_kr(kr);
             this->p_spec_brdf.set_cr(cr);
@@ -46,21 +46,21 @@ namespace raytracer
             }
         }
 
-        bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color3 &attenuation, raytracer::Ray &scattered) const override
+        bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color &attenuation, raytracer::Ray &scattered) const override
         {
-            Vector3 reflected = Reflect(Normalize(r_in.direction), rec.normal);
-            Vector3 dir = reflected + fuzz * sampler->sample_sphere();
-            scattered = Ray(rec.p + 0.00001 * dir, dir);
+            Eigen::Vector3f reflected = Reflect((r_in.direction).normalized(), rec.normal);
+            Eigen::Vector3f dir = reflected + fuzz * sampler->sample_sphere();
+            scattered = Ray(rec.p + 0.001 * dir, dir);
             attenuation = this->p_spec_brdf.cr * this->p_spec_brdf.kr;
-            return (Dot(scattered.direction, rec.normal) > 0);
+            return (scattered.direction.dot(rec.normal) > 0);
         }
 
-        Color3 shade(const raytracer::Ray &r_in, HitInfo &rec) override
+        Color shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
-            return Color3(0, 0, 0);
+            return Color(0, 0, 0);
         }
 
-        Color3 preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
+        Color preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
             return p_spec_brdf.cr;
         }

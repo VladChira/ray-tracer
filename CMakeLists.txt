@@ -11,7 +11,10 @@ SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_compile_options(-g -D SPNG_USE_MINIZ)
+add_compile_options(-D SPNG_USE_MINIZ)
+
+# Do we want to use the Tracy profiler?
+set(USE_TRACY FALSE)
 
 # Create a build directory
 set(BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/build")
@@ -19,25 +22,13 @@ file(MAKE_DIRECTORY ${BUILD_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BUILD_DIR})
 
 
+# Source files here
 file(GLOB_RECURSE SRC_FILES
     ./src/*.h
     ./src/*.cpp
 )
 
-file(GLOB_RECURSE EXT_FILES
-        ./external/imgui/*.h
-        ./external/imgui/*.cpp
-        ./external/imgui/backends/*.h
-        ./external/spng/*.h
-        ./external/spng/*.c
-        ./external/tinyobjloader/*.h
-    )
-
 include_directories(
-    ./external/imgui
-    ./external/imgui/backends
-    ./external/spng
-    ./external/tinyobjloader
     ./src/core
     ./src/core/objects
     ./src/core/objects/primitives
@@ -52,7 +43,11 @@ include_directories(
     ./src/core/tracers
     ./src/core/lights
     )
-    
+
+
+# Add the external libraries
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/imgui)
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/spng)
 
 # Add the source files
 set(SRCS ${SRC_FILES} ${EXT_FILES})
@@ -61,7 +56,7 @@ set(SRCS ${SRC_FILES} ${EXT_FILES})
 add_executable(raytracer ${SRCS})
 
 
-# cmake_print_variables(${CMAKE_SOURCE_DIR})
+if(USE_TRACY)
 
 FetchContent_Declare (
     tracy
@@ -77,6 +72,16 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/build/_deps/tracy-src/public/tracy/Tracy.hpp)
 else()
     message(FATAL_ERROR "Tracy.hpp not found. Check the path to the Tracy source directory.")
 endif()
+
+endif()
+
+# Link external libraries
+target_link_libraries(raytracer PRIVATE imgui)
+target_link_libraries(raytracer PRIVATE spng)
+target_include_directories(raytracer PRIVATE ${CMAKE_SOURCE_DIR}/external/tinyobjloader)
+
+find_package (Eigen3 3.4.0 REQUIRED)
+target_link_libraries(raytracer PRIVATE Eigen3::Eigen)
 
 find_package(glfw3 REQUIRED)
 target_link_libraries(raytracer PUBLIC glfw)

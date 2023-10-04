@@ -7,7 +7,7 @@
 #include "pure_random.h"
 #include "tracer.h"
 
-#include "Tracy.hpp"
+// #include "Tracy.hpp"
 
 namespace raytracer
 {
@@ -43,7 +43,7 @@ namespace raytracer
             }
         }
 
-        Matte(double kd, Color3 cd)
+        Matte(float kd, Color cd)
         {
             this->diffuse_brdf.set_kd(kd);
             this->diffuse_brdf.set_cd(cd);
@@ -60,27 +60,27 @@ namespace raytracer
             sampler->map_samples_to_sphere();
         }
 
-        inline Vector3 random_in_unit_sphere() const
+        inline Eigen::Vector3f random_in_unit_sphere() const
         {
             while (true)
             {
-                auto p = Vector3(random_double(-1, 1), random_double(-1, 1), random_double(-1, 1));
-                if (p.LengthSquared() < 1)
+                auto p = Eigen::Vector3f(random_float(-1, 1), random_float(-1, 1), random_float(-1, 1));
+                if (p.squaredNorm() < 1)
                     return p;
             }
         }
 
-        inline Vector3 random_unit_vector() const
+        inline Eigen::Vector3f random_unit_vector() const
         {
-            return Normalize(random_in_unit_sphere());
+            return (random_in_unit_sphere()).normalized();
         }
 
         /*
          *  Calculate a new ray that is randomly scattered from the hit point
          */
-        bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color3 &attenuation, raytracer::Ray &scattered) const override
+        bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color &attenuation, raytracer::Ray &scattered) const override
         {
-            auto scatter_direction = rec.normal + random_unit_vector();
+            Eigen::Vector3f scatter_direction = rec.normal + random_unit_vector();
             if (NearZero(scatter_direction))
             {
                 scatter_direction = rec.normal;
@@ -90,17 +90,17 @@ namespace raytracer
             return true;
         }
 
-        Color3 shade(const raytracer::Ray &r_in, HitInfo &rec) override
+        Color shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
             auto wo = -r_in.direction;
-            Color3 accColor(0, 0, 0);
+            Color accColor(0, 0, 0);
             for (int i = 0; i < rec.world.lights.size(); i++)
             {
-                Point3 sample_point;
-                Normal3 light_normal;
-                Vector3 light_dir;
+                Eigen::Vector3f sample_point;
+                Eigen::Vector3f light_normal;
+                Eigen::Vector3f light_dir;
                 auto wi = rec.world.lights[i]->get_direction(r_in, rec, sample_point, light_normal, light_dir);
-                double ndotwi = Dot(wi, rec.normal);
+                float ndotwi = wi.dot(rec.normal);
                 if (ndotwi > 0.0)
                 {
                     bool in_shadow = false;
@@ -108,10 +108,10 @@ namespace raytracer
                     in_shadow = rec.world.lights[i]->in_shadow(shadow_ray, rec, sample_point, light_normal, light_dir);
                     if (!in_shadow)
                     {
-                        Color3 dif = diffuse_brdf.f(rec, wo, wi);
-                        Color3 L = rec.world.lights[i]->L(r_in, rec, sample_point, light_normal, light_dir);
+                        Color dif = diffuse_brdf.f(rec, wo, wi);
+                        Color L = rec.world.lights[i]->L(r_in, rec, sample_point, light_normal, light_dir);
                         double G = rec.world.lights[i]->G(r_in, rec, sample_point, light_normal, light_dir);
-                        Color3 f1 = dif * L * G;
+                        Color f1 = L * dif * G;
                         accColor += (f1 * ndotwi / rec.world.lights[i]->pdf(r_in, rec));
                     }
                 }
@@ -120,20 +120,20 @@ namespace raytracer
             return Clamp(accColor, 0.0, 1.0);
         }
 
-        Color3 path_shade(const raytracer::Ray &r_in, HitInfo &rec) override
+        Color path_shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
             // ZoneScoped;
-            Vector3 wo = -r_in.direction;
-            Vector3 wi;
-            double pdf;
-            Color3 f = diffuse_brdf.sample_f(rec, wo, wi, pdf);
-            double ndotwi = Dot(rec.normal, wi);
+            Eigen::Vector3f wo = -r_in.direction;
+            Eigen::Vector3f wi;
+            float pdf;
+            Color f = diffuse_brdf.sample_f(rec, wo, wi, pdf);
+            float ndotwi = rec.normal.dot(wi);
             Ray reflected_ray(rec.p, wi);
-            Color3 path_color = rec.world.tracer->trace_ray(reflected_ray, rec.world, rec.depth - 1);
+            Color path_color = rec.world.tracer->trace_ray(reflected_ray, rec.world, rec.depth - 1);
             return f * path_color * ndotwi / pdf;
         }
 
-        Color3 preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
+        Color preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
             return diffuse_brdf.cd * diffuse_brdf.kd;
         }

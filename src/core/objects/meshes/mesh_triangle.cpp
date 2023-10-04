@@ -11,29 +11,29 @@ MeshTriangle::MeshTriangle(const std::shared_ptr<Mesh> &mesh, int triangle_numbe
 
 bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec) const
 {
-    Point3 v0 = mesh->vertices[v[0]];
-    Point3 v1 = mesh->vertices[v[1]];
-    Point3 v2 = mesh->vertices[v[2]];
-    double a = v0.x - v1.x, b = v0.x - v2.x, c = ray.direction.x, d = v0.x - ray.origin.x;
-    double e = v0.y - v1.y, f = v0.y - v2.y, g = ray.direction.y, h = v0.y - ray.origin.y;
-    double i = v0.z - v1.z, j = v0.z - v2.z, k = ray.direction.z, l = v0.z - ray.origin.z;
+    Eigen::Vector3f v0 = mesh->vertices[v[0]];
+    Eigen::Vector3f v1 = mesh->vertices[v[1]];
+    Eigen::Vector3f v2 = mesh->vertices[v[2]];
+    float a = v0.x() - v1.x(), b = v0.x() - v2.x(), c = ray.direction.x(), d = v0.x() - ray.origin.x();
+    float e = v0.y() - v1.y(), f = v0.y() - v2.y(), g = ray.direction.y(), h = v0.y() - ray.origin.y();
+    float i = v0.z() - v1.z(), j = v0.z() - v2.z(), k = ray.direction.z(), l = v0.z() - ray.origin.z();
 
-    double m = f * k - g * j, n = h * k - g * l, p = f * l - h * j;
-    double q = g * i - e * k, s = e * j - f * i;
+    float m = f * k - g * j, n = h * k - g * l, p = f * l - h * j;
+    float q = g * i - e * k, s = e * j - f * i;
 
-    double inv_denom = 1.0 / (a * m + b * q + c * s);
+    float inv_denom = 1.0 / (a * m + b * q + c * s);
 
-    double e1 = d * m - b * n - c * p;
-    double beta = e1 * inv_denom;
+    float e1 = d * m - b * n - c * p;
+    float beta = e1 * inv_denom;
 
     if (beta < 0.0)
     {
         return false;
     }
 
-    double r = e * l - h * i;
-    double e2 = a * n + d * q + c * r;
-    double gamma = e2 * inv_denom;
+    float r = e * l - h * i;
+    float e2 = a * n + d * q + c * r;
+    float gamma = e2 * inv_denom;
 
     if (gamma < 0.0)
     {
@@ -45,20 +45,21 @@ bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec
         return false;
     }
 
-    double e3 = a * p - b * r + d * s;
-    double t = e3 * inv_denom;
+    float e3 = a * p - b * r + d * s;
+    float t = e3 * inv_denom;
 
     if (t < t_range.min || t > t_range.max)
         return false;
 
     rec.t = t;
-    Normal3 normal;
+    Eigen::Vector3f normal;
 
     // Interpolate normals to archieve smooth shading, if available
     if (mesh->shading_type == SMOOTH && mesh->has_normals)
-        normal = Normalize((1 - beta - gamma) * mesh->normals[v[0]] + beta * mesh->normals[v[1]] + gamma * mesh->normals[v[2]]);
+        normal = ((1 - beta - gamma) * mesh->normals[v[0]] + beta * mesh->normals[v[1]] + gamma * mesh->normals[v[2]]).normalized();
     else
-        normal = Normalize(Cross(v1 - v0, v2 - v0));
+        normal = ((v1 - v0).cross(v2 - v0)).normalized();
+        
 
     rec.normal = normal;
     rec.p = ray.origin + t * ray.direction;
@@ -70,13 +71,13 @@ bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec
 
 AABB MeshTriangle::bounding_box() const
 {
-    Point3 v0 = mesh->vertices[v[0]];
-    Point3 v1 = mesh->vertices[v[1]];
-    Point3 v2 = mesh->vertices[v[2]];
-    const double delta = 0.00001;
-    Interval ix = Interval(std::min(std::min(v0.x, v1.x), v2.x) - delta, std::max(std::max(v0.x, v1.x), v2.x) + delta);
-    Interval iy = Interval(std::min(std::min(v0.y, v1.y), v2.y) - delta, std::max(std::max(v0.y, v1.y), v2.y) + delta);
-    Interval iz = Interval(std::min(std::min(v0.z, v1.z), v2.z) - delta, std::max(std::max(v0.z, v1.z), v2.z) + delta);
+    Eigen::Vector3f v0 = mesh->vertices[v[0]];
+    Eigen::Vector3f v1 = mesh->vertices[v[1]];
+    Eigen::Vector3f v2 = mesh->vertices[v[2]];
+    const float delta = 0.00001;
+    Interval ix = Interval(std::min(std::min(v0.x(), v1.x()), v2.x()) - delta, std::max(std::max(v0.x(), v1.x()), v2.x()) + delta);
+    Interval iy = Interval(std::min(std::min(v0.y(), v1.y()), v2.y()) - delta, std::max(std::max(v0.y(), v1.y()), v2.y()) + delta);
+    Interval iz = Interval(std::min(std::min(v0.z(), v1.z()), v2.z()) - delta, std::max(std::max(v0.z(), v1.z()), v2.z()) + delta);
 
     return AABB(ix, iy, iz);
 }
@@ -91,7 +92,7 @@ std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const
     int nr_faces = shape.mesh.num_face_vertices.size();
     mesh->nr_triangles = nr_faces;
 
-    mesh->vertices = std::make_unique<Point3[]>(mesh->nr_vertices);
+    mesh->vertices = std::make_unique<Eigen::Vector3f[]>(mesh->nr_vertices);
 
     mesh->vertex_idx.reserve(nr_faces * 3);
     size_t index_offset = 0;
@@ -106,11 +107,11 @@ std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const
             int vertex_index = idx.vertex_index;
             mesh->vertex_idx[index_offset + v] = vertex_index;
 
-            double vx = attrib.vertices[3 * vertex_index + 0];
-            double vy = attrib.vertices[3 * vertex_index + 1];
-            double vz = attrib.vertices[3 * vertex_index + 2];
-            // mesh->vertices[vertex_index] = (10 * Point3(vx, vy, vz)) + Point3(7, -0.5, 2);
-            mesh->vertices[vertex_index] = Point3(vx, vy, vz);
+            float vx = attrib.vertices[3 * vertex_index + 0];
+            float vy = attrib.vertices[3 * vertex_index + 1];
+            float vz = attrib.vertices[3 * vertex_index + 2];
+            mesh->vertices[vertex_index] = (10 * Eigen::Vector3f(vx, vy, vz)) + Eigen::Vector3f(7, -0.5, 2);
+            // mesh->vertices[vertex_index] = Point3(vx, vy, vz);
         }
         index_offset += fv;
     }
@@ -126,23 +127,23 @@ std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const
     {
         // TODO, precompute vertexes shared among triangles to make this run in O(nr_vertices)
         mesh->has_normals = true;
-        mesh->normals = std::make_unique<Normal3[]>(mesh->nr_vertices);
+        mesh->normals = std::make_unique<Eigen::Vector3f[]>(mesh->nr_vertices);
         for (int v = 0; v < mesh->nr_vertices; v++)
         {
-            Normal3 weighted_normal(0, 0, 0);
+            Eigen::Vector3f weighted_normal(0, 0, 0);
             // For each triangle, does it have v as a vertex?
             for (int t = 0; t < triangles.size(); t++)
             {
                 MeshTriangle triangle = *(triangles[t]);
-                Point3 v0 = triangle.mesh->vertices[triangle.v[0]];
-                Point3 v1 = triangle.mesh->vertices[triangle.v[1]];
-                Point3 v2 = triangle.mesh->vertices[triangle.v[2]];
-                Normal3 normal = Normalize(Cross(v1 - v0, v2 - v0));
+                Eigen::Vector3f v0 = triangle.mesh->vertices[triangle.v[0]];
+                Eigen::Vector3f v1 = triangle.mesh->vertices[triangle.v[1]];
+                Eigen::Vector3f v2 = triangle.mesh->vertices[triangle.v[2]];
+                Eigen::Vector3f normal = ((v1 - v0).cross(v2 - v0)).normalized();
                 // std::cout << normal << "\n";
                 if (triangle.v[0] == v || triangle.v[1] == v || triangle.v[2] == v)
                     weighted_normal += normal;
             }
-            mesh->normals[v] = Normalize(weighted_normal);
+            mesh->normals[v] = (weighted_normal).normalized();
         }
     }
 

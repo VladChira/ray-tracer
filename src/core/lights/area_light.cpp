@@ -3,22 +3,22 @@ using namespace raytracer;
 
 AreaLight::AreaLight() {}
 
-Color3 AreaLight::L(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const
+Color AreaLight::L(const Ray &r_in, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) const
 {
-    double ndotd = Dot(-light_normal, wi);
+    float ndotd = (-light_normal).dot(wi);
 
     if (ndotd > 0.0f) {
-        Color3 c = emissive_mat->get_Le(r_in, rec);
+        Color c = emissive_mat->get_Le(r_in, rec);
         return c;
     } else {
-        return Color3::black;
+        return Color::black;
     }
 }
 
-bool AreaLight::in_shadow(const Ray &ray, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const {
-    double t;
+bool AreaLight::in_shadow(const Ray &ray, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) const {
+    float t;
     int num_objects = rec.world.objects.size();
-    double ts = Dot((sample_point - ray.origin), ray.direction);
+    float ts = (sample_point - ray.origin).dot(ray.direction);
     HitInfo rec2(rec.world);
     for (int i = 0 ; i < rec.world.objects.size(); i++)
     {
@@ -28,23 +28,23 @@ bool AreaLight::in_shadow(const Ray &ray, const HitInfo &rec, Point3 &sample_poi
     return false;
 }
 
-double AreaLight::G(const Ray &ray, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const {
-    double ndotd = Dot(-light_normal, wi);
-    double d2 = (sample_point - rec.p).LengthSquared();
+float AreaLight::G(const Ray &ray, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) const {
+    float ndotd = (-light_normal).dot(wi);
+    float d2 = (sample_point - rec.p).squaredNorm();
 
     return ndotd / d2;
 }
 
-double AreaLight::pdf(const Ray &ray, const HitInfo &rec) const 
+float AreaLight::pdf(const Ray &ray, const HitInfo &rec) const 
 {
     return object->pdf(ray, rec);
 }
 
 
-Vector3 AreaLight::get_direction(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi)
+Eigen::Vector3f AreaLight::get_direction(const Ray &r_in, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi)
 {
     sample_point = object->sample();  // used in the G function
     light_normal = object->get_normal(sample_point);
-    wi = Normalize(sample_point - rec.p);  // used in the G function
+    wi = (sample_point - rec.p).normalized();  // used in the G function
     return wi;
 }

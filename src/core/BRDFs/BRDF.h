@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "maths.h"
+#include "utilities.h"
 #include "geometric_object.h"
 
 namespace raytracer
@@ -11,11 +11,11 @@ namespace raytracer
     class BRDF
     {
     public:
-        virtual Color3 f(const HitInfo &hi, const Vector3 &wi, const Vector3 &wo) const = 0;
+        virtual Color f(const HitInfo &hi, const Eigen::Vector3f &wi, const Eigen::Vector3f &wo) const = 0;
 
-        virtual Color3 sample_f(const HitInfo &hi, const Vector3 &wo, Vector3 &wi, double &pdf) const = 0;
+        virtual Color sample_f(const HitInfo &hi, const Eigen::Vector3f &wo, Eigen::Vector3f &wi, float &pdf) const = 0;
 
-        virtual Color3 rho(const HitInfo &hi, const Vector3 &wo) const = 0;
+        virtual Color rho(const HitInfo &hi, const Eigen::Vector3f &wo) const = 0;
 
         std::shared_ptr<Sampler> sampler;
     };

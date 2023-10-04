@@ -9,11 +9,11 @@ namespace raytracer
 
         Interval(const Interval &a, const Interval &b);
 
-        Interval(double min, double max);
-        double size() const;
+        Interval(float min, float max);
+        float size() const;
 
-        Interval expand(double delta) const;
+        Interval expand(float delta) const;
 
-        double min = 0, max = 0;
+        float min = 0, max = 0;
     };
 }

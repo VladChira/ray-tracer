@@ -6,13 +6,13 @@ namespace raytracer
     class Triangle : public GeometricObject
     {
     public:
-        Point3 v0, v1, v2;
-        Normal3 normal;
+        Eigen::Vector3f v0, v1, v2;
+        Eigen::Vector3f normal;
         AABB aabb;
 
         Triangle();
 
-        Triangle(const Point3 &a, const Point3 &b, const Point3 &c, std::shared_ptr<Material> mat);
+        Triangle(const Eigen::Vector3f &a, const Eigen::Vector3f &b, const Eigen::Vector3f &c, std::shared_ptr<Material> mat);
 
         bool hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const override;
 

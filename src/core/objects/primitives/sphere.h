@@ -1,5 +1,5 @@
 #pragma once
-#include "maths.h"
+
 #include "aabb.h"
 #include "geometric_object.h"
 namespace raytracer
@@ -7,13 +7,13 @@ namespace raytracer
     class Sphere : public GeometricObject
     {
     public:
-        raytracer::Point3 center;
-        double radius;
+        Eigen::Vector3f center;
+        float radius;
         AABB aabb;
 
         Sphere();
 
-        Sphere(const raytracer::Vector3 &c, double r, std::shared_ptr<raytracer::Material> mat);
+        Sphere(const Eigen::Vector3f &c, float r, std::shared_ptr<raytracer::Material> mat);
 
         bool hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const;
 

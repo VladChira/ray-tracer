@@ -1,33 +1,33 @@
 #include "BRDF.h"
-
+#include "utilities.h"
 namespace raytracer
 {
     class PerfectSpecular : public BRDF
     {
     public:
-        double kr;
-        Color3 cr;
+        float kr;
+        Color cr;
 
     public:
         PerfectSpecular()
         {
             kr = 1;
-            cr = Color3(0, 0, 0);
+            cr = Color(0, 0, 0);
         }
 
-        Color3 f(const HitInfo &hi, const Vector3 &wi, const Vector3 &wo) const override
+        Color f(const HitInfo &hi, const Eigen::Vector3f &wi, const Eigen::Vector3f &wo) const override
         {
-            return Color3(0, 0, 0);
+            return Color(0, 0, 0);
         }
 
-        Color3 sample_f(const HitInfo &hi, const Vector3 &wo, Vector3 &wi, double &pdf) const override
+        Color sample_f(const HitInfo &hi, const Eigen::Vector3f &wo, Eigen::Vector3f &wi, float &pdf) const override
         {
-            return Color3(0, 0, 0);
+            return Color(0, 0, 0);
         }
 
-        Color3 rho(const HitInfo &hi, const Vector3 &wo) const override
+        Color rho(const HitInfo &hi, const Eigen::Vector3f &wo) const override
         {
-            return Color3(0, 0, 0);
+            return Color(0, 0, 0);
         }
 
         void set_kr(double _kr)
@@ -35,7 +35,7 @@ namespace raytracer
             kr = _kr;
         }
 
-        void set_cr(Color3 c)
+        void set_cr(Color c)
         {
             cr = c;
         }

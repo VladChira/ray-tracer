@@ -80,9 +80,9 @@ void Sampler::shuffle_x_coordinates() {
     for (int p = 0; p < num_sets; p++) {
         for (int i = 0; i < num_samples - 1; i++) {
             int target = random_int() % num_samples + p * num_samples;
-            double temp = samples[i + p * num_samples + 1].x;
-            samples[i + p * num_samples + 1].x = samples[target].x;
-            samples[target].x = temp;
+            float temp = samples[i + p * num_samples + 1].x();
+            samples[i + p * num_samples + 1].x() = samples[target].x();
+            samples[target].x() = temp;
         }
     }
 }
@@ -93,9 +93,9 @@ void Sampler::shuffle_y_coordinates() {
     for (int p = 0; p < num_sets; p++) {
         for (int i = 0; i < num_samples - 1; i++) {
             int target = random_int() % num_samples + p * num_samples;
-            double temp = samples[i + p * num_samples + 1].y;
-            samples[i + p * num_samples + 1].y = samples[target].y;
-            samples[target].y = temp;
+            float temp = samples[i + p * num_samples + 1].y();
+            samples[i + p * num_samples + 1].y() = samples[target].y();
+            samples[target].y() = temp;
         }
     }
 }
@@ -126,33 +126,33 @@ void Sampler::setup_shuffled_indices() {
 
 void Sampler::map_samples_to_unit_disk() {
     size_t size = samples.size();
-    double r, phi;  // polar coordinates
-    Point2 sp;    // sample point on unit disk
+    float r, phi;  // polar coordinates
+    Eigen::Vector2f sp;    // sample point on unit disk
 
     disk_samples.reserve(size);
 
     for (int j = 0; j < size; j++) {
         // map sample point to [-1, 1] X [-1,1]
 
-        sp.x = 2.0f * samples[j].x - 1.0f;
-        sp.y = 2.0f * samples[j].y - 1.0f;
+        sp.x() = 2.0f * samples[j].x() - 1.0f;
+        sp.y() = 2.0f * samples[j].y() - 1.0f;
 
-        if (sp.x > -sp.y) {     // sectors 1 and 2
-            if (sp.x > sp.y) {  // sector 1
-                r = sp.x;
-                phi = sp.y / sp.x;
+        if (sp.x() > -sp.y()) {     // sectors 1 and 2
+            if (sp.x() > sp.y()) {  // sector 1
+                r = sp.x();
+                phi = sp.y() / sp.x();
             } else {  // sector 2
-                r = sp.y;
-                phi = 2 - sp.x / sp.y;
+                r = sp.y();
+                phi = 2 - sp.x() / sp.y();
             }
         } else {                // sectors 3 and 4
-            if (sp.x < sp.y) {  // sector 3
-                r = -sp.x;
-                phi = 4 + sp.y / sp.x;
+            if (sp.x() < sp.y()) {  // sector 3
+                r = -sp.x();
+                phi = 4 + sp.y() / sp.x();
             } else {  // sector 4
-                r = -sp.y;
-                if (sp.y != 0.0f) {  // avoid division by zero at origin
-                    phi = 6 - sp.x / sp.y;
+                r = -sp.y();
+                if (sp.y() != 0.0f) {  // avoid division by zero at origin
+                    phi = 6 - sp.x() / sp.y();
                 } else {
                     phi = 0.0f;
                 }
@@ -161,8 +161,8 @@ void Sampler::map_samples_to_unit_disk() {
 
         phi *= pi / 4.0f;
 
-        disk_samples[j].x = r * (double)cos(phi);
-        disk_samples[j].y = r * (double)sin(phi);
+        disk_samples[j].x() = r * (float)cos(phi);
+        disk_samples[j].y() = r * (float)sin(phi);
     }
 
     samples.erase(samples.begin(), samples.end());
@@ -171,19 +171,19 @@ void Sampler::map_samples_to_unit_disk() {
 // Maps the 2D sample points to 3D points on a unit hemisphere with a cosine power
 // density distribution in the polar angle
 
-void Sampler::map_samples_to_hemisphere(const double exp) {
+void Sampler::map_samples_to_hemisphere(const float exp) {
     size_t size = samples.size();
     hemisphere_samples.reserve(num_samples * num_sets);
 
     for (int j = 0; j < size; j++) {
-        double cos_phi = cos(2.0 * pi * samples[j].x);
-        double sin_phi = sin(2.0 * pi * samples[j].x);
-        double cos_theta = pow((1.0f - samples[j].y), 1.0f / (exp + 1.0f));
-        double sin_theta = sqrt(1.0f - cos_theta * cos_theta);
-        double pu = sin_theta * cos_phi;
-        double pv = sin_theta * sin_phi;
-        double pw = cos_theta;
-        hemisphere_samples.push_back(Point3(pu, pv, pw));
+        float cos_phi = cos(2.0 * pi * samples[j].x());
+        float sin_phi = sin(2.0 * pi * samples[j].x());
+        float cos_theta = pow((1.0f - samples[j].y()), 1.0f / (exp + 1.0f));
+        float sin_theta = sqrt(1.0f - cos_theta * cos_theta);
+        float pu = sin_theta * cos_phi;
+        float pv = sin_theta * sin_phi;
+        float pw = cos_theta;
+        hemisphere_samples.push_back(Eigen::Vector3f(pu, pv, pw));
     }
 }
 
@@ -195,20 +195,20 @@ void Sampler::map_samples_to_sphere() {
     sphere_samples.reserve(num_samples * num_sets);
 
     for (int j = 0; j < num_samples * num_sets; j++) {
-        double r1 = samples[j].x;
-        double r2 = samples[j].y;
-        double z = 1.0f - 2.0f * r1;
-        double r = sqrt(1.0f - z * z);
-        double phi = 2 * pi * r2;
-        double x = r * cos(phi);
-        double y = r * sin(phi);
-        sphere_samples.push_back(Point3(x, y, z));
+        float r1 = samples[j].x();
+        float r2 = samples[j].y();
+        float z = 1.0f - 2.0f * r1;
+        float r = sqrt(1.0f - z * z);
+        float phi = 2 * pi * r2;
+        float x = r * cos(phi);
+        float y = r * sin(phi);
+        sphere_samples.push_back(Eigen::Vector3f(x, y, z));
     }
 }
 
 // the final version in Listing 5.13
 
-Point2 Sampler::sample_unit_square() {
+Eigen::Vector2f Sampler::sample_unit_square() {
     if (count % num_samples == 0) {                      // start of a new pixel
         jump = (random_int() % num_sets) * num_samples;  // random index jump initialised to zero in constructor
     }
@@ -216,7 +216,7 @@ Point2 Sampler::sample_unit_square() {
     return samples[index];
 }
 
-Point2 Sampler::sample_unit_disk() {
+Eigen::Vector2f Sampler::sample_unit_disk() {
     if (count % num_samples == 0) {  // start of a new pixel
         jump = (random_int() % num_sets) * num_samples;
     }
@@ -224,7 +224,7 @@ Point2 Sampler::sample_unit_disk() {
     return disk_samples[jump + shuffled_indices[jump + count++ % num_samples]];
 }
 
-Point3 Sampler::sample_hemisphere() {
+Eigen::Vector3f Sampler::sample_hemisphere() {
     if (count % num_samples == 0) {  // start of a new pixel
         jump = (random_int() % num_sets) * num_samples;
     }
@@ -232,7 +232,7 @@ Point3 Sampler::sample_hemisphere() {
     return hemisphere_samples[jump + shuffled_indices[jump + count++ % num_samples]];
 }
 
-Point3 Sampler::sample_sphere() {
+Eigen::Vector3f Sampler::sample_sphere() {
     if (count % num_samples == 0) {  // start of a new pixel
         jump = (random_int() % num_sets) * num_samples;
     }
@@ -243,4 +243,4 @@ Point3 Sampler::sample_sphere() {
 // This is a specialised function called in LatticeNoise::init_vector_table
 // It doesn't shuffle the indices
 
-Point2 Sampler::sample_one_set() { return samples[count++ % num_samples]; }
+Eigen::Vector2f Sampler::sample_one_set() { return samples[count++ % num_samples]; }

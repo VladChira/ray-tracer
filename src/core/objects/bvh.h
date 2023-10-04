@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "geometric_object.h"
 #include "world.h"
+#include "utilities.h"
 
 namespace raytracer
 {
@@ -13,7 +14,7 @@ namespace raytracer
 
         BVH_Node(const std::vector<std::shared_ptr<GeometricObject>> &src_objects, size_t start, size_t end)
         {
-            ZoneScoped;
+            // ZoneScoped;
             auto objects = src_objects; // Create a modifiable array of the source scene objects
 
             int axis = random_int(0, 2);

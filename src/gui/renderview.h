@@ -42,13 +42,13 @@ public:
         init = true;
     }
 
-    void set_pixel_color(unsigned int x, unsigned int y, raytracer::Color3 color)
+    void set_pixel_color(unsigned int x, unsigned int y, raytracer::Color color)
     {
         (*image).set(x, y, color);
         pixel_count++;
     }
 
-    double get_progress()
+    float get_progress()
     {
         return (pixel_count * 1.0) / (image->get_height() * image->get_width());
     }

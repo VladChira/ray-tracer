@@ -1,4 +1,5 @@
 #pragma once
+#include "utilities.h"
 #include "interval.h"
 #include "ray.h"
 namespace raytracer
@@ -13,7 +14,7 @@ namespace raytracer
         AABB(const Interval &ix, const Interval &iy, const Interval &iz)
             : x(ix), y(iy), z(iz) {}
 
-        AABB(const Point3 &a, const Point3 &b)
+        AABB(const Eigen::Vector3f &a, const Eigen::Vector3f &b)
         {
             // Treat the two points a and b as extrema for the bounding box, so we don't require a
             // particular minimum/maximum coordinate order.

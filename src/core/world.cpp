@@ -33,15 +33,15 @@ void raytracer::World::set_camera(std::shared_ptr<Camera> cam)
     camera = cam;
 }
 
-void raytracer::World::set_bg_color(Color3 c)
+void raytracer::World::set_bg_color(Color c)
 {
     background_color = c;
 }
 
 bool raytracer::World::hit_objects(const raytracer::Ray &r, Interval t_range, HitInfo &rec)
 {
-    double t_min = t_range.min;
-    double t_max = t_range.max;
+    float t_min = t_range.min;
+    float t_max = t_range.max;
     HitInfo temp_rec(*this);
     temp_rec.depth = rec.depth;
     bool hit_anything = false;

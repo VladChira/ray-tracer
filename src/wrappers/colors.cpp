@@ -1,15 +1,15 @@
-#include "vector3.h"
+#include "utilities.h"
 using namespace raytracer;
 
-const Color3 Color3::red = Color3(1.0, 0.0, 0.0);
-const Color3 Color3::green = Color3(0.0, 1.0, 0.0);
-const Color3 Color3::dark_green = Color3(0.01, 0.19, 0.12);
-const Color3 Color3::blue = Color3(0.0, 0.0, 1.0);
-const Color3 Color3::white = Color3(1.0, 1.0, 1.0);
-const Color3 Color3::black = Color3(0.0, 0.0, 0.0);
-const Color3 Color3::yellow = Color3(1.0, 1.0, 0.0);
-const Color3 Color3::cyan = Color3(0.0, 1.0, 1.0);
-const Color3 Color3::brown = Color3(0.58, 0.29, 0);
-const Color3 Color3::grey = Color3(0.5, 0.5, 0.5);
-const Color3 Color3::purple = Color3(0.5, 0, 0.5);
-const Color3 Color3::orange = Color3(1, 0.36, 0.01);
+const Color Color::red = Color(1.0, 0.0, 0.0);
+const Color Color::green = Color(0.0, 1.0, 0.0);
+const Color Color::dark_green = Color(0.01, 0.19, 0.12);
+const Color Color::blue = Color(0.0, 0.0, 1.0);
+const Color Color::white = Color(1.0, 1.0, 1.0);
+const Color Color::black = Color(0.0, 0.0, 0.0);
+const Color Color::yellow = Color(1.0, 1.0, 0.0);
+const Color Color::cyan = Color(0.0, 1.0, 1.0);
+const Color Color::brown = Color(0.58, 0.29, 0);
+const Color Color::grey = Color(0.5, 0.5, 0.5);
+const Color Color::purple = Color(0.5, 0, 0.5);
+const Color Color::orange = Color(1, 0.36, 0.01);

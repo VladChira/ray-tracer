@@ -1,5 +1,5 @@
 #pragma once
-#include "maths.h"
+#include "utilities.h"
 
 namespace raytracer
 {
@@ -39,36 +39,36 @@ namespace raytracer
 
         void map_samples_to_unit_disk();
 
-        void map_samples_to_hemisphere(const double p);
+        void map_samples_to_hemisphere(const float p);
 
         void map_samples_to_sphere();
 
         // the following functions are not const because they change count and jump
 
-        Point2 // get next sample on unit square
+        Eigen::Vector2f // get next sample on unit square
         sample_unit_square();
 
-        Point2 // get next sample on unit disk
+        Eigen::Vector2f // get next sample on unit disk
         sample_unit_disk();
 
-        Point3 // get next sample on unit hemisphere
+        Eigen::Vector3f // get next sample on unit hemisphere
         sample_hemisphere();
 
-        Point3 // get next sample on unit sphere
+        Eigen::Vector3f // get next sample on unit sphere
         sample_sphere();
 
-        Point2           // only used to set up a vector noise table
+        Eigen::Vector2f           // only used to set up a vector noise table
         sample_one_set(); // this is not discussed in the book, but see the
                           // file LatticeNoise.cpp in Chapter 31
 
     protected:
         int num_samples;                         // the number of sample points in a set
         int num_sets;                            // the number of sample sets
-        std::vector<Point2> samples;            // sample points on a unit square
+        std::vector<Eigen::Vector2f> samples;            // sample points on a unit square
         std::vector<int> shuffled_indices;       // shuffled samples array indices
-        std::vector<Point2> disk_samples;       // sample points on a unit disk
-        std::vector<Point3> hemisphere_samples; // sample points on a unit hemisphere
-        std::vector<Point3> sphere_samples;     // sample points on a unit sphere
+        std::vector<Eigen::Vector2f> disk_samples;       // sample points on a unit disk
+        std::vector<Eigen::Vector3f> hemisphere_samples; // sample points on a unit hemisphere
+        std::vector<Eigen::Vector3f> sphere_samples;     // sample points on a unit sphere
         unsigned long count;                     // the current number of sample points used
         int jump;                                // random index jump
     };

@@ -2,36 +2,36 @@
 #include "interval.h"
 using namespace raytracer;
 
-PointLight::PointLight(double ls, Color3 c, Vector3 loc)
+PointLight::PointLight(float ls, Color c, Eigen::Vector3f loc)
 {
     this->ls = ls;
     this->color = c;
     this->location = loc;
 }
 
-Vector3 PointLight::get_direction(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi)
+Eigen::Vector3f PointLight::get_direction(const Ray &r_in, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi)
 {
-    return Normalize(location - rec.p);
+    return (location - rec.p).normalized();
 }
 
-Color3 PointLight::L(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const
+Color PointLight::L(const Ray &r_in, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) const
 {
-    return ls * color;
+    return color * ls;
 }
 
-double PointLight::G(const Ray &r_in, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const
+float PointLight::G(const Ray &r_in, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) const
 {
     return 1.0;
 }
 
-double PointLight::pdf(const Ray &r_in, const HitInfo &rec) const
+float PointLight::pdf(const Ray &r_in, const HitInfo &rec) const
 {
     return 1.0;
 }
 
-bool PointLight::in_shadow(const Ray &r, const HitInfo &rec, Point3 &sample_point, Normal3 &light_normal, Vector3 &wi) const
+bool PointLight::in_shadow(const Ray &r, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) const
 {
-    double d = (location - r.origin).Length();
+    float d = (location - r.origin).norm();
     HitInfo rec2(rec.world);
     for (int i = 0 ; i < rec.world.objects.size(); i++)
     {

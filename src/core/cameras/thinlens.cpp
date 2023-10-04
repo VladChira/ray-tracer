@@ -3,7 +3,7 @@
 #include "multijittered.h"
 using namespace raytracer;
 
-ThinLens::ThinLens(Point3 eye_p, Point3 lookat) : raytracer::Pinhole(eye_p, lookat),
+ThinLens::ThinLens(Eigen::Vector3f eye_p, Eigen::Vector3f lookat) : raytracer::Pinhole(eye_p, lookat),
                                                   sampler_ptr(new raytracer::MultiJittered(4))
 {
     sampler_ptr->map_samples_to_unit_disk();
@@ -54,20 +54,20 @@ float ThinLens::get_focal_dist()
     return f;
 }
 
-Vector3 ThinLens::ray_direction(const Point2 &pixel_point, const Point2 &lens_point) const
+Eigen::Vector3f ThinLens::ray_direction(const Eigen::Vector2f &pixel_point, const Eigen::Vector2f &lens_point) const
 {
-    Point2 p;
-    p.x = pixel_point.x * f / d;
-    p.y = pixel_point.y * f / d;
-    Vector3 dir = (p.x - lens_point.x) * u + (p.y - lens_point.y) * v - f * w;
-    dir = Normalize(dir);
+    Eigen::Vector2f p;
+    p.x() = pixel_point.x() * f / d;
+    p.y() = pixel_point.y() * f / d;
+    Eigen::Vector3f dir = (p.x() - lens_point.x()) * u + (p.y() - lens_point.y()) * v - f * w;
+    dir.normalize();
     return dir;
 }
 
-Ray ThinLens::get_ray(const Point2 &pixel_point) const
+Ray ThinLens::get_ray(const Eigen::Vector2f &pixel_point) const
 {
-    Point2 dp = this->sampler_ptr->sample_unit_disk();
-    Point2 lp = dp * this->lens_radius;
-    Vector3 dir = ray_direction(pixel_point, lp);
+    Eigen::Vector2f dp = this->sampler_ptr->sample_unit_disk();
+    Eigen::Vector2f lp = dp * this->lens_radius;
+    Eigen::Vector3f dir = ray_direction(pixel_point, lp);
     return Ray(eye, dir);
 }
