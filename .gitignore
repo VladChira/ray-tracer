@@ -1,6 +1,9 @@
 # Ignore build directory
 build/*
 
+# Ignore output image
+output.png
+
 # Ignore the model directory for small repo size
 models/*
 

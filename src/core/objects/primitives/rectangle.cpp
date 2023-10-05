@@ -15,11 +15,7 @@ Rectangle::Rectangle(const Eigen::Vector3f &p0, const Eigen::Vector3f &a, const 
     this->area = a.norm() * b.norm();
     this->inv_area = 1 / this->area;
 
-    const float delta = 0.0001;
-    Interval ix = Interval(std::min(p0.x(), p0.x() + a.x() + b.x()) - delta, std::max(p0.x(), p0.x() + a.x() + b.x()) + delta);
-    Interval iy = Interval(std::min(p0.y(), p0.y() + a.y() + b.y()) - delta, std::max(p0.y(), p0.y() + a.y() + b.y()) + delta);
-    Interval iz = Interval(std::min(p0.z(), p0.z() + a.z() + b.z()) - delta, std::max(p0.z(), p0.z() + a.z() + b.z()) + delta);
-    aabb = AABB(ix, iy, iz);
+    aabb = compute_aabb(p0, a, b);
 }
 
 Rectangle::Rectangle(const Eigen::Vector3f &p0, const Eigen::Vector3f &a, const Eigen::Vector3f &b, const Eigen::Vector3f normal, std::shared_ptr<raytracer::Material> mat)
@@ -35,11 +31,7 @@ Rectangle::Rectangle(const Eigen::Vector3f &p0, const Eigen::Vector3f &a, const 
     this->area = a.norm() * b.norm();
     this->inv_area = 1 / this->area;
 
-    const float delta = 0.0001;
-    Interval ix = Interval(std::min(p0.x(), p0.x() + a.x() + b.x()) - delta, std::max(p0.x(), p0.x() + a.x() + b.x()) + delta);
-    Interval iy = Interval(std::min(p0.y(), p0.y() + a.y() + b.y()) - delta, std::max(p0.y(), p0.y() + a.y() + b.y()) + delta);
-    Interval iz = Interval(std::min(p0.z(), p0.z() + a.z() + b.z()) - delta, std::max(p0.z(), p0.z() + a.z() + b.z()) + delta);
-    aabb = AABB(ix, iy, iz);
+    aabb = compute_aabb(p0, a, b);
 }
 
 bool Rectangle::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
@@ -87,7 +79,7 @@ float Rectangle::pdf(const raytracer::Ray &r, const HitInfo &rec) const
     return inv_area;
 }
 
-AABB Rectangle::bounding_box() const
+Eigen::AlignedBox3f Rectangle::bounding_box() const
 {
     return aabb;
 }
@@ -116,4 +108,15 @@ std::vector<std::shared_ptr<GeometricObject>> raytracer::create_box(const Eigen:
     sides.push_back(std::make_shared<Rectangle>(Eigen::Vector3f(min.x(), min.y(), min.z()),  dx,  dz, mat)); // bottom
 
     return sides;
+}
+
+static Eigen::AlignedBox3f compute_aabb(Eigen::Vector3f p0, Eigen::Vector3f a, Eigen::Vector3f b)
+{
+    Eigen::AlignedBox3f bbox;
+    bbox.extend(p0);
+    bbox.extend(p0 + a);
+    bbox.extend(p0 + b);
+    bbox.extend(p0 + a + b);
+
+    return bbox;
 }

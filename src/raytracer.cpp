@@ -4,8 +4,6 @@
 
 // #include "Tracy.hpp"
 
-#include <Eigen/Dense>
-
 #define TINYOBJLOADER_IMPLEMENTATION
 
 #include "gui.h"
@@ -36,8 +34,8 @@ using namespace raytracer;
 const auto aspect_ratio = 16.0 / 9.0;
 const int image_width = 1000;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 100;
-const int max_depth = 20;
+const int samples_per_pixel = 150;
+const int max_depth = 30;
 
 // World
 World world;
@@ -237,13 +235,13 @@ void setup3()
         }
     }
 
-    // auto light_mat = std::make_shared<Emissive>(15.0, Color::white);
-    // auto light_rect = std::make_shared<Rectangle>(Eigen::Vector3f(-18, 250, -242), Eigen::Vector3f(-100, 0, 0), Eigen::Vector3f(0, 0, -100), light_mat);
-    // world.add_object(light_rect);
+    auto light_mat = std::make_shared<Emissive>(15.0, Color::white);
+    auto light_rect = std::make_shared<Rectangle>(Eigen::Vector3f(-18, 250, -242), Eigen::Vector3f(-100, 0, 0), Eigen::Vector3f(0, 0, -100), light_mat);
+    world.add_object(light_rect);
 
-    // auto area_light = std::make_shared<AreaLight>();
-    // area_light->set_object(light_rect);
-    // world.add_light(area_light);
+    auto area_light = std::make_shared<AreaLight>();
+    area_light->set_object(light_rect);
+    world.add_light(area_light);
 
     // Camera
     std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Eigen::Vector3f(163, 187, -730), Eigen::Vector3f(-18, 104, -242));
@@ -479,7 +477,7 @@ void multi_threaded_render()
     // Build a particular scene here
     Console::GetInstance()->addLogEntry("Building scene...");
 
-    cornell_box();
+    setup3();
 
     Console::GetInstance()->addLogEntry("Rendering...");
     std::vector<std::thread> threads;

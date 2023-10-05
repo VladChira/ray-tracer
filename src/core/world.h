@@ -3,8 +3,9 @@
 #include <vector>
 #include <algorithm>
 
+#include <Eigen/Geometry>
+
 #include "utilities.h"
-#include "aabb.h"
 #include "geometric_object.h"
 #include "hit_info.h"
 
@@ -24,7 +25,7 @@ namespace raytracer
 
         std::shared_ptr<Camera> camera;
         Color background_color;
-        AABB aabb; // the AABB of the entire scene
+        Eigen::AlignedBox3f aabb; // the AABB of the entire scene
 
         std::shared_ptr<Tracer> tracer;
 

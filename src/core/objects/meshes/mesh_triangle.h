@@ -1,9 +1,11 @@
 #pragma once
 #include <iostream>
+
+#include <Eigen/Geometry>
+
 #include "geometric_object.h"
 #include "mesh.h"
 
-#include "matte.h"
 namespace raytracer
 {
     /*
@@ -18,7 +20,7 @@ namespace raytracer
     public:
         MeshTriangle(const std::shared_ptr<Mesh> &mesh, int triangle_number, std::shared_ptr<Material> mat);
         bool hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const override;
-        AABB bounding_box() const override;
+        Eigen::AlignedBox3f bounding_box() const override;
 
         std::ostream &operator<<(std::ostream &out)
         {

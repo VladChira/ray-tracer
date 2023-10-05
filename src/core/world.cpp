@@ -3,7 +3,7 @@
 void raytracer::World::add_object(std::shared_ptr<GeometricObject> object)
 {
     objects.push_back(object);
-    aabb = AABB(aabb, object->bounding_box());
+    aabb.extend(object->bounding_box());
     add_material(object->material);
 }
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "aabb.h"
 #include "geometric_object.h"
 namespace raytracer
 {
@@ -9,7 +8,7 @@ namespace raytracer
     public:
         Eigen::Vector3f center;
         float radius;
-        AABB aabb;
+        Eigen::AlignedBox3f aabb;
 
         Sphere();
 
@@ -17,7 +16,7 @@ namespace raytracer
 
         bool hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const;
 
-        AABB bounding_box() const override;
+        Eigen::AlignedBox3f bounding_box() const override;
     };
 
 }

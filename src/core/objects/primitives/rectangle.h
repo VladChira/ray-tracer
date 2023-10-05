@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 
-#include "aabb.h"
 #include "geometric_object.h"
 #include "sampler.h"
 namespace raytracer
@@ -15,7 +14,7 @@ namespace raytracer
         Eigen::Vector3f normal;
         float area, inv_area;
         std::shared_ptr<Sampler> sampler;
-        AABB aabb;
+        Eigen::AlignedBox3f aabb;
 
         Rectangle(const Eigen::Vector3f &p0, const Eigen::Vector3f &a, const Eigen::Vector3f &b, std::shared_ptr<raytracer::Material> mat);
         
@@ -23,7 +22,7 @@ namespace raytracer
 
         bool hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const;
 
-        AABB bounding_box() const override;
+        Eigen::AlignedBox3f bounding_box() const override;
 
         Eigen::Vector3f sample() const override;
 
@@ -33,5 +32,6 @@ namespace raytracer
     };
 
     std::vector<std::shared_ptr<GeometricObject>> create_box(const Eigen::Vector3f& a, const Eigen::Vector3f& b, std::shared_ptr<Material> mat);
-
 }
+
+    static Eigen::AlignedBox3f compute_aabb(Eigen::Vector3f p0, Eigen::Vector3f a, Eigen::Vector3f b);

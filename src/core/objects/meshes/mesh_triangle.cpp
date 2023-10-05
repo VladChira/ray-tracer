@@ -69,17 +69,22 @@ bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec
     return true;
 }
 
-AABB MeshTriangle::bounding_box() const
+Eigen::AlignedBox3f MeshTriangle::bounding_box() const
 {
     Eigen::Vector3f v0 = mesh->vertices[v[0]];
     Eigen::Vector3f v1 = mesh->vertices[v[1]];
     Eigen::Vector3f v2 = mesh->vertices[v[2]];
-    const float delta = 0.00001;
-    Interval ix = Interval(std::min(std::min(v0.x(), v1.x()), v2.x()) - delta, std::max(std::max(v0.x(), v1.x()), v2.x()) + delta);
-    Interval iy = Interval(std::min(std::min(v0.y(), v1.y()), v2.y()) - delta, std::max(std::max(v0.y(), v1.y()), v2.y()) + delta);
-    Interval iz = Interval(std::min(std::min(v0.z(), v1.z()), v2.z()) - delta, std::max(std::max(v0.z(), v1.z()), v2.z()) + delta);
 
-    return AABB(ix, iy, iz);
+    Eigen::AlignedBox3f bbox;
+    bbox.extend(v0);
+    bbox.extend(v1);
+    bbox.extend(v2);
+
+    // Displace the corners by a tiny amount to avoid degenerate bounding boxes
+    bbox.min() -= Eigen::Vector3f(0.0001, 0.0001, 0.0001);
+    bbox.max() += Eigen::Vector3f(0.0001, 0.0001, 0.0001);
+
+    return bbox;
 }
 
 std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const tinyobj::attrib_t &attrib, const tinyobj::shape_t &shape, raytracer::ShadingType shading_type, std::shared_ptr<Material> mat)
@@ -110,8 +115,8 @@ std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const
             float vx = attrib.vertices[3 * vertex_index + 0];
             float vy = attrib.vertices[3 * vertex_index + 1];
             float vz = attrib.vertices[3 * vertex_index + 2];
-            mesh->vertices[vertex_index] = (10 * Eigen::Vector3f(vx, vy, vz)) + Eigen::Vector3f(7, -0.5, 2);
-            // mesh->vertices[vertex_index] = Point3(vx, vy, vz);
+            // mesh->vertices[vertex_index] = (10 * Eigen::Vector3f(vx, vy, vz)) + Eigen::Vector3f(7, -0.5, 2);
+            mesh->vertices[vertex_index] = Eigen::Vector3f(vx, vy, vz);
         }
         index_offset += fv;
     }

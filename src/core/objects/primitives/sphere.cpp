@@ -1,5 +1,5 @@
 #include "sphere.h"
-#include "aabb.h"
+
 using namespace raytracer;
 
 Sphere::Sphere()
@@ -8,7 +8,7 @@ Sphere::Sphere()
     radius = 1;
     material = nullptr;
     auto rvec = Eigen::Vector3f(radius, radius, radius);
-    aabb = AABB(center - rvec, center + rvec);
+    aabb = Eigen::AlignedBox3f(center - rvec, center + rvec);
 }
 
 Sphere::Sphere(const Eigen::Vector3f &c, float r, std::shared_ptr<raytracer::Material> mat)
@@ -17,7 +17,7 @@ Sphere::Sphere(const Eigen::Vector3f &c, float r, std::shared_ptr<raytracer::Mat
     this->radius = r;
     this->material = mat;
     auto rvec = Eigen::Vector3f(radius, radius, radius);
-    aabb = AABB(center - rvec, center + rvec);
+    aabb = Eigen::AlignedBox3f(center - rvec, center + rvec);
 }
 
 bool Sphere::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
@@ -52,7 +52,7 @@ bool Sphere::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
     return true;
 }
 
-AABB Sphere::bounding_box() const
+Eigen::AlignedBox3f Sphere::bounding_box() const
 {
     return aabb;
 }

@@ -1,10 +1,12 @@
 #pragma once
 #include <memory>
 
+#include <Eigen/Geometry>
+
 #include "utilities.h"
 #include "ray.h"
-#include "aabb.h"
 #include "hit_info.h"
+#include "interval.h"
 
 namespace raytracer
 {
@@ -13,7 +15,7 @@ namespace raytracer
     {
     public:
         virtual bool hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const = 0;
-        virtual AABB bounding_box() const = 0;
+        virtual Eigen::AlignedBox3f bounding_box() const = 0;
 
         virtual Eigen::Vector3f sample() const
         {

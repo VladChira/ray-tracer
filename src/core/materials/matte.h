@@ -85,7 +85,7 @@ namespace raytracer
             {
                 scatter_direction = rec.normal;
             }
-            scattered = raytracer::Ray(rec.p + 0.00001 * scatter_direction, scatter_direction);
+            scattered = raytracer::Ray(rec.p + 0.0001 * scatter_direction, scatter_direction);
             attenuation = this->diffuse_brdf.cd * this->diffuse_brdf.kd;
             return true;
         }
