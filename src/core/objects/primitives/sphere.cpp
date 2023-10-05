@@ -22,6 +22,8 @@ Sphere::Sphere(const Eigen::Vector3f &c, float r, std::shared_ptr<raytracer::Mat
 
 bool Sphere::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
 {
+    if (r.is_camera_ray && !this->visible_to_camera) return false;
+    
     float t_min = t_range.min;
     float t_max = t_range.max;
     Eigen::Vector3f oc = r.origin - center;

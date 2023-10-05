@@ -11,6 +11,8 @@ MeshTriangle::MeshTriangle(const std::shared_ptr<Mesh> &mesh, int triangle_numbe
 
 bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec) const
 {
+    if (ray.is_camera_ray && !this->visible_to_camera) return false;
+
     Eigen::Vector3f v0 = mesh->vertices[v[0]];
     Eigen::Vector3f v1 = mesh->vertices[v[1]];
     Eigen::Vector3f v2 = mesh->vertices[v[2]];

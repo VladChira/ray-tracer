@@ -36,6 +36,8 @@ Rectangle::Rectangle(const Eigen::Vector3f &p0, const Eigen::Vector3f &a, const 
 
 bool Rectangle::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
 {
+    if (r.is_camera_ray && !this->visible_to_camera) return false;
+    
     float t = (p0 - r.origin).dot(normal) / r.direction.dot(normal);
 
     if (t < t_range.min || t > t_range.max)
@@ -117,6 +119,10 @@ static Eigen::AlignedBox3f compute_aabb(Eigen::Vector3f p0, Eigen::Vector3f a, E
     bbox.extend(p0 + a);
     bbox.extend(p0 + b);
     bbox.extend(p0 + a + b);
+
+    // Displace the corners by a tiny amount to avoid degenerate bounding boxes
+    bbox.min() -= Eigen::Vector3f(0.0001, 0.0001, 0.0001);
+    bbox.max() += Eigen::Vector3f(0.0001, 0.0001, 0.0001);
 
     return bbox;
 }

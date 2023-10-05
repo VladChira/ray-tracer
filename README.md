@@ -39,7 +39,7 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 ## Gallery
 <p align="center"><img src="./images/spheres&bunny.png" width="700"/></p>
 <br>
-<p align="center"><img src="./images/spheres2.png" width="700"/></p>
+<p align="center"><img src="./images/cornell.png" width="700"/></p>
 
 ## References
 - [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html), Peter Shirley. 2020

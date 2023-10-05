@@ -24,6 +24,8 @@ Triangle::Triangle(const Eigen::Vector3f &a, const Eigen::Vector3f &b, const Eig
 
 bool Triangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec) const
 {
+    if (ray.is_camera_ray && !this->visible_to_camera) return false;
+
     float a = v0.x() - v1.x(), b = v0.x() - v2.x(), c = ray.direction.x(), d = v0.x() - ray.origin.x();
     float e = v0.y() - v1.y(), f = v0.y() - v2.y(), g = ray.direction.y(), h = v0.y() - ray.origin.y();
     float i = v0.z() - v1.z(), j = v0.z() - v2.z(), k = ray.direction.z(), l = v0.z() - ray.origin.z();

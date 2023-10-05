@@ -9,6 +9,7 @@ namespace raytracer
         Eigen::Vector3f origin;
         Eigen::Vector3f direction;
         float tMax;
+        bool is_camera_ray = false;
 
         Ray()
         {

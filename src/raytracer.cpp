@@ -32,10 +32,10 @@
 using namespace raytracer;
 
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 1000;
+const int image_width = 1920;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 150;
-const int max_depth = 30;
+const int samples_per_pixel = 1000;
+const int max_depth = 10;
 
 // World
 World world;
@@ -68,6 +68,7 @@ void render_region(Eigen::Vector2f top_left, unsigned int width, unsigned int he
                 auto u = pixel_size * (j - 0.5 * image_width + p.x());
                 auto v = pixel_size * (i - 0.5 * image_height + p.y());
                 Ray r = world.camera->get_ray(Eigen::Vector2f(u, v));
+                r.is_camera_ray = true;
 
                 pixel_color += tracer->trace_ray(r, world, max_depth);
             }
@@ -122,25 +123,34 @@ void cornell_box()
     auto red = std::make_shared<Matte>(1.0, Color(.65, .05, .05));
     auto white = std::make_shared<Matte>(1.0, Color(.73, .73, .73));
     auto green = std::make_shared<Matte>(1.0, Color(.12, .45, .15));
+    auto azure = std::make_shared<Matte>(1.0, Color(.176, .392, 0.96));
     auto glass = std::make_shared<Transparent>(1.5);
+    auto reflect = std::make_shared<Reflective>(1.0, Color::white, 0.0);
 
     auto light_mat = std::make_shared<Emissive>(15.0, Color::white);
-    auto light_rect = std::make_shared<Rectangle>(Eigen::Vector3f(343, 554, 332), Eigen::Vector3f(-130, 0, 0), Eigen::Vector3f(0, 0, -105), light_mat);
+    auto light_rect = std::make_shared<Rectangle>(Eigen::Vector3f(403, 554, 332), Eigen::Vector3f(-250, 0, 0), Eigen::Vector3f(0, 0, -120), light_mat);
     world.add_object(light_rect);
 
     auto area_light = std::make_shared<AreaLight>();
     area_light->set_object(light_rect);
     world.add_light(area_light);
 
-    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(555, 0, 0), Eigen::Vector3f(0, 0, 555), Eigen::Vector3f(0, 555, 0), green));
-    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(0, 0, 0), Eigen::Vector3f(0, 555, 0), Eigen::Vector3f(0, 0, 555), red));
+    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(780, 0, 0), Eigen::Vector3f(0, 0, 555), Eigen::Vector3f(0, 555, 0), green));
+    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-224, 0, 0), Eigen::Vector3f(0, 555, 0), Eigen::Vector3f(0, 0, 555), red));
 
-    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(0, 0, 0), Eigen::Vector3f(0, 0, 555), Eigen::Vector3f(555, 0, 0), white));
-    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(555, 555, 555), Eigen::Vector3f(-555, 0, 0), Eigen::Vector3f(0, 0, -555), white));
-    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(0, 0, 555), Eigen::Vector3f(0, 555, 0), Eigen::Vector3f(555, 0, 0), white));
+    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-224, 0, 0), Eigen::Vector3f(0, 0, 555), Eigen::Vector3f(1004, 0, 0), white)); // floor
+    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(780, 555, 555), Eigen::Vector3f(-1004, 0, 0), Eigen::Vector3f(0, 0, -555), white)); // ceiling
+    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-224, 0, 555), Eigen::Vector3f(0, 555, 0), Eigen::Vector3f(1004, 0, 0), white)); // back wall
+
+    // The wall in front of the camera, invisible to it but contributes to all other light computation
+    auto front_wall = std::make_shared<Rectangle>(Eigen::Vector3f(-224, 0, 0), Eigen::Vector3f(1004, 0, 0),Eigen::Vector3f(0, 555, 0), azure);
+    front_wall->visible_to_camera = false;
+    world.add_object(front_wall);
 
     world.add_objects(create_box(Eigen::Vector3f(130, 0, 65), Eigen::Vector3f(295, 165, 230), white));
     world.add_objects(create_box(Eigen::Vector3f(265, 0, 295), Eigen::Vector3f(430, 330, 460), white));
+    world.add_object(std::make_shared<Sphere>(Eigen::Vector3f(600, 200, 250), 110, reflect));
+    world.add_object(std::make_shared<Sphere>(Eigen::Vector3f(-90, 200, 250), 110, glass));
 
     // Tracer
     tracer = std::make_shared<PathTracer>();
@@ -477,7 +487,7 @@ void multi_threaded_render()
     // Build a particular scene here
     Console::GetInstance()->addLogEntry("Building scene...");
 
-    setup3();
+    cornell_box();
 
     Console::GetInstance()->addLogEntry("Rendering...");
     std::vector<std::thread> threads;
