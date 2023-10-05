@@ -34,7 +34,7 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 - Bidirectional path tracing
 - Metropolis light transport
 - Disney BSDF
-- glTF scene sescription format
+- glTF scene description format
 
 ## Gallery
 <p align="center"><img src="./images/spheres&bunny.png" width="700"/></p>
