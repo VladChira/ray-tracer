@@ -18,6 +18,7 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 
 ## External dependencies
 - [Dear ImGui](https://github.com/ocornut/imgui) + OpenGL 3 backend - for immediate mode GUI elements
+- [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page) math library for linear algebra, affine transformations and other geometry utilities
 - [spng](https://github.com/randy408/libspng/) + [miniz](https://github.com/richgel999/miniz) - for PNG encoding and decoding
 - [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader) for 3D meshes 
 
@@ -26,10 +27,14 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 ## Roadmap
 - ~~3D Meshes~~
 - Affine transformations
-- Lights
-- Blinn-Phong shading
+- Multiple Importance Sampling
+- Oren-Nayar diffuse model
 - Optimize BVH with Surface Area Heuristic
 - Efficient bucket rendering
+- Bidirectional path tracing
+- Metropolis light transport
+- Disney BSDF
+- glTF scene sescription format
 
 ## Gallery
 <p align="center"><img src="./images/spheres&bunny.png" width="700"/></p>
