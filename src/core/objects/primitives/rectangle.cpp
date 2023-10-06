@@ -36,16 +36,28 @@ Rectangle::Rectangle(const Eigen::Vector3f &p0, const Eigen::Vector3f &a, const 
 
 bool Rectangle::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
 {
-    if (r.is_camera_ray && !this->visible_to_camera) return false;
-    
-    float t = (p0 - r.origin).dot(normal) / r.direction.dot(normal);
+    if (r.is_camera_ray && !this->visible_to_camera)
+        return false;
+
+    bool transformed = this->transform != nullptr;
+
+    Ray tr;
+    tr.origin = r.origin;
+    tr.direction = r.direction;
+    if (transformed)
+    {
+        tr.origin = Transform::Inverse(*transform).transform_point(r.origin);
+        tr.direction = Transform::Inverse(*transform).transform_vector(r.direction);
+    }
+
+    float t = (p0 - tr.origin).dot(normal) / tr.direction.dot(normal);
 
     if (t < t_range.min || t > t_range.max)
     {
         return false;
     }
 
-    Eigen::Vector3f p = r.origin + t * r.direction;
+    Eigen::Vector3f p = tr.origin + t * tr.direction;
     Eigen::Vector3f d = p - p0;
 
     float ddota = d.dot(a);
@@ -67,6 +79,12 @@ bool Rectangle::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) con
     rec.p = p;
     rec.material = material;
 
+    if (transformed)
+    {
+        rec.p = transform->transform_point(rec.p);
+        rec.normal = transform->transform_normal(rec.normal);
+    }
+
     return true;
 }
 
@@ -83,6 +101,8 @@ float Rectangle::pdf(const raytracer::Ray &r, const HitInfo &rec) const
 
 Eigen::AlignedBox3f Rectangle::bounding_box() const
 {
+    if (this->transform != nullptr)
+        return this->transform->transform_bounding_box(aabb);
     return aabb;
 }
 
@@ -91,8 +111,15 @@ Eigen::Vector3f Rectangle::get_normal(const Eigen::Vector3f p) const
     return normal;
 }
 
-std::vector<std::shared_ptr<GeometricObject>> raytracer::create_box(const Eigen::Vector3f &a, const Eigen::Vector3f &b, std::shared_ptr<Material> mat)
+std::vector<std::shared_ptr<GeometricObject>> raytracer::create_box(float width, float height, float depth, std::shared_ptr<Material> mat, Transform *t)
 {
+    float half_extent_x = width / 2;
+    float half_extent_y = height / 2;
+    float half_extent_z = depth / 2;
+
+    Eigen::Vector3f a(-half_extent_x, -half_extent_y, -half_extent_z);
+    Eigen::Vector3f b(half_extent_x, half_extent_y, half_extent_z);
+
     std::vector<std::shared_ptr<GeometricObject>> sides;
     // Construct the two opposite vertices with the minimum and maximum coordinates.
     auto min = Eigen::Vector3f(fmin(a.x(), b.x()), fmin(a.y(), b.y()), fmin(a.z(), b.z()));
@@ -102,12 +129,30 @@ std::vector<std::shared_ptr<GeometricObject>> raytracer::create_box(const Eigen:
     auto dy = Eigen::Vector3f(0, max.y() - min.y(), 0);
     auto dz = Eigen::Vector3f(0, 0, max.z() - min.z());
 
-    sides.push_back(std::make_shared<Rectangle>(Eigen::Vector3f(min.x(), min.y(), max.z()),  dx,  dy, mat)); // front
-    sides.push_back(std::make_shared<Rectangle>(Eigen::Vector3f(max.x(), min.y(), max.z()), -dz,  dy, mat)); // right
-    sides.push_back(std::make_shared<Rectangle>(Eigen::Vector3f(max.x(), min.y(), min.z()), -dx,  dy, mat)); // back
-    sides.push_back(std::make_shared<Rectangle>(Eigen::Vector3f(min.x(), min.y(), min.z()),  dz,  dy, mat)); // left
-    sides.push_back(std::make_shared<Rectangle>(Eigen::Vector3f(min.x(), max.y(), max.z()),  dx, -dz, mat)); // top
-    sides.push_back(std::make_shared<Rectangle>(Eigen::Vector3f(min.x(), min.y(), min.z()),  dx,  dz, mat)); // bottom
+    auto front = std::make_shared<Rectangle>(Eigen::Vector3f(min.x(), min.y(), max.z()), dx, dy, mat);
+    front->set_transform(t);
+
+    auto right = std::make_shared<Rectangle>(Eigen::Vector3f(max.x(), min.y(), max.z()), -dz, dy, mat);
+    right->set_transform(t);
+
+    auto back = std::make_shared<Rectangle>(Eigen::Vector3f(max.x(), min.y(), min.z()), -dx, dy, mat);
+    back->set_transform(t);
+
+    auto left = std::make_shared<Rectangle>(Eigen::Vector3f(min.x(), min.y(), min.z()), dz, dy, mat);
+    left->set_transform(t);
+
+    auto top = std::make_shared<Rectangle>(Eigen::Vector3f(min.x(), max.y(), max.z()), dx, -dz, mat);
+    top->set_transform(t);
+
+    auto bottom = std::make_shared<Rectangle>(Eigen::Vector3f(min.x(), min.y(), min.z()), dx, dz, mat);
+    bottom->set_transform(t);
+
+    sides.push_back(front);
+    sides.push_back(right);
+    sides.push_back(back);
+    sides.push_back(left);
+    sides.push_back(top);
+    sides.push_back(bottom);
 
     return sides;
 }

@@ -7,6 +7,7 @@
 #include "ray.h"
 #include "hit_info.h"
 #include "interval.h"
+#include "transform.h"
 
 namespace raytracer
 {
@@ -32,7 +33,13 @@ namespace raytracer
             return Eigen::Vector3f(0, 0, 0);
         }
 
+        void set_transform(Transform *t)
+        {
+            this->transform = t;
+        }
+
         std::shared_ptr<Material> material;
         bool visible_to_camera = true;
+        Transform *transform;
     };
 }

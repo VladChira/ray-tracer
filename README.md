@@ -26,7 +26,7 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 *TODO*
 ## Roadmap
 - ~~3D Meshes~~
-- Affine transformations
+- ~~Affine transformations~~
 - Multiple Importance Sampling
 - Oren-Nayar diffuse model
 - Optimize BVH with Surface Area Heuristic
@@ -37,9 +37,10 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 - glTF scene description format
 
 ## Gallery
-<p align="center"><img src="./images/spheres&bunny.png" width="700"/></p>
-<br>
 <p align="center"><img src="./images/cornell.png" width="700"/></p>
+<br>
+<p align="center"><img src="./images/spheres&bunny.png" width="700"/></p>
+
 
 ## References
 - [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html), Peter Shirley. 2020

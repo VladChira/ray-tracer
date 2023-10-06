@@ -31,7 +31,7 @@ namespace raytracer
         Eigen::Vector3f get_normal(const Eigen::Vector3f p) const override;
     };
 
-    std::vector<std::shared_ptr<GeometricObject>> create_box(const Eigen::Vector3f& a, const Eigen::Vector3f& b, std::shared_ptr<Material> mat);
+    std::vector<std::shared_ptr<GeometricObject>> create_box(float width, float height, float depth, std::shared_ptr<Material> mat, Transform *t);
 }
 
     static Eigen::AlignedBox3f compute_aabb(Eigen::Vector3f p0, Eigen::Vector3f a, Eigen::Vector3f b);

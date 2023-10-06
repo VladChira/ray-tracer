@@ -34,19 +34,22 @@ using namespace raytracer;
 const auto aspect_ratio = 16.0 / 9.0;
 const int image_width = 1920;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 1000;
+const int samples_per_pixel = 1100;
 const int max_depth = 10;
 
 // World
 World world;
 
 // Sampler
-std::shared_ptr<Sampler> sampler;
+std::shared_ptr<Sampler> sampler = nullptr;
 
 // Tracer
-std::shared_ptr<Tracer> tracer;
+std::shared_ptr<Tracer> tracer = nullptr;
 
-unsigned int num_threads = std::thread::hardware_concurrency() - 1;
+// BVH
+std::shared_ptr<BVH_Node> bvh = nullptr;
+
+unsigned int num_threads = std::thread::hardware_concurrency();
 
 std::atomic<bool> exit_requested(false);
 
@@ -127,6 +130,8 @@ void cornell_box()
     auto glass = std::make_shared<Transparent>(1.5);
     auto reflect = std::make_shared<Reflective>(1.0, Color::white, 0.0);
 
+    auto orange = std::make_shared<Matte>(1.0, Color::orange);
+
     auto light_mat = std::make_shared<Emissive>(15.0, Color::white);
     auto light_rect = std::make_shared<Rectangle>(Eigen::Vector3f(403, 554, 332), Eigen::Vector3f(-250, 0, 0), Eigen::Vector3f(0, 0, -120), light_mat);
     world.add_object(light_rect);
@@ -147,10 +152,25 @@ void cornell_box()
     front_wall->visible_to_camera = false;
     world.add_object(front_wall);
 
-    world.add_objects(create_box(Eigen::Vector3f(130, 0, 65), Eigen::Vector3f(295, 165, 230), white));
-    world.add_objects(create_box(Eigen::Vector3f(265, 0, 295), Eigen::Vector3f(430, 330, 460), white));
-    world.add_object(std::make_shared<Sphere>(Eigen::Vector3f(600, 200, 250), 110, reflect));
-    world.add_object(std::make_shared<Sphere>(Eigen::Vector3f(-90, 200, 250), 110, glass));
+    Transform *rot = new Transform;
+    *rot = Transform::Translate(Eigen::Vector3f(170, 130, 150)) * Transform::RotateY(35.0);
+    world.add_objects(create_box(150, 260, 150, white, rot));
+
+    Transform *rot2 = new Transform;
+    *rot2 = Transform::Translate(Eigen::Vector3f(360, 200, 350)) * Transform::RotateY(-10.0);
+    world.add_objects(create_box(150, 400, 150, orange, rot2));
+
+    auto sphere1 = std::make_shared<Sphere>(Eigen::Vector3f::Zero(), 110, reflect);
+    Transform *t1 = new Transform;
+    *t1 = Transform::Translate(Eigen::Vector3f(600, 230, 250)) * Transform::Scale(Eigen::Vector3f(1, 1.8, 1));
+    sphere1->set_transform(t1);
+    world.add_object(sphere1);
+
+    auto sphere2 = std::make_shared<Sphere>(Eigen::Vector3f::Zero(), 110, glass);
+    Transform *t2 = new Transform;
+    *t2 = Transform::Translate(Eigen::Vector3f(-90, 200, 250));
+    sphere2->set_transform(t2);
+    world.add_object(sphere2);
 
     // Tracer
     tracer = std::make_shared<PathTracer>();
@@ -167,7 +187,7 @@ void cornell_box()
     sampler = std::make_shared<MultiJittered>(100);
 
     Console::GetInstance()->addLogEntry("Constructing BVH...");
-    auto bvh = std::make_shared<BVH_Node>(world.objects);
+    bvh = std::make_shared<BVH_Node>(world.objects);
     world.objects.clear();
     world.objects.push_back(bvh);
 
@@ -488,6 +508,23 @@ void multi_threaded_render()
     Console::GetInstance()->addLogEntry("Building scene...");
 
     cornell_box();
+
+
+    if (sampler == nullptr)
+    {
+         Console::GetInstance()->addErrorEntry("[Error] No sampler object found. Aborting render...");
+         return;
+    }
+
+    if (tracer == nullptr)
+    {
+         Console::GetInstance()->addErrorEntry("[Error] No tracer object found. Aborting render...");
+         return;
+    }
+
+    if (bvh == nullptr)
+        Console::GetInstance()->addWarningEntry("[Warning] No Bounding Volume Hierarchy found. Rendering performance will be severely affected!");
+
 
     Console::GetInstance()->addLogEntry("Rendering...");
     std::vector<std::thread> threads;
