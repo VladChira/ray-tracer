@@ -16,8 +16,7 @@
 #include "materials.h"
 #include "pinhole.h"
 #include "path_tracer.h"
-#include "ray_tracer.h"
-#include "preview_tracer.h"
+#include "direct_lighting_tracer.h"
 #include "world.h"
 #include "bvh.h"
 #include "sphere.h"
@@ -32,9 +31,9 @@
 using namespace raytracer;
 
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 1920;
+const int image_width = 900;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 1100;
+const int samples_per_pixel = 300;
 const int max_depth = 10;
 
 // World

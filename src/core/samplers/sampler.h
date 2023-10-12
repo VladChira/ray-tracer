@@ -1,4 +1,7 @@
 #pragma once
+
+#include <atomic>
+
 #include "utilities.h"
 
 namespace raytracer
@@ -69,8 +72,10 @@ namespace raytracer
         std::vector<Eigen::Vector2f> disk_samples;       // sample points on a unit disk
         std::vector<Eigen::Vector3f> hemisphere_samples; // sample points on a unit hemisphere
         std::vector<Eigen::Vector3f> sphere_samples;     // sample points on a unit sphere
-        unsigned long count;                     // the current number of sample points used
-        int jump;                                // random index jump
+        // unsigned long count;                     // the current number of sample points used
+        // int jump;                                // random index jump
+        std::atomic<unsigned long> count;
+        std::atomic<int> jump;
     };
 
 }
