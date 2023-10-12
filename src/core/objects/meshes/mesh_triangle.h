@@ -35,5 +35,5 @@ namespace raytracer
         const int *v;
     };
 
-    std::vector<std::shared_ptr<MeshTriangle>> create_triangle_mesh(const tinyobj::attrib_t &attrib, const tinyobj::shape_t &shape, ShadingType shading_type, std::shared_ptr<Material> mat);
+    std::vector<std::shared_ptr<MeshTriangle>> create_triangle_mesh(const tinyobj::attrib_t &attrib, const tinyobj::shape_t &shape, ShadingType shading_type, std::shared_ptr<Material> mat, Transform *t);
 }

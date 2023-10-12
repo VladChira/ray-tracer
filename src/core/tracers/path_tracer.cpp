@@ -27,12 +27,12 @@ Color PathTracer::trace_ray(const Ray &r, World &world, int depth)
         // std::cout << total << "\n";
         return total;
     }
-    return Color::black;
+    // return Color::black;
 
     // blue sky color
-    // Eigen::Vector3f unit_direction = r.direction.normalized();
-    // auto t = 0.5 * (unit_direction.y() + 1.0);
-    // return (Color::white * (1.0 - t)  + Color(0.4, 0.6, 0.9) * t);
+    Eigen::Vector3f unit_direction = r.direction.normalized();
+    auto t = 0.5 * (unit_direction.y() + 1.0);
+    return (Color::white * (1.0 - t)  + Color(0.4, 0.6, 0.9) * t);
 
     // Vector3 unit_direction = Normalize(r.direction);
     // auto t = 0.5 * (unit_direction.y + 1.0);

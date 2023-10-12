@@ -31,9 +31,9 @@
 using namespace raytracer;
 
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 900;
+const int image_width = 800;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 300;
+const int samples_per_pixel = 50;
 const int max_depth = 10;
 
 // World
@@ -206,7 +206,7 @@ void setup4()
 
     if (loaded)
     {
-        auto triangles = create_triangle_mesh(attrib, shapes[0], ShadingType::SMOOTH, mat);
+        auto triangles = create_triangle_mesh(attrib, shapes[0], ShadingType::SMOOTH, mat, nullptr);
         for (int i = 0; i < triangles.size(); i++)
         {
             world.add_object(triangles[i]);
@@ -257,7 +257,7 @@ void setup3()
 
     if (loaded)
     {
-        auto triangles = create_triangle_mesh(attrib, shapes[0], ShadingType::FLAT, mat);
+        auto triangles = create_triangle_mesh(attrib, shapes[0], ShadingType::FLAT, mat, nullptr);
         for (int i = 0; i < triangles.size(); i++)
         {
             world.add_object(triangles[i]);
@@ -404,13 +404,9 @@ void setup2()
 
 void setup()
 {
-    // ZoneScoped;
     // Tracer
     tracer = std::make_shared<PathTracer>();
-
-    // Lights
-    // auto light1 = std::make_shared<PointLight>(1.0, Color::white, Eigen::Vector3f(5, 10, 0));
-    // world.add_light(light1);
+    world.tracer = tracer;
 
     auto mat = std::make_shared<Matte>(0.8, Color::orange);
     tinyobj::attrib_t attrib;
@@ -418,14 +414,16 @@ void setup()
     std::vector<tinyobj::material_t> materials;
     LoadObj("../models/bunny/bunny.obj", attrib, shapes, materials);
 
-    auto triangles = raytracer::create_triangle_mesh(attrib, shapes[0], ShadingType::SMOOTH, mat);
+    Transform *bunny_transform = new Transform;
+    *bunny_transform = Transform::Translate(Eigen::Vector3f(7, -0.5, 2)) * Transform::Scale(Eigen::Vector3f(10, 10, 10));
+    auto triangles = raytracer::create_triangle_mesh(attrib, shapes[0], ShadingType::FLAT, mat, bunny_transform);
     for (int i = 0; i < triangles.size(); i++)
     {
         world.add_object(triangles[i]);
     }
 
     auto material_ground = std::make_shared<Matte>(0.8, Color(0.5, 0.5, 0.5));
-    world.add_object(std::make_shared<Sphere>(Eigen::Vector3f(0.0, -1900.0, 0.0), -1900.0, material_ground));
+    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-200, 0, -200), Eigen::Vector3f(400, 0, 0), Eigen::Vector3f(0, 0, 400), Eigen::Vector3f(0, 1.0, 0.0), material_ground));
 
     for (int a = -11; a < 11; a++)
     {
@@ -482,7 +480,7 @@ void setup()
     HiResTimer timer;
     Console::GetInstance()->addLogEntry("Constructing BVH...");
     timer.start();
-    auto bvh = std::make_shared<BVH_Node>(world.objects);
+    bvh = std::make_shared<BVH_Node>(world.objects);
     world.objects.clear();
     world.objects.push_back(bvh);
     timer.stop();
@@ -490,7 +488,6 @@ void setup()
 
     // Anti Aliasing Sampler
     sampler = std::make_shared<MultiJittered>(100);
-    sampler->map_samples_to_sphere();
 
     // Start viewport preview
     RenderView::GetInstance()->set_size(image_width, image_height);
@@ -506,7 +503,7 @@ void multi_threaded_render()
     // Build a particular scene here
     Console::GetInstance()->addLogEntry("Building scene...");
 
-    cornell_box();
+    setup();
 
 
     if (sampler == nullptr)

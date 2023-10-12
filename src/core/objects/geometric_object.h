@@ -40,6 +40,6 @@ namespace raytracer
 
         std::shared_ptr<Material> material;
         bool visible_to_camera = true;
-        Transform *transform;
+        Transform *transform = nullptr;
     };
 }

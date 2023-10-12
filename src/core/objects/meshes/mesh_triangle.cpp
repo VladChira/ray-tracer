@@ -11,14 +11,26 @@ MeshTriangle::MeshTriangle(const std::shared_ptr<Mesh> &mesh, int triangle_numbe
 
 bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec) const
 {
-    if (ray.is_camera_ray && !this->visible_to_camera) return false;
+    if (ray.is_camera_ray && !this->visible_to_camera)
+        return false;
+
+    bool transformed = this->transform != nullptr;
+
+    Ray tr;
+    tr.origin = ray.origin;
+    tr.direction = ray.direction;
+    if (transformed)
+    {
+        tr.origin = Transform::Inverse(*transform).transform_point(ray.origin);
+        tr.direction = Transform::Inverse(*transform).transform_vector(ray.direction);
+    }
 
     Eigen::Vector3f v0 = mesh->vertices[v[0]];
     Eigen::Vector3f v1 = mesh->vertices[v[1]];
     Eigen::Vector3f v2 = mesh->vertices[v[2]];
-    float a = v0.x() - v1.x(), b = v0.x() - v2.x(), c = ray.direction.x(), d = v0.x() - ray.origin.x();
-    float e = v0.y() - v1.y(), f = v0.y() - v2.y(), g = ray.direction.y(), h = v0.y() - ray.origin.y();
-    float i = v0.z() - v1.z(), j = v0.z() - v2.z(), k = ray.direction.z(), l = v0.z() - ray.origin.z();
+    float a = v0.x() - v1.x(), b = v0.x() - v2.x(), c = tr.direction.x(), d = v0.x() - tr.origin.x();
+    float e = v0.y() - v1.y(), f = v0.y() - v2.y(), g = tr.direction.y(), h = v0.y() - tr.origin.y();
+    float i = v0.z() - v1.z(), j = v0.z() - v2.z(), k = tr.direction.z(), l = v0.z() - tr.origin.z();
 
     float m = f * k - g * j, n = h * k - g * l, p = f * l - h * j;
     float q = g * i - e * k, s = e * j - f * i;
@@ -61,12 +73,17 @@ bool MeshTriangle::hit(const raytracer::Ray &ray, Interval t_range, HitInfo &rec
         normal = ((1 - beta - gamma) * mesh->normals[v[0]] + beta * mesh->normals[v[1]] + gamma * mesh->normals[v[2]]).normalized();
     else
         normal = ((v1 - v0).cross(v2 - v0)).normalized();
-        
 
     rec.normal = normal;
-    rec.p = ray.origin + t * ray.direction;
+    rec.p = tr.origin + t * tr.direction;
 
     rec.material = this->material;
+
+    if (transformed)
+    {
+        rec.p = transform->transform_point(rec.p);
+        rec.normal = transform->transform_normal(rec.normal);
+    }
 
     return true;
 }
@@ -86,10 +103,12 @@ Eigen::AlignedBox3f MeshTriangle::bounding_box() const
     bbox.min() -= Eigen::Vector3f(0.0001, 0.0001, 0.0001);
     bbox.max() += Eigen::Vector3f(0.0001, 0.0001, 0.0001);
 
+    if (this->transform != nullptr)
+        return this->transform->transform_bounding_box(bbox);
     return bbox;
 }
 
-std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const tinyobj::attrib_t &attrib, const tinyobj::shape_t &shape, raytracer::ShadingType shading_type, std::shared_ptr<Material> mat)
+std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const tinyobj::attrib_t &attrib, const tinyobj::shape_t &shape, raytracer::ShadingType shading_type, std::shared_ptr<Material> mat, Transform *t)
 {
     std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
     mesh->shading_type = shading_type;
@@ -117,7 +136,6 @@ std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const
             float vx = attrib.vertices[3 * vertex_index + 0];
             float vy = attrib.vertices[3 * vertex_index + 1];
             float vz = attrib.vertices[3 * vertex_index + 2];
-            // mesh->vertices[vertex_index] = (10 * Eigen::Vector3f(vx, vy, vz)) + Eigen::Vector3f(7, -0.5, 2);
             mesh->vertices[vertex_index] = Eigen::Vector3f(vx, vy, vz);
         }
         index_offset += fv;
@@ -126,12 +144,14 @@ std::vector<std::shared_ptr<MeshTriangle>> raytracer::create_triangle_mesh(const
     for (size_t i = 0; i < nr_faces; i++)
     {
         MeshTriangle triangle(mesh, i, mat);
+        triangle.set_transform(t);
         triangles.push_back(std::make_shared<MeshTriangle>(triangle));
     }
 
     // Compute the normals at each vertex, but don't bother if using flat shading
     if (shading_type == SMOOTH)
     {
+        Console::GetInstance()->addWarningEntry("[Warning] Smooth shading currently has bad performance");
         // TODO, precompute vertexes shared among triangles to make this run in O(nr_vertices)
         mesh->has_normals = true;
         mesh->normals = std::make_unique<Eigen::Vector3f[]>(mesh->nr_vertices);
