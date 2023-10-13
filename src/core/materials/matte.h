@@ -99,30 +99,40 @@ namespace raytracer
                 Eigen::Vector3f sample_point;
                 Eigen::Vector3f light_normal;
                 Eigen::Vector3f light_dir;
-                auto wi = rec.world.lights[i]->get_direction(r_in, rec, sample_point, light_normal, light_dir);
-                float ndotwi = wi.dot(rec.normal);
-                if (ndotwi > 0.0)
+                bool in_shadow;
+                Eigen::Vector3f wi;
+                float pdf;
+                Color L = rec.world.lights[i]->Sample_Li(r_in, rec, sample_point, light_normal, wi, pdf, in_shadow);
+                if (!in_shadow)
                 {
-                    bool in_shadow = false;
-                    Ray shadow_ray = Ray(rec.p, wi);
-                    in_shadow = rec.world.lights[i]->in_shadow(shadow_ray, rec, sample_point, light_normal, light_dir);
-                    if (!in_shadow)
-                    {
-                        Color dif = diffuse_brdf.f(rec, wo, wi);
-                        Color L = rec.world.lights[i]->L(r_in, rec, sample_point, light_normal, light_dir);
-                        double G = rec.world.lights[i]->G(r_in, rec, sample_point, light_normal, light_dir);
-                        Color f1 = L * dif * G;
-                        accColor += (f1 * ndotwi / rec.world.lights[i]->pdf(r_in, rec));
-                    }
+                    Color dif = diffuse_brdf.f(rec, wo, wi);
+                    auto G = ((-light_normal).dot(wi) / (sample_point - rec.p).squaredNorm());
+                    accColor += L * dif * G / pdf;
                 }
+                // auto wi = rec.world.lights[i]->get_direction(r_in, rec, sample_point, light_normal, light_dir);
+                // float ndotwi = wi.dot(rec.normal);
+                // if (ndotwi > 0.0)
+                // {
+                //     bool in_shadow = false;
+                //     Ray shadow_ray = Ray(rec.p, wi);
+                //     in_shadow = rec.world.lights[i]->in_shadow(shadow_ray, rec, sample_point, light_normal, light_dir);
+                //     if (!in_shadow)
+                //     {
+                //         Color dif = diffuse_brdf.f(rec, wo, wi);
+                //         Color L = rec.world.lights[i]->L(r_in, rec, sample_point, light_normal, light_dir);
+                //         double G = rec.world.lights[i]->G(r_in, rec, sample_point, light_normal, light_dir);
+                //         Color f1 = L * dif * G;
+                //         accColor += (f1 * ndotwi / rec.world.lights[i]->pdf(r_in, rec));
+                //     }
+                // }
+                
+
             }
-            // Clamp the color to 1.0 for now. Perhaps HDR in the future?
-            return Clamp(accColor, 0.0, 1.0);
+            return accColor;
         }
 
         Color path_shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
-            // ZoneScoped;
             Eigen::Vector3f wo = -r_in.direction;
             Eigen::Vector3f wi;
             float pdf;
@@ -131,11 +141,6 @@ namespace raytracer
             Ray reflected_ray(rec.p, wi);
             Color path_color = rec.world.tracer->trace_ray(reflected_ray, rec.world, rec.depth - 1);
             return f * path_color * ndotwi / pdf;
-        }
-
-        Color preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
-        {
-            return diffuse_brdf.cd * diffuse_brdf.kd;
         }
     };
 }

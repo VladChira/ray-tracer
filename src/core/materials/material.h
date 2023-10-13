@@ -13,8 +13,6 @@ namespace raytracer
         virtual bool scatter(const raytracer::Ray &r_in, const HitInfo &rec, raytracer::Color &attenuation, raytracer::Ray &scattered) const = 0;
         virtual Color shade (const raytracer::Ray &r_in, HitInfo &rec) = 0;
 
-        virtual Color preview_shade (const raytracer::Ray &r_in, HitInfo &rec) = 0;
-
         virtual Color path_shade (const raytracer::Ray &r_in, HitInfo &rec)
         {
             return shade(r_in, rec);

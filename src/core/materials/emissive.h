@@ -38,10 +38,5 @@ namespace raytracer
         {
             return ce * ls;
         }
-
-        Color preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
-        {
-            return Color::white;
-        }
     };
 }

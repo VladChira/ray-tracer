@@ -33,7 +33,7 @@ using namespace raytracer;
 const auto aspect_ratio = 16.0 / 9.0;
 const int image_width = 800;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 50;
+const int samples_per_pixel = 20;
 const int max_depth = 10;
 
 // World
@@ -94,8 +94,8 @@ void test()
     // area_light->set_object(light_rect);
     // world.add_light(area_light);
 
-    auto light = std::make_shared<Directional>(4.0, Color::white, (Eigen::Vector3f(0, 2, -1).normalized()));
-    world.add_light(light);
+    // auto light = std::make_shared<Directional>(4.0, Color::white, (Eigen::Vector3f(0, 2, -1).normalized()));
+    // world.add_light(light);
 
     // Tracer
     tracer = std::make_shared<PathTracer>();
@@ -172,7 +172,7 @@ void cornell_box()
     world.add_object(sphere2);
 
     // Tracer
-    tracer = std::make_shared<PathTracer>();
+    tracer = std::make_shared<DirectLightingTracer>();
     world.tracer = tracer;
 
     // Camera
@@ -216,11 +216,11 @@ void setup4()
     world.add_object(std::make_shared<Sphere>(Eigen::Vector3f(-3.0, 0.0, 0.0), 1.0, mat));
 
     // Lights
-    auto light1 = std::make_shared<Directional>(3.0, Color::white, Eigen::Vector3f(0, 1, 0));
-    world.add_light(light1);
+    // auto light1 = std::make_shared<Directional>(3.0, Color::white, Eigen::Vector3f(0, 1, 0));
+    // world.add_light(light1);
 
-    auto light2 = std::make_shared<Directional>(2.0, Color::white, Eigen::Vector3f(0, -1, 0));
-    world.add_light(light2);
+    // auto light2 = std::make_shared<Directional>(2.0, Color::white, Eigen::Vector3f(0, -1, 0));
+    // world.add_light(light2);
 
     // Camera
     std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Eigen::Vector3f(13, 2, 3), Eigen::Vector3f(0, 1, 0));
@@ -304,8 +304,8 @@ void setup3()
 void setup2()
 {
     // Lights
-    auto light1 = std::make_shared<Directional>(1.0, Color::white, Eigen::Vector3f(1, 0, 0));
-    world.add_light(light1);
+    // auto light1 = std::make_shared<Directional>(1.0, Color::white, Eigen::Vector3f(1, 0, 0));
+    // world.add_light(light1);
 
     // Tracer
     tracer = std::make_shared<PathTracer>();
@@ -503,7 +503,7 @@ void multi_threaded_render()
     // Build a particular scene here
     Console::GetInstance()->addLogEntry("Building scene...");
 
-    setup();
+    cornell_box();
 
 
     if (sampler == nullptr)

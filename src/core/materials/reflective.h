@@ -59,10 +59,5 @@ namespace raytracer
         {
             return Color(0, 0, 0);
         }
-
-        Color preview_shade(const raytracer::Ray &r_in, HitInfo &rec) override
-        {
-            return p_spec_brdf.cr;
-        }
     };
 }
