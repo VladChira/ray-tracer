@@ -10,6 +10,11 @@ namespace raytracer
     public:
         float r, g, b;
 
+        bool is_black()
+        {
+            return fabs(r) < 0.001 && fabs(g) < 0.001 && fabs(b) < 0.001;
+        }
+
         float operator[](int i) const
         {
             assert(i >= 0 && i <= 2);

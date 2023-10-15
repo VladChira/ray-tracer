@@ -33,7 +33,7 @@ using namespace raytracer;
 const auto aspect_ratio = 16.0 / 9.0;
 const int image_width = 800;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 20;
+const int samples_per_pixel = 100;
 const int max_depth = 10;
 
 // World
@@ -48,7 +48,7 @@ std::shared_ptr<Tracer> tracer = nullptr;
 // BVH
 std::shared_ptr<BVH_Node> bvh = nullptr;
 
-unsigned int num_threads = std::thread::hardware_concurrency();
+unsigned int num_threads = std::thread::hardware_concurrency() - 1;
 
 std::atomic<bool> exit_requested(false);
 
@@ -62,7 +62,7 @@ void render_region(Eigen::Vector2f top_left, unsigned int width, unsigned int he
             Color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; s++)
             {
-                // Gracefully kill the threads
+                // Gracefully kill this thread
                 if (exit_requested.load(std::memory_order_relaxed))
                     return;
                 Eigen::Vector2f p = sampler->sample_unit_square();

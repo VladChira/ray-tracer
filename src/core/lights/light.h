@@ -14,8 +14,10 @@ namespace raytracer
         
         virtual Color Sample_Li(const Ray &r_in, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi, float &pdf, bool &in_shadow) const = 0;
 
+        virtual Color L(const Ray &r_in, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) const = 0;
         
-        virtual float pdf(const Ray &r_in, const HitInfo &rec) const = 0;
+        
+        virtual float pdf(const HitInfo &rec, const Eigen::Vector3f &wi) const = 0;
         virtual bool occluded(const Ray &r, const HitInfo &rec, Eigen::Vector3f &sample_point, Eigen::Vector3f &light_normal, Eigen::Vector3f &wi) const = 0;
     };
 }

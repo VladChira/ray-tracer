@@ -33,6 +33,11 @@ namespace raytracer
             return Eigen::Vector3f(0, 0, 0);
         }
 
+        virtual float pdf_solid_angle(const HitInfo &rec, const Eigen::Vector3f &wi) const
+        {
+            return 0.0;
+        }
+
         void set_transform(Transform *t)
         {
             this->transform = t;

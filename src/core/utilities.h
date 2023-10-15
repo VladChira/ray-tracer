@@ -93,3 +93,8 @@ inline Eigen::Vector3f Refract(const Eigen::Vector3f &uv, const Eigen::Vector3f 
     Eigen::Vector3f r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.squaredNorm())) * n;
     return r_out_perp + r_out_parallel;
 }
+
+inline float power_heuristic(int nf, float fPdf, int ng, float gPdf) {
+    float f = nf * fPdf, g = ng * gPdf;
+    return (f * f) / (f * f + g * g);
+}

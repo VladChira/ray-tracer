@@ -99,6 +99,19 @@ float Rectangle::pdf(const raytracer::Ray &r, const HitInfo &rec) const
     return inv_area;
 }
 
+float Rectangle::pdf_solid_angle(const HitInfo &rec, const Eigen::Vector3f &wi) const
+{
+    // Intersect a ray with rectangle geometry
+    Ray r(rec.p, wi);
+    float t;
+    HitInfo rec2(rec.world);
+    if (!hit(r, Interval(0, infinity), rec2)) return 0;
+
+    // Convert from area to solid angle
+    float pdf = (rec.p - rec2.p).squaredNorm() / (fabs(rec2.normal.dot(-wi)) * area);
+    return pdf;
+}
+
 Eigen::AlignedBox3f Rectangle::bounding_box() const
 {
     if (this->transform != nullptr)

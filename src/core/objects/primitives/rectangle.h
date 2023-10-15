@@ -28,6 +28,8 @@ namespace raytracer
 
         float pdf(const raytracer::Ray &r, const HitInfo &rec) const override;
 
+        float pdf_solid_angle(const HitInfo &rec, const Eigen::Vector3f &wi) const override;
+        
         Eigen::Vector3f get_normal(const Eigen::Vector3f p) const override;
     };
 

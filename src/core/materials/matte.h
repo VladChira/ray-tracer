@@ -93,42 +93,76 @@ namespace raytracer
         Color shade(const raytracer::Ray &r_in, HitInfo &rec) override
         {
             auto wo = -r_in.direction;
-            Color accColor(0, 0, 0);
+            Color pixel_color(0, 0, 0);
+            // Estimate direct lighting for each light
             for (int i = 0; i < rec.world.lights.size(); i++)
             {
+                Color Ld(0.0, 0.0, 0.0);
+
+                // Sample light source with multiple importance sampling
                 Eigen::Vector3f sample_point;
                 Eigen::Vector3f light_normal;
                 Eigen::Vector3f light_dir;
                 bool in_shadow;
                 Eigen::Vector3f wi;
-                float pdf;
-                Color L = rec.world.lights[i]->Sample_Li(r_in, rec, sample_point, light_normal, wi, pdf, in_shadow);
-                if (!in_shadow)
-                {
-                    Color dif = diffuse_brdf.f(rec, wo, wi);
-                    auto G = ((-light_normal).dot(wi) / (sample_point - rec.p).squaredNorm());
-                    accColor += L * dif * G / pdf;
-                }
-                // auto wi = rec.world.lights[i]->get_direction(r_in, rec, sample_point, light_normal, light_dir);
-                // float ndotwi = wi.dot(rec.normal);
-                // if (ndotwi > 0.0)
-                // {
-                //     bool in_shadow = false;
-                //     Ray shadow_ray = Ray(rec.p, wi);
-                //     in_shadow = rec.world.lights[i]->in_shadow(shadow_ray, rec, sample_point, light_normal, light_dir);
-                //     if (!in_shadow)
-                //     {
-                //         Color dif = diffuse_brdf.f(rec, wo, wi);
-                //         Color L = rec.world.lights[i]->L(r_in, rec, sample_point, light_normal, light_dir);
-                //         double G = rec.world.lights[i]->G(r_in, rec, sample_point, light_normal, light_dir);
-                //         Color f1 = L * dif * G;
-                //         accColor += (f1 * ndotwi / rec.world.lights[i]->pdf(r_in, rec));
-                //     }
-                // }
-                
+                float light_pdf = 0.0, scattering_pdf = 0.0;
+                Color Li = rec.world.lights[i]->Sample_Li(r_in, rec, sample_point, light_normal, wi, light_pdf, in_shadow);
 
+                if (light_pdf > 0.0 && !Li.is_black())
+                {
+
+                    // Compute BRDF for light sample
+                    Color f = diffuse_brdf.f(rec, wo, wi) * fabs(wi.dot(rec.normal));
+
+                    // The pdf for lambertian is trivial
+                    scattering_pdf = rec.normal.dot(wi) * inv_pi;
+
+                    if (!f.is_black())
+                    {
+                        // Check visibility
+                        if (in_shadow)
+                            Li = Color::black;
+
+                        // Add light's contribution to reflected radiance
+                        if (!Li.is_black())
+                        {
+                            float weight = power_heuristic(1, light_pdf, 1, scattering_pdf);
+                            Ld += f * Li * weight / light_pdf;
+                        }
+                    }
+                }
+
+                // Sample BRDF with multiple importance sampling
+
+                // Sample scattered direction for surface interactions
+                Color f = diffuse_brdf.sample_f(rec, wo, wi, scattering_pdf);
+                float ndotwi = fabs(rec.normal.dot(wi));
+                f *= ndotwi;
+
+                if (!f.is_black() && scattering_pdf > 0.0)
+                {
+                    // Account for light contributions along sampled direction wi
+                    float weight = 1;
+                    light_pdf = rec.world.lights[i]->pdf(rec, wi); // over solid angle
+                    if (light_pdf == 0.0)
+                    {
+                        pixel_color += Ld;
+                        continue;
+                    }
+                    weight = power_heuristic(1, scattering_pdf, 1, light_pdf);
+
+                    // Add light contribution from material sampling
+                    Color Li = rec.world.lights[i]->L(r_in, rec, sample_point, light_normal, wi);
+                    if (!Li.is_black())
+                    {
+                        Ld += f * Li * weight / scattering_pdf;
+                    }
+                }
+
+                // Accumulate the contribution to each pixel
+                pixel_color += Ld;
             }
-            return accColor;
+            return pixel_color;
         }
 
         Color path_shade(const raytracer::Ray &r_in, HitInfo &rec) override
