@@ -8,8 +8,8 @@ A very simple WIP hobby CPU ray tracer with minimal GUI elements.
 Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*, *PBRT* 
 
 ## Features (WIP)
-- Multiple tracers: Path Tracing, Ray Tracing
-- Materials: Matte, Phong, Reflective, Transparent, Emissive
+- Multiple integrators: Path Tracing, Direct Illumination
+- Materials: Matte, Reflective, Transparent, Emissive
 - Lights: Directional, Point, Area
 - 3D meshes in .obj format
 - BVH Optimization
@@ -28,18 +28,25 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 - ~~3D Meshes~~
 - ~~Affine transformations~~
 - Multiple Importance Sampling
+- Textures
+- Environment Light
+- Fresnel dielectrics and conductors
 - Oren-Nayar diffuse model
-- Optimize BVH with Surface Area Heuristic
+- Optimize BVH and add Surface Area Heuristic
 - Efficient bucket rendering
 - Bidirectional path tracing
-- Metropolis light transport
 - Disney BSDF
 - glTF scene description format
 
 ## Gallery
 <p align="center"><img src="./images/cornell.png" width="700"/></p>
-<br>
+<p align="center">Modified Cornell Box showcasing affine transformations, lambertian diffuse, perfect specular reflection and simple transparency</p>
+
+<p align="center"><img src="./images/mori_knob_diffuse.png" width="700"></p>
+<p align="center">The Mori Knob (© Yasutoshi Mori) with lambertian diffuse material</p>
+
 <p align="center"><img src="./images/spheres&bunny.png" width="700"/></p>
+<p align="center">Ray tracing in One Weekend cover render with Stanford bunny and spherical area lights</p>
 
 
 ## References

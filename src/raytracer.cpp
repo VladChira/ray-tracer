@@ -31,9 +31,9 @@
 using namespace raytracer;
 
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 800;
+const int image_width = 1920;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 100;
+const int samples_per_pixel = 300;
 const int max_depth = 10;
 
 // World
@@ -119,6 +119,65 @@ void test()
     RenderView::GetInstance()->set_size(image_width, image_height);
     RenderView::GetInstance()->display_render = true;
 }
+
+void knob_test()
+{
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    bool loaded = LoadObj("../models/mori.obj", attrib, shapes, materials);
+
+    auto floor = std::make_shared<Matte>(1.0, Color(0.1, 0.1, 0.1));
+
+    auto outer = std::make_shared<Matte>(0.8, Color::red);
+
+    auto inner = std::make_shared<Matte>(1.0, Color::grey);
+
+    if (loaded)
+    {
+
+        auto floor_mesh = create_triangle_mesh(attrib, shapes[0], ShadingType::SMOOTH, floor, nullptr);
+        for (int i = 0; i < floor_mesh.size(); i++)
+        {
+            world.add_object(floor_mesh[i]);
+        }
+
+        auto outer_mesh = create_triangle_mesh(attrib, shapes[1], ShadingType::SMOOTH, outer, nullptr);
+        for (int i = 0; i < outer_mesh.size(); i++)
+        {
+            world.add_object(outer_mesh[i]);
+        }
+
+        auto inner_mesh = create_triangle_mesh(attrib, shapes[2], ShadingType::SMOOTH, inner, nullptr);
+        for (int i = 0; i < inner_mesh.size(); i++)
+        {
+            world.add_object(inner_mesh[i]);
+        }
+    }
+
+    // Camera
+    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Eigen::Vector3f(-30, 50, -80), Eigen::Vector3f(-4, 20, 0));
+    camera->set_fov(20);
+    camera->compute_pixel_size(image_width, image_height);
+    camera->compute_uvw();
+    world.set_camera(camera);
+
+    // Anti Aliasing Sampler
+    sampler = std::make_shared<MultiJittered>(100);
+
+    Console::GetInstance()->addLogEntry("Constructing BVH...");
+    bvh = std::make_shared<BVH_Node>(world.objects);
+    world.objects.clear();
+    world.objects.push_back(bvh);
+
+    // Tracer
+    tracer = std::make_shared<PathTracer>();
+
+    // Start viewport preview
+    RenderView::GetInstance()->set_size(image_width, image_height);
+    RenderView::GetInstance()->display_render = true;
+}
+
 
 void cornell_box()
 {
@@ -503,7 +562,7 @@ void multi_threaded_render()
     // Build a particular scene here
     Console::GetInstance()->addLogEntry("Building scene...");
 
-    cornell_box();
+    knob_test();
 
 
     if (sampler == nullptr)

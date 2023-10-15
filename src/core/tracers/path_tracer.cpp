@@ -4,6 +4,21 @@
 
 using namespace raytracer;
 
+// Color PathTracer::trace_ray(const Ray &r, World &world, int depth)
+// {
+//     Color L(0.0, 0.0, 0.0);
+//     Ray ray;
+    
+//     for (int bounce = 0; bounce < depth; bounce++)
+//     {
+//         // Find next path vertex and accumulate contribution
+//         // Intersect ray with scene
+//         HitInfo rec(world);
+//         bool hit = world.hit_objects(r, Interval(0.0001, infinity), rec);
+//     }
+// }
+
+
 Color PathTracer::trace_ray(const Ray &r, World &world, int depth)
 {
     // ZoneScoped;
@@ -24,15 +39,14 @@ Color PathTracer::trace_ray(const Ray &r, World &world, int depth)
         {
             total += (attenuation * trace_ray(scattered, world, depth - 1));
         }
-        // std::cout << total << "\n";
         return total;
     }
-    return Color::black;
+    // return Color::black;
 
     // blue sky color
-    // Eigen::Vector3f unit_direction = r.direction.normalized();
-    // auto t = 0.5 * (unit_direction.y() + 1.0);
-    // return (Color::white * (1.0 - t)  + Color(0.4, 0.6, 0.9) * t);
+    Eigen::Vector3f unit_direction = r.direction.normalized();
+    auto t = 0.5 * (unit_direction.y() + 1.0);
+    return (Color::white * (1.0 - t)  + Color(0.4, 0.6, 0.9) * t);
 
     // Vector3 unit_direction = Normalize(r.direction);
     // auto t = 0.5 * (unit_direction.y + 1.0);
