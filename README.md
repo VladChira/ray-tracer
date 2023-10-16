@@ -48,6 +48,9 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 <p align="center"><img src="./images/spheres&bunny.png" width="700"/></p>
 <p align="center">Ray tracing in One Weekend cover render with Stanford bunny and spherical area lights</p>
 
+<p align="center"><img src="./images/spherical_projection.png" width="700"/></p>
+<p align="center">A simple sphere with a diffuse, spherical mapped UV test texture</p>
+
 
 ## References
 - [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html), Peter Shirley. 2020

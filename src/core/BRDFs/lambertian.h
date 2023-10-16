@@ -4,6 +4,8 @@
 #include "multijittered.h"
 #include "pure_random.h"
 #include "jittered.h"
+#include "constant_texture.h"
+
 namespace raytracer
 {
     /**
@@ -14,20 +16,20 @@ namespace raytracer
     {
     public:
         float kd;
-        Color cd;
+        std::shared_ptr<Texture> cd;
 
     public:
         LambertianBRDF()
         {
             kd = 1;
-            cd = Color(0, 0, 0);
-            sampler = std::make_shared<Jittered>(200);
+            cd =  std::make_shared<ConstantTexture>(Color::black);
+            sampler = std::make_shared<Jittered>(50);
             sampler->map_samples_to_hemisphere(1);
         }
 
         Color f(const HitInfo &hi, const Eigen::Vector3f &wi, const Eigen::Vector3f &wo) const override
         {
-            return cd * kd * inv_pi;
+            return cd->evaluate(hi) * kd * inv_pi;
         }
 
         inline Eigen::Vector3f random_cosine_direction() const
@@ -54,12 +56,12 @@ namespace raytracer
             wi = (sp.x() * u + sp.y() * v + sp.z() * w).normalized();
 
             pdf = hi.normal.dot(wi) * inv_pi;
-            return cd * kd * inv_pi;
+            return cd->evaluate(hi) * kd * inv_pi;
         }
 
         Color rho(const HitInfo &hi, const Eigen::Vector3f &wo) const override
         {
-            return cd * kd;
+            return cd->evaluate(hi) * kd;
         }
 
         void set_kd(double _kd)
@@ -67,7 +69,7 @@ namespace raytracer
             kd = _kd;
         }
 
-        void set_cd(Color c)
+        void set_cd(std::shared_ptr<Texture> c)
         {
             cd = c;
         }

@@ -98,11 +98,6 @@ namespace raytracer
             return r != c.r && g != c.g && b != c.b;
         }
 
-        Color operator*(float s) const
-        {
-            return Color(r * s, g * s, b * s);
-        }
-
         Color operator*(const Color &c) const
         {
             return Color(r * c.r, g * c.g, b * c.b);
@@ -150,6 +145,16 @@ namespace raytracer
             return c;
         }
     };
+
+    inline Color operator* (float s, const Color &c)
+    {
+        return Color(s * c.r, s * c.g, s * c.b);
+    }
+
+    inline Color operator* (const Color &c, float s)
+    {
+        return Color(s * c.r, s * c.g, s * c.b);
+    }
 
     inline Color Clamp(Color c, float minVal, float maxVal)
     {

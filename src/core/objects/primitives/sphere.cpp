@@ -55,18 +55,20 @@ bool Sphere::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
         if (root < t_min || t_max < root)
             return false;
     }
-
+    Eigen::Vector3f n = (rec.p - center) / radius;
     rec.t = root;
     rec.p = tr.at(rec.t);
-    rec.normal = (rec.p - center) / radius;
+    rec.local_p = (rec.p - center) / radius;
+    rec.normal = n;
     rec.material = this->material;
 
-    Eigen::Vector3f outward_normal = (rec.p - center) / radius;
+    Eigen::Vector3f outward_normal = n;
     rec.set_face_normal(tr, outward_normal);
 
     if (transformed)
     {
         rec.p = transform->transform_point(rec.p);
+        rec.local_p = transform->transform_normal(rec.local_p); // what? why does the local shading point transforms like a normal?
         rec.normal = transform->transform_normal(rec.normal);
     }
     return true;

@@ -42,7 +42,6 @@ Color PathTracer::trace_ray(const Ray &r, World &world, int depth)
         return total;
     }
     // return Color::black;
-
     // blue sky color
     Eigen::Vector3f unit_direction = r.direction.normalized();
     auto t = 0.5 * (unit_direction.y() + 1.0);

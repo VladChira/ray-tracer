@@ -27,6 +27,8 @@
 #include "point_light.h"
 #include "emissive.h"
 #include "area_light.h"
+#include "image_texture.h"
+#include "spherical_mapping.h"
 
 using namespace raytracer;
 
@@ -83,11 +85,20 @@ void render_region(Eigen::Vector2f top_left, unsigned int width, unsigned int he
 
 void test()
 {
-    world.add_object(std::make_shared<Sphere>(Eigen::Vector3f(0, -1000, 0), 1000, std::make_shared<Matte>(0.7, Color::orange)));
-    world.add_object(std::make_shared<Sphere>(Eigen::Vector3f(0, 2, 0), 2, std::make_shared<Matte>(0.7, Color::blue)));
 
-    auto difflight = std::make_shared<Emissive>(4.0, Color::white);
-    auto light_rect = std::make_shared<Rectangle>(Eigen::Vector3f(3, 1, -2), Eigen::Vector3f(2, 0, 0), Eigen::Vector3f(0, 2, 0), difflight);
+    auto solid_color = std::make_shared<ConstantTexture>(Color(0, 0.427, 0.435));
+    auto material_ground = std::make_shared<Matte>(0.8, solid_color);
+    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-200, 0, -200), Eigen::Vector3f(400, 0, 0), Eigen::Vector3f(0, 0, 400), Eigen::Vector3f(0, 1.0, 0.0), material_ground));
+    
+    auto texture = std::make_shared<ImageTexture>(std::make_unique<SphericalMapping>(), "../src/uv_checker_texture.png");
+    Transform *t = new Transform;
+    *t = Transform::Scale(Eigen::Vector3f(1.0, 1.0, 1.0));
+    auto sphere = std::make_shared<Sphere>(Eigen::Vector3f(0, 1, 0), 1, std::make_shared<Matte>(1.0, texture));
+    sphere->set_transform(t);
+    world.add_object(sphere);
+
+    // auto difflight = std::make_shared<Emissive>(4.0, Color::white);
+    // auto light_rect = std::make_shared<Rectangle>(Eigen::Vector3f(3, 1, -2), Eigen::Vector3f(2, 0, 0), Eigen::Vector3f(0, 2, 0), difflight);
     // world.add_object(light_rect);
 
     // auto area_light = std::make_shared<AreaLight>();
@@ -101,8 +112,8 @@ void test()
     tracer = std::make_shared<PathTracer>();
 
     // Camera
-    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Eigen::Vector3f(26, 3, 6), Eigen::Vector3f(0, 2, 0));
-    camera->set_fov(20);
+    std::shared_ptr<Pinhole> camera = std::make_shared<Pinhole>(Eigen::Vector3f(26, 3, 6), Eigen::Vector3f(0, 1, 0));
+    camera->set_fov(10);
     camera->compute_pixel_size(image_width, image_height);
     camera->compute_uvw();
     world.set_camera(camera);
@@ -111,7 +122,7 @@ void test()
     sampler = std::make_shared<MultiJittered>(100);
 
     Console::GetInstance()->addLogEntry("Constructing BVH...");
-    auto bvh = std::make_shared<BVH_Node>(world.objects);
+    bvh = std::make_shared<BVH_Node>(world.objects);
     world.objects.clear();
     world.objects.push_back(bvh);
 
@@ -129,7 +140,7 @@ void knob_test()
 
     auto floor = std::make_shared<Matte>(1.0, Color(0.1, 0.1, 0.1));
 
-    auto outer = std::make_shared<Matte>(0.8, Color::red);
+    auto outer = std::make_shared<Matte>(0.8, Color::cyan);
 
     auto inner = std::make_shared<Matte>(1.0, Color::grey);
 
@@ -562,7 +573,7 @@ void multi_threaded_render()
     // Build a particular scene here
     Console::GetInstance()->addLogEntry("Building scene...");
 
-    knob_test();
+    test();
 
 
     if (sampler == nullptr)

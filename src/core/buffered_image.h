@@ -217,9 +217,14 @@ namespace raytracer
             }
         }
 
-        static raytracer::BufferedImage load_image(FILE *file)
+        static raytracer::BufferedImage *load_image(std::string filename)
         {
-            assert(file != NULL);
+            // assert(filename != NULL);
+
+            // Open the file
+            FILE *file = fopen(filename.c_str(), "r");//Victor says  :)
+
+            assert(file != nullptr);
 
             int ret = 0;
             spng_ctx *ctx = NULL;
@@ -258,14 +263,8 @@ namespace raytracer
 
             spng_ctx_free(ctx);
 
-            // Console::GetInstance()->appendLine("Image loaded succesfully: Width: " + std::to_string(ihdr.width) + "px Height: " + std::to_string(ihdr.height) + "px");
-            // printf("width: %u\n"
-            //        "height: %u\n"
-            //        "bit depth: %u\n"
-            //        "color type: %u - %s\n",
-            //        ihdr.width, ihdr.height, ihdr.bit_depth, ihdr.color_type, color_name);
-
-            return raytracer::BufferedImage(image, ihdr.width, ihdr.height);
+            BufferedImage *img = new BufferedImage(image, ihdr.width, ihdr.height);
+            return img;
         }
     };
 }

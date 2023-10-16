@@ -43,10 +43,22 @@ namespace raytracer
             }
         }
 
-        Matte(float kd, Color cd)
+        Matte(float kd, std::shared_ptr<Texture> cd)
         {
             this->diffuse_brdf.set_kd(kd);
             this->diffuse_brdf.set_cd(cd);
+            if (sampler == NULL)
+            {
+                sampler = std::make_shared<MultiJittered>(50);
+                sampler->map_samples_to_sphere();
+            }
+        }
+
+        Matte(float kd, Color cd)
+        {
+            auto tex = std::make_shared<ConstantTexture>(cd);
+            this->diffuse_brdf.set_kd(kd);
+            this->diffuse_brdf.set_cd(tex);
             if (sampler == NULL)
             {
                 sampler = std::make_shared<MultiJittered>(50);
@@ -86,7 +98,7 @@ namespace raytracer
                 scatter_direction = rec.normal;
             }
             scattered = raytracer::Ray(rec.p + 0.0001 * scatter_direction, scatter_direction);
-            attenuation = this->diffuse_brdf.cd * this->diffuse_brdf.kd;
+            attenuation = this->diffuse_brdf.cd->evaluate(rec) * this->diffuse_brdf.kd;
             return true;
         }
 

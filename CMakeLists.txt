@@ -33,6 +33,8 @@ include_directories(
     ./src/core/objects
     ./src/core/objects/primitives
     ./src/core/objects/meshes
+    ./src/core/textures
+    ./src/core/textures/mappings
     ./src/core/samplers
     ./src/core/cameras
     ./src/core/materials

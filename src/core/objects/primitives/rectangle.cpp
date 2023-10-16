@@ -77,6 +77,8 @@ bool Rectangle::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) con
     rec.t = t;
     rec.normal = normal;
     rec.p = p;
+    // rec.local_p.x() = ddota;
+    // rec.local_p.y() = ddotb;
     rec.material = material;
 
     if (transformed)
@@ -105,7 +107,8 @@ float Rectangle::pdf_solid_angle(const HitInfo &rec, const Eigen::Vector3f &wi) 
     Ray r(rec.p, wi);
     float t;
     HitInfo rec2(rec.world);
-    if (!hit(r, Interval(0, infinity), rec2)) return 0;
+    if (!hit(r, Interval(0, infinity), rec2))
+        return 0;
 
     // Convert from area to solid angle
     float pdf = (rec.p - rec2.p).squaredNorm() / (fabs(rec2.normal.dot(-wi)) * area);
