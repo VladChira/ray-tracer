@@ -613,6 +613,8 @@ void multi_threaded_render()
     timer.stop();
     Console::GetInstance()->addEmptyLine()->addSuccesEntry("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
 
+    RenderView::GetInstance()->finished = true;
+
     FILE *output_file = fopen("../output.png", "wb");
     int result = BufferedImage::save_image_png(*(RenderView::GetInstance()->image), output_file);
     fclose(output_file);

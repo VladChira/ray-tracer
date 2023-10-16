@@ -225,7 +225,8 @@ void GUI::update()
             ImGui::Text("Render progress");
             ImGui::ProgressBar(instance->get_progress(), ImVec2(-FLT_MIN, 0.0f));
 
-            instance->update_framebuffer();
+            if (!instance->finished)
+                instance->update_framebuffer();
             ImGui::Image((void *)(intptr_t)instance->texture_id, ImVec2(instance->image->get_width(), instance->image->get_height()));
         }
     }

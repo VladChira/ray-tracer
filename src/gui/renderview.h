@@ -28,6 +28,7 @@ public:
 
     bool init = false;
     bool display_render = false;
+    bool finished = false;
 
     RenderView(RenderView &other) = delete;
     void operator=(const RenderView &) = delete;
