@@ -23,12 +23,20 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 - [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader) for 3D meshes 
 
 ## Notes
-*TODO*
+
+#### Shading architecture
+I found pbrt's approach of letting the Material populate a BSDF then returning it too complicated for the basic tracer I'm implementing here, so I followed the architecture of [2], where the material returns the color at the hit point. This might perhaps break other rendering algorithms like MLT or SPPM - TBD.
+
+#### Area Lights
+The natural way of implementing area lights is to use the area form of the rendering equation, but this conflicts with multiple importance sampling. Therefore, I used the approach pbrt takes, that is converting the PDF from area to solid angle. 
+
+#### Textures
+There are many things to improve regarding image textures, mostly sampling and filtering. At the moment, I do not see a reason to go through the trouble of implementing this. I just store the original image, as-is, relying on the high AA samples to deal with any artifacts regarding texture sampling. Elliptical weighted average does sound like a really interesting algorithm that I'd love to implement one day.
 ## Roadmap
 - ~~3D Meshes~~
 - ~~Affine transformations~~
 - Multiple Importance Sampling
-- Textures
+- ~~Textures~~ (partially)
 - Environment Light
 - Fresnel dielectrics and conductors
 - Oren-Nayar diffuse model
@@ -53,8 +61,8 @@ Heavily based on *Ray Tracing In One Weekend*, *Ray Tracing from the ground up*,
 
 
 ## References
-- [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html), Peter Shirley. 2020
-- Ray Tracing from the Ground Up, Kevin Suffern. 2007. 
+1. [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html), Peter Shirley. 2020
+2. Ray Tracing from the Ground Up, Kevin Suffern. 2007. 
 
-- Matt Pharr, Wenzel Jakob & Greg Humphreys (2016). Physically Based Rendering: From Theory to Implementation (3rd ed.). Morgan Kaufmann Publishers Inc.
+3. Matt Pharr, Wenzel Jakob & Greg Humphreys (2016). Physically Based Rendering: From Theory to Implementation (3rd ed.). Morgan Kaufmann Publishers Inc.
 
