@@ -27,7 +27,6 @@ namespace raytracer
 
         Eigen::Vector3f at(const float t) const
         {
-            assert(t <= tMax);
             return origin + t * direction;
         }
     };

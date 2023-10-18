@@ -100,6 +100,7 @@ namespace raytracer
 
         Eigen::Vector3f transform_point(const Eigen::Vector3f &p)
         {
+            // std::cout << p << "\n\n";
             Eigen::Transform<float, 3, Eigen::Affine> affineTransform(m);
             return affineTransform * p;
         }
@@ -130,12 +131,12 @@ namespace raytracer
         Eigen::AlignedBox3f transform_bounding_box(const Eigen::AlignedBox3f &b)
         {
             // Initialize an array to store the transformed corner points
-            Eigen::Vector3f corners[7];
+            Eigen::Vector3f corners[8];
 
             // Transform each of the eight corners
             for (int i = 0; i < 8; ++i)
             {
-                Eigen::Vector3f corner = b.corner(static_cast<Eigen::AlignedBox3f::CornerType>(i));
+                Eigen::Vector3f corner = b.corner((Eigen::AlignedBox3f::CornerType)i);
                 corners[i] = this->transform_point(corner);
             }
 

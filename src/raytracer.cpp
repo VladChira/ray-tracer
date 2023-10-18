@@ -33,9 +33,9 @@
 using namespace raytracer;
 
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 1920;
+const int image_width = 700;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 300;
+const int samples_per_pixel = 20;
 const int max_depth = 10;
 
 // World
@@ -613,8 +613,6 @@ void multi_threaded_render()
     timer.stop();
     Console::GetInstance()->addEmptyLine()->addSuccesEntry("Render finished! Elapsed time: " + std::to_string(timer.elapsed_time_seconds()) + " seconds.");
 
-    RenderView::GetInstance()->finished = true;
-
     FILE *output_file = fopen("../output.png", "wb");
     int result = BufferedImage::save_image_png(*(RenderView::GetInstance()->image), output_file);
     fclose(output_file);
@@ -622,6 +620,11 @@ void multi_threaded_render()
         Console::GetInstance()->addSuccesEntry("Image saved to disk.");
     else
         Console::GetInstance()->addErrorEntry("Failed to save image to disk");
+    
+    // Wait a little to finish opengl buffer update
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    RenderView::GetInstance()->finished = true;
+
 }
 
 int main()
