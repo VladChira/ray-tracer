@@ -51,7 +51,7 @@ There are many things to improve regarding image textures, mostly sampling and f
 <p align="center">Modified Cornell Box showcasing affine transformations, lambertian diffuse, perfect specular reflection and simple transparency</p>
 
 <p align="center"><img src="./images/mori_knob_diffuse.png" width="700"></p>
-<p align="center">The Mori Knob (© Yasutoshi Mori) with lambertian diffuse material</p>
+<p align="center">The Mori Knob (© Yasutoshi Mori) with lambertian diffuse material and environment map</p>
 
 <p align="center"><img src="./images/spheres&bunny.png" width="700"/></p>
 <p align="center">Ray tracing in One Weekend cover render with Stanford bunny and spherical area lights</p>
