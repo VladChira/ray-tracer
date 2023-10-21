@@ -18,16 +18,21 @@ namespace raytracer
         {
             assert(mapping != nullptr);
 
-            Eigen::Vector2f mapped_point = mapping->map(rec.local_p, image->get_width(), image->get_height());
-            
-            if (mapped_point.x() > image->get_width() || mapped_point.y() > image->get_height() || mapped_point.x() < 0.0 || mapped_point.y() < 0.0)
+            Eigen::Vector2f mapped_point = mapping->map(rec);
+
+            // fit these points to the texture
+            Eigen::Vector2f texel(mapped_point.x() * (image->get_width() - 1), (1 - mapped_point.y()) * (image->get_height() - 1));
+
+            if ((int)texel.x() >= image->get_width() || (int)texel.y() >= image->get_height() || (int)texel.x() < 0.0 || (int)texel.y() < 0.0)
                 return Color::red;
-        
+
             // TODO this conversion should definetely not be done here
-            Color raw_color = image->get(mapped_point.x(), mapped_point.y()) / 255.0;
+            Color raw_color = image->get((int)texel.x(), (int)texel.y()) / 255.0;
+            // std::cout << raw_color << "\n";    
             Color texel_color = 0.012522878 * raw_color + 0.682171111 * raw_color * raw_color + 0.305306011 * raw_color * raw_color * raw_color;
             return texel_color;
         }
+
     private:
         std::unique_ptr<TextureMapping2D> mapping = nullptr;
         BufferedImage *image;

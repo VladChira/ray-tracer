@@ -8,6 +8,7 @@
 #include "utilities.h"
 #include "geometric_object.h"
 #include "hit_info.h"
+#include "image_texture.h"
 
 namespace raytracer
 {
@@ -28,6 +29,8 @@ namespace raytracer
         Eigen::AlignedBox3f aabb; // the AABB of the entire scene
 
         std::shared_ptr<Tracer> tracer;
+
+        std::shared_ptr<ImageTexture> hdri = nullptr;
 
         void add_object(std::shared_ptr<GeometricObject> object);
 

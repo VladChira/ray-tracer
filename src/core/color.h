@@ -146,12 +146,18 @@ namespace raytracer
         }
     };
 
-    inline Color operator* (float s, const Color &c)
+    inline std::ostream &operator<<(std::ostream &out, const Color &c)
+    {
+        out << c.r << " " << c.g << " " << c.b << "\n";
+        return out;
+    }
+
+    inline Color operator*(float s, const Color &c)
     {
         return Color(s * c.r, s * c.g, s * c.b);
     }
 
-    inline Color operator* (const Color &c, float s)
+    inline Color operator*(const Color &c, float s)
     {
         return Color(s * c.r, s * c.g, s * c.b);
     }

@@ -77,8 +77,6 @@ bool Rectangle::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) con
     rec.t = t;
     rec.normal = normal;
     rec.p = p;
-    // rec.local_p.x() = ddota;
-    // rec.local_p.y() = ddotb;
     rec.material = material;
 
     if (transformed)

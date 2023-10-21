@@ -45,14 +45,21 @@ namespace raytracer
 
         raytracer::Color get(unsigned int x, unsigned int y)
         {
-            assert(x >= 0 && x < this->height && y >= 0 && y < this->width);
+            if (x < width && y < height)
+            {
 
-            size_t position = (x * width + y) * 3;
-            raytracer::Color color;
-            color.r = image_data[position];
-            color.g = image_data[position + 1];
-            color.b = image_data[position + 2];
-            return color;
+                size_t position = (y * width + x) * 3;
+                raytracer::Color color;
+                color.r = image_data[position];
+                color.g = image_data[position + 1];
+                color.b = image_data[position + 2];
+                return color;
+            }
+            else
+            {
+                std::cerr << "Invalid image lookup. Retuned red\n";
+                return Color::red;
+            }
         }
 
         void set(unsigned int x, unsigned int y, raytracer::Color color)
@@ -222,7 +229,7 @@ namespace raytracer
             // assert(filename != NULL);
 
             // Open the file
-            FILE *file = fopen(filename.c_str(), "r");//Victor says  :)
+            FILE *file = fopen(filename.c_str(), "r"); // Victor says  :)
 
             assert(file != nullptr);
 

@@ -58,7 +58,6 @@ bool Sphere::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
     Eigen::Vector3f n = (rec.p - center) / radius;
     rec.t = root;
     rec.p = tr.at(rec.t);
-    rec.local_p = (rec.p - center) / radius;
     rec.normal = n;
     rec.material = this->material;
 
@@ -68,9 +67,16 @@ bool Sphere::hit(const raytracer::Ray &r, Interval t_range, HitInfo &rec) const
     if (transformed)
     {
         rec.p = transform->transform_point(rec.p);
-        rec.local_p = transform->transform_normal(rec.local_p); // what? why does the local shading point transforms like a normal?
         rec.normal = transform->transform_normal(rec.normal);
     }
+
+    float theta = acos(-rec.normal.y());
+    float phi = atan2(-rec.normal.z(), rec.normal.x()) + pi;
+
+    rec.u = phi / (2 * pi);
+    rec.v = theta / pi;
+    // std::cout << theta << " " << phi << " " << rec.u << " " << rec.v << "\n";
+
     return true;
 }
 

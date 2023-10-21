@@ -12,9 +12,9 @@ namespace raytracer
     {
     public:
         Eigen::Vector3f p;
-        Eigen::Vector3f local_p; // the hit point, but in the local coordinate system
         Eigen::Vector3f normal;
         float t;
+        float u, v;
         std::shared_ptr<Material> material;
         World &world;
         int depth = 0;
@@ -26,7 +26,8 @@ namespace raytracer
         void operator=(HitInfo &rec)
         {
             p = rec.p;
-            local_p = rec.local_p;
+            u = rec.u;
+            v = rec.v;
             normal = rec.normal;
             t = rec.t;
             material = rec.material;

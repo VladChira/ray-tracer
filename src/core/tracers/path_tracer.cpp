@@ -8,7 +8,7 @@ using namespace raytracer;
 // {
 //     Color L(0.0, 0.0, 0.0);
 //     Ray ray;
-    
+
 //     for (int bounce = 0; bounce < depth; bounce++)
 //     {
 //         // Find next path vertex and accumulate contribution
@@ -17,7 +17,6 @@ using namespace raytracer;
 //         bool hit = world.hit_objects(r, Interval(0.0001, infinity), rec);
 //     }
 // }
-
 
 Color PathTracer::trace_ray(const Ray &r, World &world, int depth)
 {
@@ -31,7 +30,6 @@ Color PathTracer::trace_ray(const Ray &r, World &world, int depth)
         Color total(0, 0, 0);
 
         total += rec.material->emitted(r, rec);
-        
 
         Ray scattered;
         Color attenuation;
@@ -41,11 +39,29 @@ Color PathTracer::trace_ray(const Ray &r, World &world, int depth)
         }
         return total;
     }
-    // return Color::black;
-    // blue sky color
-    Eigen::Vector3f unit_direction = r.direction.normalized();
-    auto t = 0.5 * (unit_direction.y() + 1.0);
-    return (Color::white * (1.0 - t)  + Color(0.4, 0.6, 0.9) * t);
+
+    if (world.hdri != nullptr)
+    {
+        Eigen::Vector3f unit_direction = r.direction.normalized();
+        unit_direction = Transform::RotateY(-10).transform_normal(unit_direction);
+        float theta = acos(-unit_direction.y());
+        float phi = atan2(-unit_direction.z(), unit_direction.x()) + pi;
+        float u = phi / (2 * pi);
+        float v = theta / pi;
+        HitInfo rec2(world);
+        rec2.u = u;
+        rec2.v = v;
+        return world.hdri->evaluate(rec2);
+    }
+    else
+    {
+        // return Color::black;
+
+        // blue sky color
+        Eigen::Vector3f unit_direction = r.direction.normalized();
+        auto t = 0.5 * (unit_direction.y() + 1.0);
+        return (Color::white * (1.0 - t)  + Color(0.4, 0.6, 0.9) * t);
+    }
 
     // Vector3 unit_direction = Normalize(r.direction);
     // auto t = 0.5 * (unit_direction.y + 1.0);

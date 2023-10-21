@@ -29,13 +29,14 @@
 #include "area_light.h"
 #include "image_texture.h"
 #include "spherical_mapping.h"
+#include "uv_mapping.h"
 
 using namespace raytracer;
 
 const auto aspect_ratio = 16.0 / 9.0;
-const int image_width = 700;
+const int image_width = 1920;
 const int image_height = static_cast<int>(image_width / aspect_ratio);
-const int samples_per_pixel = 20;
+const int samples_per_pixel = 300;
 const int max_depth = 10;
 
 // World
@@ -85,14 +86,15 @@ void render_region(Eigen::Vector2f top_left, unsigned int width, unsigned int he
 
 void test()
 {
+    world.hdri = std::make_shared<ImageTexture>(std::make_unique<UVMapping>(), "../src/hdri.png");
 
-    auto solid_color = std::make_shared<ConstantTexture>(Color(0, 0.427, 0.435));
-    auto material_ground = std::make_shared<Matte>(0.8, solid_color);
-    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-200, 0, -200), Eigen::Vector3f(400, 0, 0), Eigen::Vector3f(0, 0, 400), Eigen::Vector3f(0, 1.0, 0.0), material_ground));
-    
-    auto texture = std::make_shared<ImageTexture>(std::make_unique<SphericalMapping>(), "../src/uv_checker_texture.png");
+    // auto solid_color = std::make_shared<ConstantTexture>(Color(0, 0.427, 0.435));
+    // auto material_ground = std::make_shared<Matte>(0.8, solid_color);
+    // world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-200, 0, -200), Eigen::Vector3f(400, 0, 0), Eigen::Vector3f(0, 0, 400), Eigen::Vector3f(0, 1.0, 0.0), material_ground));
+
+    auto texture = std::make_shared<ImageTexture>(std::make_unique<UVMapping>(), "../src/checkerboard.png");
     Transform *t = new Transform;
-    *t = Transform::Scale(Eigen::Vector3f(1.0, 1.0, 1.0));
+    *t = Transform::Scale(Eigen::Vector3f(1.0, 1.5, 1.0));
     auto sphere = std::make_shared<Sphere>(Eigen::Vector3f(0, 1, 0), 1, std::make_shared<Matte>(1.0, texture));
     sphere->set_transform(t);
     world.add_object(sphere);
@@ -133,16 +135,18 @@ void test()
 
 void knob_test()
 {
+    world.hdri = std::make_shared<ImageTexture>(std::make_unique<UVMapping>(), "../src/hdri.png");
+
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     bool loaded = LoadObj("../models/mori.obj", attrib, shapes, materials);
 
-    auto floor = std::make_shared<Matte>(1.0, Color(0.1, 0.1, 0.1));
+    auto floor = std::make_shared<Matte>(1.0, Color(0.7, 0.7, 0.7));
 
-    auto outer = std::make_shared<Matte>(0.8, Color::cyan);
+    auto outer = std::make_shared<Matte>(0.5, Color::cyan);
 
-    auto inner = std::make_shared<Matte>(1.0, Color::grey);
+    auto inner = std::make_shared<Matte>(1.0, Color(0.3, 0.3, 0.3));
 
     if (loaded)
     {
@@ -189,7 +193,6 @@ void knob_test()
     RenderView::GetInstance()->display_render = true;
 }
 
-
 void cornell_box()
 {
     auto red = std::make_shared<Matte>(1.0, Color(.65, .05, .05));
@@ -212,12 +215,12 @@ void cornell_box()
     world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(780, 0, 0), Eigen::Vector3f(0, 0, 555), Eigen::Vector3f(0, 555, 0), green));
     world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-224, 0, 0), Eigen::Vector3f(0, 555, 0), Eigen::Vector3f(0, 0, 555), red));
 
-    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-224, 0, 0), Eigen::Vector3f(0, 0, 555), Eigen::Vector3f(1004, 0, 0), white)); // floor
+    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-224, 0, 0), Eigen::Vector3f(0, 0, 555), Eigen::Vector3f(1004, 0, 0), white));      // floor
     world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(780, 555, 555), Eigen::Vector3f(-1004, 0, 0), Eigen::Vector3f(0, 0, -555), white)); // ceiling
-    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-224, 0, 555), Eigen::Vector3f(0, 555, 0), Eigen::Vector3f(1004, 0, 0), white)); // back wall
+    world.add_object(std::make_shared<Rectangle>(Eigen::Vector3f(-224, 0, 555), Eigen::Vector3f(0, 555, 0), Eigen::Vector3f(1004, 0, 0), white));    // back wall
 
     // The wall in front of the camera, invisible to it but contributes to all other light computation
-    auto front_wall = std::make_shared<Rectangle>(Eigen::Vector3f(-224, 0, 0), Eigen::Vector3f(1004, 0, 0),Eigen::Vector3f(0, 555, 0), azure);
+    auto front_wall = std::make_shared<Rectangle>(Eigen::Vector3f(-224, 0, 0), Eigen::Vector3f(1004, 0, 0), Eigen::Vector3f(0, 555, 0), azure);
     front_wall->visible_to_camera = false;
     world.add_object(front_wall);
 
@@ -573,24 +576,22 @@ void multi_threaded_render()
     // Build a particular scene here
     Console::GetInstance()->addLogEntry("Building scene...");
 
-    test();
-
+    knob_test();
 
     if (sampler == nullptr)
     {
-         Console::GetInstance()->addErrorEntry("[Error] No sampler object found. Aborting render...");
-         return;
+        Console::GetInstance()->addErrorEntry("[Error] No sampler object found. Aborting render...");
+        return;
     }
 
     if (tracer == nullptr)
     {
-         Console::GetInstance()->addErrorEntry("[Error] No tracer object found. Aborting render...");
-         return;
+        Console::GetInstance()->addErrorEntry("[Error] No tracer object found. Aborting render...");
+        return;
     }
 
     if (bvh == nullptr)
         Console::GetInstance()->addWarningEntry("[Warning] No Bounding Volume Hierarchy found. Rendering performance will be severely affected!");
-
 
     Console::GetInstance()->addLogEntry("Rendering...");
     std::vector<std::thread> threads;
@@ -620,11 +621,10 @@ void multi_threaded_render()
         Console::GetInstance()->addSuccesEntry("Image saved to disk.");
     else
         Console::GetInstance()->addErrorEntry("Failed to save image to disk");
-    
+
     // Wait a little to finish opengl buffer update
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     RenderView::GetInstance()->finished = true;
-
 }
 
 int main()
